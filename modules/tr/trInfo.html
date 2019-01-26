@@ -1,0 +1,183 @@
+<div class="form">
+	<div style="border-left:4px solid #f2f2f2;margin-left: 150px;">
+		<div class="data widthAll" style="margin-top: 30px; margin-bottom: 10px;">
+			<div class="data_title" style="margin-top: 45px;">头像</div>
+			<img id="photo" src="images/headPortrait.png" />
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">申请人</div>
+			<div class="input" id="applyName"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">所属部门</div>
+			<div class="input" id="deptName"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">工号</div>
+			<div class="input" id="jobNumber"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">申请班级</div>
+			<div class="input" id="className"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">实训室</div>
+			<div class="input" id="trName"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">日期</div>
+			<div class="input" id="date"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">节次</div>
+			<div class="input" id="section"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">实训内容</div>
+			<div class="input" id="content"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">状态</div>
+			<div class="input" id="status"></div>
+		</div>
+		<div class="clear"></div>
+		<div id="approvalNodes"></div>
+		<div class="clear"></div>
+	</div>
+	<div class="formBtns" style="margin-left: 100px;margin-top: 20px;">
+		<input type="button" id="cancel" value="返回" class="bg_00b7ee"/>
+	</div>
+</div>
+<style type="text/css">
+	.data{
+		min-height: 30px;
+		margin: 0px;
+		padding: 0px;
+	}
+	.data_title{
+		width: 150px;
+		position: absolute;
+		text-align: right;
+		font-weight: bold;
+	}
+	.input{
+		border: none;
+		margin-left: 170px;
+		line-height: 30px;
+		height: auto;
+		margin-right: 20px;
+	}
+	#photo{
+		width: 100px;
+		height: 100px;
+		border-radius: 50px;
+		margin-left: 205px;
+	}
+	.form_line{
+		padding-top:10px;
+		margin-bottom:10px;
+	}
+</style>
+<script>
+	(function() {
+		function enumStatus(n){ 
+			var rc = "";
+			switch(n){
+				case 1:
+					rc = "<font style='color:#666666'>待使用</font>";
+					break;
+				case 2:
+					rc = "<font style='color:#00b7ee'>已撤销</font>";
+					break;
+				case 3:
+					rc = "<font style='color:#ff6600'>未使用</font>";
+					break;
+				case 4:
+					rc = "<font style='color:#888888'>已使用</font>";
+					break;
+				default:
+					break;
+			}
+			return rc;
+		}
+		function ApprovalResultEnum(n,bool){
+			var rc = "";
+			switch(n){
+				case 1:
+					rc = !bool ? "待使用" : "<span style='padding:3px 8px; border-radius:15px;background-color:#666666;color:#fff;margin-right:5px;'>...</span><span style='background-color:#666666;color:#fff;border-radius:3px;padding:2px 12px;'>待使用</span>";
+					break;
+				case 2:
+					rc = !bool ? "<font style='color:#00b7ee'>已撤销</font>" : "<span style='padding:3px 8px; border-radius:15px;background-color:#00b7ee;color:#fff;margin-right:5px;'>√</span><span style='background-color:#00b7ee;color:#fff;border-radius:3px;padding:2px 12px;'>已撤销</span>";
+					break;
+				case 3:
+				rc = !bool ? "<font style='color:#ff6600'>未使用</font>" : "<span style='padding:3px 8px; border-radius:15px;background-color:#ff6600;color:#fff;margin-right:5px;'>√</span><span style='background-color:#ff6600;color:#fff;border-radius:3px;padding:2px 12px;'>未使用</span>";
+					break;
+				case 4:
+				rc = !bool ? "<font style='color:#888888'>已使用</font>" : "<span style='padding:3px 8px; border-radius:15px;background-color:#888888;color:#fff;margin-right:5px;'>√</span><span style='background-color:#888888;color:#fff;border-radius:3px;padding:2px 12px;'>已使用</span>";
+					break;
+				default:
+					break;
+			}
+			return rc;
+		}
+		//绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+		var from = {
+			id : Y.getUrlParam("id"),
+			photo: $("#photo"),
+			applyName : $("#applyName"),
+			deptName: $("#deptName"),
+			jobNumber : $("#jobNumber"),
+			className: $("#className"),
+			trName : $("#trName"),
+			date: $("#date"),
+			section : $("#section"),
+			content : $("#content"),
+			status:$("#status")
+		};
+		//修改的时候根据id加载数据
+		if (from.id) {
+			Y.ajax(bpmIP + "/api/tr/v0.1/" + from.id,function(res){
+				for (var key in from) {
+                    if (res[key] != undefined && key != "id") {
+                        var value = res[key];
+                        if(key == "photo") {
+                            from[key].attr("src", value);
+                        }else if(key == "status"){
+                        	from[key].html(enumStatus(value));
+                        }else if(key == "section"){//节次
+                        	var v = "";
+                        	for(var i = 0; i < value.length; i++){
+                        		v += "<span style='margin-right:10px;'>第" + value[i] + "节</span>";
+                        	}
+                            from[key].html(v);
+                        }else{
+                        	from[key].html(value);
+                        }
+                    }
+                }
+                var approvalNodes = [{status:res.status,remark:res.remark,time:res.time,response:res.response}];
+                var nodes = "";
+                for(var i = 0; i < approvalNodes.length; i ++){
+                	var node = "<div><span style='position:absolute;margin-left:-15px;margin-top:10px;'>" + ApprovalResultEnum(approvalNodes[i].status,true) + "</span><div class=\"form_line\"><div style='width:150px; text-align:right;margin:10px 0px;color:#00B7EE;font-weight:bold;'></div></div>";
+                	node += "<div class=\"data widthAll\">";
+                	node += "<div class=\"data_title\">责任人</div>";
+                	node += "<div class=\"input\">" + approvalNodes[i].response + "</div></div>";
+                	node += "<div class=\"data widthAll\">";
+                	node += "<div class=\"data_title\">审批理由</div>";
+                	node += "<div class=\"input\">" + approvalNodes[i].remark + "</div></div>";
+                	node += "<div class=\"data widthAll\">";
+                	node += "<div class=\"data_title\">时间</div>";
+                	node += "<div class=\"input\">" + (approvalNodes[i].time ? approvalNodes[i].time : "") + "</div></div>";
+                	node += "<div class='clear'></div>";
+                	nodes += node;
+                }
+                $("#approvalNodes").html(nodes);
+			},{data:{id:from.id,ril:"XL"}})
+		}
+		//取消
+		$("#cancel").click(function(){
+			Y.back(-1);
+		});
+
+	})()
+</script>

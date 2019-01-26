@@ -1,0 +1,154 @@
+<form class="form">
+    <div class="form_title"><b>推送设置</b></div>
+    <div class="formBox">
+        <div class="pushConfigTop">
+            <div class="pushConfigTopSpans"><span class="pushConfigTopSpan">红点</span><span class="pushConfigTopSpan">通知</span><span class="pushConfigTopSpan">短信</span><span class="pushConfigTopSpan">微信</span></div>
+        </div>
+        <div class="pushConfigBox" id="upModules">
+            <div class="pushConfigBoxTop">
+                <span>控制面板</span>
+                <font class="tip">温馨提示：全部功能默认有推送功能；双击图标进行停用操作，再双击取消停用操作，停用后取消推送功能；被锁定功能不能进行停用操做。</font>
+            </div>
+            <div class="pushConfigBoxCenter"></div>
+        </div>
+    </div>
+</form>
+<style>
+    .pushConfigTop{
+        text-align: right;
+        height: 40px;
+        line-height: 40px;
+        overflow: hidden;
+    }
+    .pushConfigTopSpans{
+        float: left;
+    }
+    .pushConfigTopSpan{
+        padding: 8px 30px;
+        cursor: pointer;
+        background: #f8f8f8;
+        border-left: 1px solid #e7e7e7;
+        border-top: 1px solid #e7e7e7;
+        border-bottom: 1px solid #e7e7e7;
+        color: #333;
+        font-size: 16px;
+    }
+    .pushConfigTopSpan:last-child{
+        border-right: 1px solid #e7e7e7;
+    }
+    .pushConfigTopSpanActive{
+        background: #75cd1f;
+        color: #fff;
+        border-color: #75cd1f;
+    }
+    .pushConfigTop .bg_eeeeee{
+        padding: 10px 40px;
+        cursor: pointer;
+    }
+    .pushConfigBox{
+        background: #f8f8f8;
+        border: 1px solid #e4e4e4;
+        margin-top: 20px;
+        display: none;
+    }
+    .pushConfigBoxTop{
+        height: 70px;
+        line-height: 70px;
+        border-bottom: 1px solid #e4e4e4;
+        padding: 0px 20px;
+        overflow: hidden;
+    }
+    .pushConfigBoxTop .btn{
+        color: #75cd1f;
+        border: 1px solid #75cd1f;
+        border-radius: 8px;
+        background: #fff;
+        padding: 2px 10px;
+        cursor: pointer;
+        margin-left: 60px;
+    }
+    .pushConfigBoxTop .tip{
+        color: #999999;
+        font-size: 12px;
+        margin-left: 30px;
+    }
+    .pushConfigBoxCenter{
+        margin: 20px;
+    }
+    .positionBox{
+        height: 1px;
+    }
+    .position{
+        position: relative;
+        width: 56px;
+        height: 56px;
+        text-align: center;
+        line-height: 56px;
+        background: rgba(0,0,0,0.5);
+        color: #fff;
+        font-size: 12px;
+        top:-55px;
+        left: 10px;
+        cursor:pointer;
+    }
+    .tipCenter{
+        text-align:center;
+        line-height:90px;
+        color:#ccc;
+    }
+</style>
+<script>
+    (function() {
+        var spans = $('.pushConfigTopSpan');
+        var active = 0;
+        spans.each(function(i){
+            $(this).click(function(){
+                if(active != i) getDetail(i);
+            })
+        })
+        getDetail();
+        function getDetail(n){
+            spans.eq(active).removeClass('pushConfigTopSpanActive');
+            active = n || 0;
+            spans.eq(active).addClass('pushConfigTopSpanActive');
+            var pushType = 'reddot';
+            pushType = n == 1 ? 'notice' : pushType;
+            pushType = n == 2 ? 'sms' : pushType;
+            pushType = n == 3 ? 'wechat' : pushType;
+            $('#upModules .pushConfigBoxCenter').html('<div class="tipCenter">正在获取...</div>');
+            Y.ajax(pushIP + '/api/pusher/v0.1/mgt/config/detail',function(ret){
+                if(ret && !ret.errorMsg){
+                    if(ret.upList){
+                        $('#upModules').show();
+                        var html = '';
+                        for(var i = 0; i < ret.upList.length; i ++) {
+                            html += '<div class="personData"><div class="icon_img" style="background-image: none;cursor:pointer;"><img src="{androidIcon}" width="52" height="52" style="margin-top: 0px;" />{_status}</div><div>{name}</div><div style="color:#ccc;font-size:12px;">{shortDesc}</div></div>'._eval(ret.upList[i],'',function(s,o){
+                                return s.replace('{_status}',function(){
+                                    return o.adminPushStatus == 3 ? '<div class="positionBox"><div class="position">已锁定</div></div>' : (o.schoolPushStatus == 2 ? '<div class="positionBox qiyong"><div class="position">已停用</div></div>' : '');
+                                })
+                            });
+                        }
+                        if(html) {
+                            html += '<div class="clear"></div>';
+                        }else{
+                            html = '<div class="tipCenter">暂无相关数据...</div>';
+                        }
+                        $('#upModules .pushConfigBoxCenter').html(html);
+                        $('#upModules .icon_img').each(function(i){
+                            $(this).dblclick(function(){
+                                if(ret.upList[i].adminPushStatus == 1) changeStatus({code:ret.upList[i].code,schoolId:schoolId,pushType:pushType,schoolPushStatus:ret.upList[i].schoolPushStatus == 2 ? 1 : 2})
+                            })
+                        })
+                    }
+                }else{
+                    Y.alertx('获取推送模块配置失败,' + ret.errorMsg);
+                }
+            },{data:{pushType:pushType}})
+        }
+        function changeStatus(data,fn){
+            Y.ajax(pushIP + '/api/pusher/v0.1/mgt/config',function(ret){
+                if(ret && ret.result) getDetail(active);
+            },{meth:'PUT',data:data,dataJson:false})
+        }
+    })()
+</script>

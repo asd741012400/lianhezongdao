@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="mqq-bottom-ad" content="no">
+<meta name="format-detection" content="telephone=no, email=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>新闻预览</title>
+	<style>
+		body{
+			padding:0px;
+			margin:0px;
+			background: #f8f8f8;
+			font-family: 'Microsoft YaHei', '宋体', Arial, sans-serif;
+		}
+		img{
+			max-width: 100%;
+		}
+		#title{
+			font-size: 20px;
+			font-weight: bold;
+			padding: 10px;
+		}
+		#content{
+			padding:10px;
+			min-height: 200px;
+		}
+        .s-tit{
+            font-size: 14px;
+            color: #999;
+            padding:0px 10px;
+        }
+        #group{
+            margin-top:5px;
+        }
+	</style>
+</head>
+<body>
+	<div id="wz" style="margin:0 auto;background: #fff;overflow: auto;">
+		<div id="title"></div>
+		<div class="s-tit"><span id="time"></span><span style="margin-left: 5px;" id="source"></span></div>
+        <div class="s-tit" id="group"></div>
+		<div id="content"></div>
+	</div>
+	<div id="downLoads"></div>
+</body>
+<script type="text/javascript">
+	window.showDownLoad = function(isPreview){
+		showRichEditer('content','downLoads');
+	}
+	showDownLoad();
+	function showRichEditer(contentId,downLoadsId,imgFile){
+        var div = document.getElementById(contentId).getElementsByTagName("div"),n = 0,imgSrc = "filetype/";
+        var style = document.createElement('div');
+        imgFile = imgFile || imgSrc;
+        style.innerHTML = '<style>#' + contentId + ' img{max-width:100%} .downLoadData{display: none;} .downLoadDiv{padding:5px;border-top:1px solid #e4e4e4;display: block;text-decoration: none;color: #666;background: #fff;} .downLoadImg{float: left;margin-right: 5px;margin-top: 5px;width: 20px;height: 20px;} .downLoadName{height: 21px;overflow: hidden;} .downLoadSize{font-size: 12px;color: #ccc;}</style>';
+        document.getElementById(contentId).appendChild(style);
+        if(downLoadsId){
+            var divs = '';
+            for(var i = 0; i < div.length; i ++){
+                if(div[i].className.indexOf("downLoadData") > -1) {
+                    divs += div[i].innerHTML.replace(imgSrc,imgFile);
+                    n ++;
+                }
+            }
+            if(divs && n > 0){
+                div = document.createElement("div");
+                div.style.borderBottom = "1px solid #e4e4e4";
+                div.innerHTML = "<div style='color:#999;font-size:12px;margin:10px;'>附件(共" + n + "个)</div>" + divs;
+                document.getElementById(downLoadsId).appendChild(div);
+            }
+        }
+    }
+</script>
+</html>

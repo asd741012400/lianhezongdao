@@ -1,0 +1,160 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="enrollId" type="text" placeholder="选择招录信息"/>
+            <input class="input" id="majorId" type="text" placeholder="专业"/>
+            <input class="input" id="_admit" type="text" placeholder="状态"/>
+            <input class="input" id="_sex" type="text" placeholder="性别"/>
+            <input class="input" id="keyword" type="text" placeholder="姓名/身份证/电话"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input id="admit" type="button" value="录取" class="bg_eeeeee"/>
+        <!--<input id="addBtn" type="button" value="+ 新增" class="bg_eeeeee"/>-->
+        <input id="downLoadDetailExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+        <div id="enrollTotal"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    #enrollTotal{
+        text-align: left;
+        padding-top: 32px;
+        color: #59a9e1;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "enroll_studentList", pageNum: 1};
+        var config = [
+            {CH: "招生标题", EN: "enrollName"},
+            {CH: "入学年份", EN: "rxnd"},
+            {CH: "姓名", EN: "name"},
+            {CH: "性别", EN: "sex", Option: {"0": "女", "1": "男"},OptionExcel:{"0":"女","1":"男"}},
+            {CH: "报读专业", EN: "majorName"},
+            {CH: "手机号码", EN: 'phone'},
+            {CH: "身份证号", EN: "cardId"},
+            {CH: "报名号", EN: "enrollNum"},
+            {CH: "来源", EN: "teacherName"},
+            {CH: "录取状态", EN: "admit", Option: {"0": "<div class='reportStatu'><span style='color:#ff0000;'>未录取</span><div style='color:#ccc;font-size:12px;'>(双击录取)</div></div>", "1": "<div class='reportStatu'>已录取<div style='color:#ccc;font-size:12px;'>(双击取消)</div></div>"},OptionExcel:{"0":"未录取","1":"已录取"},
+            },
+            {CH: "自定义内容", EN: "customAttKey",FormExtMap:"customAttValue",Hide:true}
+        ];
+        Y.ajax(ucIP + "/api/uc/v0.1/enroll/template",function(ret){
+            if(ret && !ret.errorMsg){
+                var active = '';
+                for(var i = 0; i < ret.rows.length; i ++) if(ret.rows[i].enable) active = ret.rows[i];
+                //option.enrollId = active.id;
+                var enrollId = new Y.OnlySelectBox($("#enrollId"),{
+                    vKey:"id",
+                    sKey:"title",
+                    SelectBox:{
+                        showNum:false,
+                        paramet:{},
+                        url:ucIP + "/api/uc/v0.1/enroll/template",
+                        dataString:"<div class='autoList' vaule='{id}'><span>{title}</span></div>"
+                    }
+                });
+                //enrollId.val(active.id,active.title);
+                var list = new Y.List(ucIP + "/api/uc/v0.1/enroll/student", option, config);
+                list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span><span class=\"listLook bg_dfba49\">查看</span>";
+                list.checkBtn = true;
+                list.listNumTitle = "";
+                list.load(function () {
+                    $('#enrollTotal').html('面试通过：{enrollTotal}人，男生{male}人，女生{female}人'._eval(list.data));
+                    //新生隐藏编辑按钮
+                    $("tr").each(function(i){
+                        if(i > 0 && list.data.rows.length > 0){
+                            var data = list.data.rows[i - 1];
+                            if(data.admit){
+                                $(this).find('.listEdit,.listDelete').hide();
+                                //查看
+                                $(this).find(".listLook").click(function(){
+                                    Y.open({url:"modules/enroll/studentEdit.html",title:"招录信息编辑",data:{id:data.id,enrollId:data.enrollId,readOnly:true}});
+                                })
+                            }else{
+                                $(this).find('.listLook').hide();
+                                //修改
+                                $(this).find(".listEdit").click(function(){
+                                    Y.open({url:"modules/enroll/studentEdit.html",title:"招录信息编辑",data:{id:data.id,enrollId:data.enrollId}});
+                                })
+                                //删除
+                                $(this).find(".listDelete").click(function(){
+                                    list.deleteFn([data],ucIP + "/api/uc/v0.1/enroll/student/","id","招录",{vKey:"name",obj:$(this)});
+                                })
+                            }
+
+                            //修改录取状态
+                            $(this).find(".reportStatu").dblclick(function(){
+                                var _this = this;
+                                var checked = data.admit != 1;
+                                Y.confirmx("确定该生" + (checked ? "已录取？" : "未录取？") + "请谨慎操作！",function(){
+                                    Y.ajax(ucIP + "/api/uc/v0.1/enroll/student/admit/" + data.id + "/single",function(res){
+                                        if(res.result){
+                                            list.load();
+                                            Y.alertx("修改录取状态成功！",'',{toast:true,height:70});
+                                        }else{
+                                            Y.alertx("修改失败，" + res.errorMsg,'',{toast:true,height:70});
+                                        }
+                                    },{meth:'PUT',data:data,dataJson:false})
+                                })
+                            })
+                        }
+                    })
+                });
+                //批量删除
+                $("#deleteBtn").click(function(){
+                    list.deleteFn(list.getChecked(),ucIP + "/api/uc/v0.1/enroll/student/","id","招录",{vKey:"name"});
+                })
+                //录取
+                $('#admit').click(function(){
+                    var admits = [],checkeds = list.getChecked();
+                    for(var i = 0; i < checkeds.length; i ++){
+                        if(!checkeds[i].admit) {
+                            admits.push(checkeds[i].id);
+                        }
+                    }
+                    if(admits.length > 0){
+                        Y.confirmx('确定录取，请谨慎操作！',function(){
+                            Y.ajax(ucIP + '/api/uc/v0.1/enroll/student/admit',function(ret){
+                                Y.alertx(ret.errorMsg ? '操作失败，' + ret.errorMsg : '操作成功！',function(){
+                                    if(ret.result) list.reLoad();
+                                });
+                            },{meth:'PUT',data:{ids:admits.join(',')}})
+                        })
+                    }else{
+                        Y.confirmx('请至少选择一项未录取')
+                    }
+                })
+//                //新增
+//                $("#addBtn").click(function(){
+//                    Y.open({url:"modules/enroll/studentEdit.html",title:"新增招录",data:{enrollId:enrollId.val()}});
+//                })
+                $("#downLoadDetailExcel").click(function() {
+                    if (enrollId.val() == '') {
+                        Y.alertx("请先选择一个招录信息");
+                        return false;
+                    }
+                    var sex = list.paramet.sex||'';
+                    var admit = list.paramet.admit||'';
+                    var url = ucIP + "/api/uc/v0.1/enroll/student/export?" + "schoolId=" + schoolId + "&enrollId=" + enrollId.val() + "&majorId=" + majorId.val() + "&sex=" + sex + "&admit=" + admit  + "&keyword=" + $('#keyword').val() + "&exportType=2";
+                    Y.download(url);
+                })
+                var majorId = new Y.OnlySelectBox($("#majorId"),Y.getSelectBox('major'));
+                //搜索
+                var listSearch = new Y.ListSearch(list,{
+                    keyword:$('#keyword'),
+                    enrollId:enrollId,
+                    majorId:majorId,
+                    admit:new Y.Select($('#_admit'),['未录取','录取']),
+                    sex:new Y.Select($('#_sex'),['女','男'])
+                });
+                }
+            },{data:{pageSize:10000}})
+    })()
+</script>

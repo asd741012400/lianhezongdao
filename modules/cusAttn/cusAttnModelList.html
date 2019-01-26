@@ -1,0 +1,37 @@
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    .ewm{
+        width: 50px;
+        height: 50px;
+        overflow: hidden;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "cusAttnModelList", pageNum: 1};
+        var config = [
+            {CH: "考勤模块名称", EN: "name"},
+            {CH: "应用类型", EN: 'userType',Option:{'1':'学生','2':'教师','3':'学生和教师'},OptionExcel:{'1':'学生','2':'教师','3':'学生和教师'}},
+            {CH: "考勤类型", EN: "type",Option:{'1':'通用'},OptionExcel:{'1':'通用'}}
+        ];
+        var list = new Y.List(eschoolIP + "/api/cusAttn/v0.1/list", option, config);
+        list.btns = "<span class=\"listLook bg_dfba49\">查看</span>";
+        list.listNumTitle = "序号";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //查看
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/cusAttn/recordList.html",title:data.name + " 考勤详情",showTitle:true,data:{id:data.id,rules:data.rules}});
+                    })
+                }
+            })
+        });
+    })()
+</script>

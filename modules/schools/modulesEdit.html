@@ -1,0 +1,144 @@
+<form class="form">
+    <div class="form_title"><b>模块信息编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width100"><div class="data_title">上传图标</div>
+            <div style="margin-left: 30px;float: left;">
+                <div style="text-align: center;margin-bottom: 5px">ios图标</div>
+                <div id="data-iosIcon" type="img"></div>
+            </div>
+            <div style="margin-left: 30px;float: left;">
+                <div style="text-align: center;margin-bottom: 5px">安卓图标</div>
+                <div id="data-androidIcon" type="img"></div>
+            </div>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b class="red">*</b>模块名称</div>
+            <span class="data_error">模块名称不能为空</span><input class="input" id="data-name" type="text" placeholder="请填写模块名称"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title">模块描述</div>
+            <span class="data_error">模块描述不能为空</span><input class="input" id="data-description" type="text" placeholder="请填写模块描述"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">模块投放</div>
+            <span id="data-accountTypeSupport" type="checkbox"><input type="checkbox" value="2" />教师端<input type="checkbox" value="1" style="margin-left: 10px;" />学生端<input type="checkbox" value="3" style="margin-left: 10px;" />家长端</span>
+        </div>
+        <div class="data width50">
+            <div class="data_title">推送方式</div>
+            <span id="data-pushType" type="checkbox"><input type="radio" name="pushType" value="reddot" />红点<input name="pushType" type="radio" value="notice" style="margin-left: 10px;" />系统<input type="checkbox" value="sms" style="margin-left: 10px;" />短信<input type="checkbox" value="wechat" style="margin-left: 10px;" />微信</span>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b class="red">*</b>模块类型</div>
+            <span id="data-linkType" type="radio"><input type="radio" value="1" checked/>原生<input type="radio" value="2"/>HTML5</span><input class="input" placeholder="请输入链接目标" id="data-linkTarget" style="margin-left: 10px;" type="text" />
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b class="red">*</b>模块编码</div>
+            <span class="data_error">模块编码不能为空</span><input class="input" id="data-code" type="text" placeholder="请填写模块编码"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title">特性备注</div>
+            <span class="data_error">特性备注不能为空</span><input class="input" id="data-shortDesc" type="text" placeholder="请填写特性备注"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title">功能状态</div>
+            <span id="data-status" type="radio"><input type="radio" value="1" checked/>上架<input type="radio" value="2"/>下架</span>
+        </div>
+        <div class="data widthAll">
+            <div class="data_title">投放学校（不选为全部投放）</div>
+            <div id="data-schoolId"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    #data-iosIcon{
+        width: 93px;
+        height:93px;
+        font-size:12px;
+    }
+    #data-iosIcon b,#data-androidIcon b{
+       font-size: 40px;
+       font-weight: normal;
+       line-height: 30px;
+    }
+    #data-iosIcon img{
+        width: 93px;
+    }
+    #data-androidIcon{
+        width: 64px;
+        height:64px;
+        font-size:12px;
+    }
+    #data-androidIcon img{
+        width: 64px;
+    }
+    .personData{
+        line-height: 15px;
+    }
+</style>
+<script>
+    (function() {
+
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        Y.qiNiouKey(function(upladArgs){
+            var fromConfig = {
+                moduleId : Y.getUrlParam("id"),
+                iosIcon : {o:new Y.Img($("#data-iosIcon"), "<div style='cursor:pointer; border:1px dashed #e3e3e3; height:90px; width:90px;text-align:center; color:#f1f1f1; margin-left:25px;margin-top:10px;'><b>+</b><br />上传图标<br />186*180</div>",{width:186,height:180},upladArgs)},
+                androidIcon : {o:new Y.Img($("#data-androidIcon"), "<div style='cursor:pointer; border:1px dashed #e3e3e3; height:90px; width:90px;text-align:center; color:#f1f1f1; margin-left:25px;margin-top:10px;'><b>+</b><br />上传图标<br />64*64</div>",{width:64,height:64},upladArgs)},
+                name : {
+                    o:$("#data-name"),
+                    e:"blur",
+                    f:function(v){
+                        if (v == "") {
+                            return [false,"模块名称不能为空"];
+                        } else {
+                            return [true];
+                        }
+                    }
+                },
+                description : {o:$("#data-description")},
+                accountTypeSupport : {o:new Y.Checkbox($("#data-accountTypeSupport input"))},
+                pushType : {o:new Y.Checkbox($("#data-pushType input"))},
+                linkType : {o:new Y.Radio($("#data-linkType input"))},
+                linkTarget : {o:$("#data-linkTarget")},
+                code : {
+                    o:$("#data-code"),
+                    e:"blur",
+                    f:function(v){
+                        if (v == "") {
+                            return [false,"模块编码不能为空"];
+                        } else {
+                            return [true];
+                        }
+                    }
+                },
+                shortDesc : {o:$("#data-shortDesc")},
+                status : {o:new Y.Radio($("#data-status input"))},
+                schoolId:{
+                    o:new Y.AnySelectBox($("#data-schoolId"),$("#data-schoolId").next(),{
+                        idKey:"schoolId",
+                        valueString:"<div schoolId='{schoolId}' class='personData'><div class='icon_img' imgUrl='{logo}'><img src='images/schoolLogs.png' /></div><div>{name}</div></div>",
+                        SelectBox:{
+                            paramet:{pageNum:1,pageSize:10,key:"name"},
+                            url:ucIP + "/api/uc/v0.1/schools",
+                            dataString:"<div class='autoList' vaule='{code}'>{has_schoolId}<b class='listStyle_cicle icon_img' imgUrl='{logo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>编码 {code}</span></div>"
+                        }
+                    })
+                }
+            }
+            var from = new Y.From(fromConfig,"moduleId",{getURL:eschoolIP + "/api/app/v0.1/modules/{moduleId}/detail",postURL:eschoolIP + "/api/app/v0.1/modules",putURL:eschoolIP + "/api/app/v0.1/modules/{moduleId}",title:"提交功能模块信息"});
+            //提交
+            $("#submit").click(function(){
+                from.submit($(this));
+            })
+            //取消
+            $("#cancel").click(function(){
+                Y.back(-1);
+            });
+        })
+    })()
+</script>

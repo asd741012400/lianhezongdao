@@ -1,0 +1,45 @@
+<form class="form">
+    <div class="form_title"><b>配置项编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width100">
+        <div class="data_link"><b class="red">*</b>值</div>
+        <span class="data_error"></span><textarea class="input" style="height: 60px;" id="data-value" type="text" placeholder="请填写配置值"></textarea>
+    </div>
+    <div class="data width100">
+        <div class="data_link">描述</div>
+        <span class="data_error"></span><input class="input" id="data-des" type="text" placeholder="请填写描述"/>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        var fromConfig = {
+            fields : Y.getUrlParam("id") || new Date().only(),
+            value : {
+                o:$("#data-value"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"值不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            des:{o:$('#data-des')},
+            type:2
+        }
+        var from = new Y.From(fromConfig,"fields",{getURL:eschoolIP + "/api/cms/config/2/fields/{fields}/detail",postURL:eschoolIP + "/api/cms/config",putURL:eschoolIP + "/api/cms/config",title:"提交配置",dataJson:false});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        })
+    })()
+</script>

@@ -1,0 +1,70 @@
+<form class="form">
+    <div class="form_title"><b>首页轮播编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>名称</div>
+        <span class="data_error">名称不能为空</span><input class="input" id="data-title" type="text" placeholder="请填写名称"/>
+    </div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>首页轮播图</div>
+        <div id="data-photoUrl" type="img"></div>
+    </div>
+    <div class="data width50">
+        <div class="data_title">权重</div>
+        <span class="data_error"></span><input class="input" id="data-sort" type="number" placeholder="请填写名称"/>
+    </div>
+    <div class="data width100">
+        <div class="data_title">类型</div>
+        <span class="data_error"></span>
+        <span id="data-type" type="radio"><input type="radio" value="3" id="type_3" checked /><label for="type_3">PC端</label><input type="radio" id="type_4" value="4" /><label for="type_4">手机端</label></span>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        Y.config(function(){
+            var id = Y.getUrlParam("id"),imgEditConfig = Y.configs.imgEditConfig.carousel;
+            Y.qiNiouKey(function(upladArgs){
+                var fromConfig = {
+                    id : id,
+                    title : {
+                        o:$("#data-title"),
+                        e:"blur",
+                        f:function(v){
+                            if (v == "") {
+                                return [false,"标题不能为空"];
+                            } else {
+                                return [true];
+                            }
+                        }
+                    },
+                    type:1,
+                    status:1,
+                    photoUrl : {
+                        o:new Y.Img($("#data-photoUrl"), "<div style='cursor:pointer; width:" + imgEditConfig.width + "px;min-height:" + imgEditConfig.height + "px; line-height:" + imgEditConfig.height + "px;text-align:center; color:#ccc; background:#F9F9F9;'>本地上传</div>",imgEditConfig,upladArgs),
+                        f:function(v){
+                            if (v == "") {
+                                return [false,"请选择轮播图",true];
+                            } else {
+                                return [true];
+                            }
+                        }
+                    },
+                    sort:{o:$("#data-sort")}
+                }
+                var from = new Y.From(fromConfig,"id",{getURL:eschoolIP + "/api/cms/mgt/link/1/v0.1/{id}/detail",postURL:eschoolIP + "/api/cms/mgt/link/1/v0.1",putURL:eschoolIP + "/api/cms/mgt/link/1/v0.1/{id}",title:"提交首页轮播",dataJson:false});
+                //提交
+                $("#submit").click(function(){
+                    from.submit($(this));
+                })
+                //取消
+                $("#cancel").click(function(){
+                    Y.back(-1);
+                })
+            })
+        })
+    })()
+</script>

@@ -1,0 +1,95 @@
+<div class="form">
+    <div class="info-head">
+        <h1>值班表详情</h1>
+        <span class="info-btn info-btn_bg_00B7EE align-right" id="cancel">返回列表</span>
+    </div>
+    <div class="info-titles">
+    </div>
+    <div class="info-table">
+        <div class="table" style="border-color: rgb(228, 228, 228);">
+            <div id="table">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<style type="text/css">
+.info-titles{
+    padding-top: 40px;
+    margin-left: -10px;
+    width: calc( 100% + 20px );
+}
+.info-title{
+    overflow: hidden;
+    margin: 0 40px 24px;
+}
+.info-title-text{
+    float: left;
+}
+.info-title-text h3{
+    font-size: 18px;
+    color: #666666;
+    padding-bottom: 16px;
+}
+.info-title-text div{
+    font-size: 14px;
+    color: #666666;
+}
+.info-title-text div a{
+    margin-right: 24px;
+}
+.info-title-btn{
+    float: right;
+}
+.info-title-btn span{
+    display: block;
+    padding: 12px 19px;
+    color: #666666;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all .2s;
+    font-weight: bold;
+    font-size: 15px;
+    background: #EEEEEE;
+}
+.info-instructions{
+    font-size: 14px;
+    padding: 16px 0;
+    color: #2A2A2A;
+    text-indent: 0;
+    border-top:1px solid #eee;
+    border-bottom:1px solid #eee;
+    margin: 0 40px;
+}
+.info-table{
+    margin-left: -10px;
+    width: calc( 100% + 20px );
+    margin-top: 30px;
+}
+.info-table .table{
+    margin: 0 40px;
+}
+#table tr td span{
+    display: block;
+    text-align: center;
+}
+</style>
+<script>
+    (function() {
+        var option = Y.getUrlParam("id");
+        var config = [
+            {CH: "周次"},
+            {CH: "值周负责人"},
+            {CH: "值周组长"},
+            {CH: "值班日期"},
+            {CH: "是否排班"},
+            {CH: "值班教师"},
+        ];
+        var list = new Y.ListDateiled(httpIp + "/sys/getOndutyDetail", option, config);
+        //返回
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>
+

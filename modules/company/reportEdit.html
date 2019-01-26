@@ -1,0 +1,99 @@
+<form class="form">
+    <div class="form_title"><b><font id="_title"></font>信息</b></div>
+    <div class="formBox">
+        <div class="data width100">
+            <div class="data_title"><b>头像</b></div>
+            <span class="data_error"></span><span class="inputSpan" id="data-studentPhoto"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b>姓名</b></div>
+            <span class="data_error"></span><span class="inputSpan" id="data-studentName"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b>班级</b></div>
+            <span class="data_error"></span><span class="inputSpan" id="data-className"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b>实习单位</b></div>
+            <span class="data_error"></span><span class="inputSpan" id="data-companyName"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b>岗位</b></div>
+            <span class="data_error"></span><span class="inputSpan" id="data-postName"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b>报告名称</b></div>
+            <span class="data_error"></span><span class="inputSpan" id="data-reportName"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b>报告时间</b></div>
+            <span class="data_error"></span><span class="inputSpan" id="data-createTime"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b>报告内容</b></div>
+            <span class="data_error"></span><span class="inputSpan" id="data-content"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b></b></div>
+            <div class="inputSpan" id="data-imgUrls"></div>
+        </div>
+        <div class="data width100 borderTop">
+            <div class="data_title"><b>评论</b></div>
+            <span class="data_error"></span><div class="inputSpan" id="data-comment"></div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    .data{
+        line-height: 32px;
+        margin:0px;
+    }
+    .data_title{
+        position: absolute;
+        margin-top:4px;
+    }
+    .inputSpan{
+        margin-left: 100px;
+        float: left;
+        margin-top: 5px;
+    }
+    #data-studentPhoto img{
+        width: 100px;
+        height: 100px;
+        border-radius: 100px;
+    }
+    .imgUrls{
+        max-height: 200px;
+        margin-right: 16px;
+    }
+</style>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var data = Y.getUrlParam("data");
+        $('#_title').html(Y.getUrlParam("title") || '');
+        if(data){
+            for(var key in data) $('#data-' + key).html(data[key]);
+            $('#data-studentPhoto').html('<img src="' + data.studentPhoto + '" />');
+            var imgUrls = data.imgUrls.split(','),imgs = '';
+            for(var i = 0; i < imgUrls.length; i ++) imgs += '<img src="' + imgUrls[i] + '" class="imgUrls" />';
+            $('#data-imgUrls').html(imgs);
+            //获取评论列表
+            Y.ajax(eschoolIP + '/api/company/v0.1/report/comment?reportId=' + data.id,function(ret){
+                var html = '';
+                if(ret && ret.rows && ret.rows.length > 0){
+                    for(var i = 0; i < ret.rows.length; i ++) html += '<div style="margin-bottom:24px;"><div style="line-height:48px;"><img width="48" height="48" style="margin-right:16px;border-radius: 48px;position:relative;top:16px;" src="{userPhoto}" />{userName}</div><div>{content}</div></div>'._eval(ret.rows[i]);
+                }
+                html = html || '暂无评论~';
+                $('#data-comment').html(html);
+            })
+        }
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

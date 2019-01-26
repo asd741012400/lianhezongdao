@@ -1,0 +1,150 @@
+<form class="form">
+    <div class="workFlow">
+        <div class="workFlowTitle"><b class="workFlowTitleNum">流程一</b><span class="range"><font><input type="checkbox" id="leaderDemand" style="width: 15px;" />是否需要部门负责人审批</font></span></div>
+        <div class="workFlowBox">
+            <div class="workFlowContent">
+                <div class="workFlowStart"><span class="workFlowStart_text">配置审批人</span><span class="workFlowCircle">教师</span></div>
+                <div class="workFlowEnd" id="fzr"><span class="workFlowCircle" style="line-height: 16px;padding-top: 10px;height: 50px;">部门<br />负责人</span></div>
+                <div class="workFlowPerson">
+                    <div id="first_1"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>
+                </div>
+                <div class="workFlowPerson">
+                    <div id="second_1"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>
+                </div>
+                <div class="workFlowEnd"><span class="workFlowCircle" style="line-height: 16px;padding-top: 10px;height: 50px;">会议室<br />管理员</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+    </div>
+</form>
+<style type="text/css">
+    .workFlow{
+        margin:10px;
+        border: 1px solid #e4e4e4;
+        overflow: auto;
+    }
+    .workFlowTitle{
+        line-height: 70px;
+        border-bottom: 1px dashed #e4e4e4;
+    }
+    .workFlowTitleNum{
+        margin-left: 20px;
+        color: #77bde6;
+    }
+    .workFlowBox{
+        height: 150px;
+        overflow: auto;
+    }
+    .workFlowStart{
+        float: left;
+        height: 128px;
+        margin-right: 10px;
+    }
+    .workFlowStart_text{
+        float: left;
+        margin-left: 10px;
+        margin-top: 50px;
+        margin-right: 10px;
+    }
+    .workFlowCircle{
+        border: 2px solid #3ec0ef;
+        display: block;
+        width: 60px;
+        height: 60px;
+        border-radius: 60px;
+        text-align: center;
+        line-height: 60px;
+        overflow: hidden;
+        margin-top: 30px;
+        display: block;
+    }
+    .workFlowContent{
+        float: left;
+        height: 128px;
+        overflow: hidden;
+        min-width: 100px;
+    }
+    .workFlowEnd{
+        float: left;
+        height: 128px;
+        overflow: hidden;
+        width: 70px;
+        background: url("images/workFlow_arrow.png") left center no-repeat;
+        padding-left: 110px;
+    }
+    .workFlowPerson{
+        float: left;
+        margin-top: 30px;
+        padding-left: 110px;
+        margin-right: 20px;
+        background: url("images/workFlow_arrow.png") left 25px no-repeat;
+    }
+    .range{
+        margin-left: 30px;
+    }
+    .range input{
+        border: 1px solid #e4e4e4;
+        padding:5px;
+        width: 50px;
+        margin-left: 10px;
+    }
+</style>
+<script>
+    (function() {
+        Y.ajax(bpmIP + "/api/mra/v0.1/approval",function(res){
+            var firstWidth = 0;
+            var first_1 = new Y.AnySelectBox($("#first_1"),$("#first_1").next(),{valArr:true,maxSize:5,idKey:"accountId",valueString:"<div accountId='{accountId}' class='personData'><img url='{photo}' src='images/headPortrait.png' /><div>{name}</div></div>",
+                    SelectBox:{paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"}
+                })
+            var second_1 = new Y.AnySelectBox($("#second_1"),$("#second_1").next(),{valArr:true,maxSize:5,idKey:"accountId",valueString:"<div accountId='{accountId}' class='personData'><img url='{photo}' src='images/headPortrait.png' /><div>{name}</div></div>",
+                    SelectBox:{paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"}
+                })
+            first_1.appendFn = function(){
+                firstSetSize();
+            }
+            second_1.appendFn = function(){
+                firstSetSize();
+            }
+            $("#leaderDemand").change(function(){
+                firstSetSize();
+            })
+            function firstSetSize(){
+                var w = 0;
+                if($("#leaderDemand")[0].checked){
+                    $("#fzr").show();
+                    w = 480 + 420;
+                }else{
+                    $("#fzr").hide();
+                    w = 480 + 420 - 180;
+                }
+                $("#first_1").parent().parent().width(10000);
+                var first = first_1.value.length * 85 + 75;
+                $("#first_1").parent().width(first);
+                var second = second_1.value.length * 85 + 75;
+                $("#second_1").parent().width(second);
+                firstWidth = first + second;
+                $("#first_1").parent().parent().width(firstWidth + w);
+            }
+            if(res && !res.errorMsg){
+                firstWidth = 0;
+                $("#leaderDemand")[0].checked = (res.leaderDemand);
+                if(res.mraSecond && res.mraSecond.length > 0){
+                    firstWidth = res.mraSecond.length * 85 + 75;
+                    first_1.val(res.mraSecond);
+                }
+                if(res.mraThree && res.mraThree.length > 0){
+                    firstWidth += res.mraThree.length * 85 + 75;
+                    second_1.val(res.mraThree);
+                }
+                firstSetSize();
+                $("#submit").click(function(){
+                    Y.ajax(bpmIP + "/api/mra/v0.1/approval",function(res){
+                        Y.alertx(res && res.result ? "设置成功!" : ("设置失败," + res.errorMsg));
+                    },{meth:"POST",data:{leaderDemand:$("#leaderDemand")[0].checked ? 1 : 0,mraSecond:first_1.val(),mraThree:second_1.val()},dataJson:false})
+                })
+            }
+        })
+    })()
+</script>

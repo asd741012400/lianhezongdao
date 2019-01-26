@@ -1,0 +1,100 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="keyword" type="text" placeholder="姓名/专业"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/><span id="advancedSearch_btn">高级查询<img src="images/gjcx.png" /></span>
+        </div>
+        <div class="clear"></div>
+        <div id="advancedSearch_box">
+            <div class="advancedSearch_data"><input id="name" class="input" type="text" placeholder="姓名"/></div>
+            <div class="advancedSearch_data"><input id="major" class="input" type="text" placeholder="专业"/></div>
+            <div class="advancedSearch_data"><input id="rxnd" class="input" type="text" placeholder="入学年份"/></div>
+            <div class="advancedSearch_data"><select id="reviewStatu" class="input"><option value="">全部审核状态</option><option value="0">未审核</option><option value="1">已审核</option></select></div>
+            <div class="advancedSearch_data"><select id="agreement" class="input"><option value="">是否签订协议</option><option value="0">未签订</option><option value="1">已签订</option></select></div>
+            <div class="clear"></div>
+            <div class="advancedSearch_btn"><input type="button" value="搜索" id="advancedSearchBtn" class="bg_00b7ee"/><input type="button" value="取消" id="advancedSearchCancle" class="bg_ffffff"/></div>
+        </div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "welcome_admissionOffice", pageNum: 1};
+        var config = [
+            {CH: "姓名", EN: "name"},
+            {CH: "入学年份", EN: "rxnd"},
+            {CH: "专业", EN: "major"},
+            {CH: "手机号码", EN: 'phone'},
+            {CH: "身份证号", EN: "cardId"},
+            {CH: "审核状态", EN: "reviewStatu", Option: {"0": "<span style='color:#ec5613'>未审核</span>", "1": "<span style='color:#00b7ee'>已审核</span>"},OptionExcel:{"0":"未审核","1":"已审核"}},
+            {CH: "缴费状态", EN: "payStatu", Option: {"0": "未缴费", "1": "<font style='color:#00b7ee'>缴费完成</font>", "2": "<font style='color:#ee2700'>欠费</font>"},OptionExcel:{"0": "未缴费", "1": "缴费完成", "2": "欠费"}},
+            {CH: "签订协议", EN: "agreement", Option: {"0": "<div class='agreement'><span style='color:#ff0000;'>未签订</span><div style='color:#ccc;font-size:12px;'>(双击签订)</div></div>", "1": "<div class='agreement'><span>已签订</span><div style='color:#ccc;font-size:12px;'>(双击取消)</div></div>"},OptionExcel:{"0":"未签订","1":"已签订"}}
+            /*{CH: "签订协议", EN: "agreement", Option: {"0": "<input class='agreement' type='checkbox' />", "1": "<input class='agreement' type='checkbox' checked />"},OptionExcel:{"0":"未签订","1":"已签订"}}*/
+
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/welcome/admissionOffice", option, config);
+        list.btns = "<span class=\"listLook bg_dfba49\">查看</span>";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //查看
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/welcome/reportsEdit.html",title:"新生信息详情",data:{type:"review",id:data.accountId,readOnly:true}});
+                    })
+                    //修改报到状态
+                    $(this).find(".agreement").dblclick(function(){
+                        var _this = this;
+                        var checked = data.agreement != 1;
+                        //_this.checked = !checked;
+                        Y.confirmx("确定该生" + (checked ? "已签订?" : "未签订?"),function(){
+                            //_this.checked = checked;
+                            Y.ajax(ucIP + "/api/uc/v0.1/welcome/review/" + data.accountId,function(res){
+                                if(res){
+                                    res.agreement = checked ? 1 : 0;
+                                    Y.ajax(ucIP + "/api/uc/v0.1/welcome/review",function(res){
+                                        var msg = res && res.result ? "修改签订状态成功!" : ("修改签订状态失败," + res.errorMsg);
+                                        list.load();
+                                        Y.alertx(msg,'',{toast:true,height:70});
+                                    },{meth:"PUT",data:res,dataJson:false})
+                                }else{
+                                    Y.alertx("修改失败",'',{toast:true,height:70});
+                                }
+                            })
+                        },{titleHeight:0,styles:{
+                            bottom:'border-top:none;',
+                            center:'border-top:none;',
+                            box:'left:' + ($(this).offset().left - 150) + 'px;top:' + ($(this).offset().top - 110) + 'px;'
+                        },_h:110,_w:200})
+                    })
+                }
+            })
+        });
+
+        var rxnd = new Y.Calendar($("#rxnd"),{date:""});
+        rxnd.type = "year";
+        rxnd.maxDate = new Date();
+        $("#rxnd").focus(function () {
+            var _this = $(this);
+            rxnd.open(function (d) {
+                _this.val(d);
+                rxnd.close();
+            });
+        });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword")
+        },ucIP + "/api/uc/v0.1/welcome/admissionOffice/preciseresult",{
+            name:$("#name"),
+            major:$("#major"),
+            rxnd:$("#rxnd"),
+            reviewStatu:$("#reviewStatu"),
+            agreement:$("#agreement"),
+            rxnd:$("#rxnd")
+        });
+    })()
+</script>

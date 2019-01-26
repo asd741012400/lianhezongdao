@@ -1,0 +1,100 @@
+<form class="form">
+<div class="form_title"><b class="form_title_b1">规则名称</b><b class="form_title_b2">位数</b></div>
+    <div class="formBox">
+        <div class="data width100">
+            <b class="red">*</b>入学年份: <span class="data_error">入学年份位数不能为空</span><input class="input" id="data-yearSize" type="text" placeholder="请填写入学年份位数,1-4" />
+        </div>
+        <div class="data width100">
+            <b class="red">*</b>专业代码: <span class="data_error">专业代码位数不能为空</span><input class="input" id="data-majorSize" type="text" placeholder="请填写专业代码位数,1-4"/>
+        </div>
+        <div class="data width100">
+            <b class="red">*</b>班级代码: <span class="data_error">班级代码位数不能为空</span><input class="input" id="data-classSize" type="text" placeholder="请填写班级代码位数,1-4" />
+        </div>
+        <div class="data width100">
+            <b class="red">*</b>流水号:　 <span class="data_error">流水号位数不能为空</span><input class="input" id="data-transactionSize" type="text" placeholder="请填写流水号位数,1-4"/>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns" style="margin-left: 150px;">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+    </div>
+</form>
+<style type="text/css">
+    .form_title{
+        width: 500px;
+        background: #f7f7f7;
+    }
+    .form_title_b1{
+        margin-left: 100px;
+    }
+    .form_title_b2{
+        margin-left: 140px;
+    }
+    .data{
+        margin-left: 70px;
+    }
+    .data .input{
+        width: 300px;
+        text-align: center;
+    }
+</style>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            id : "",
+            yearSize : {
+                o:$("#data-yearSize"),
+                e:"blur",
+                f:function(v){
+                    if (v >= 1 && v <= 4) {
+                        return [true];
+                    } else {
+                        return [false,"必须为1-4之间的数字"];
+                    }
+                }
+            },
+            majorSize : {
+                o:$("#data-majorSize"),
+                e:"blur",
+                f:function(v){
+                    if (v >= 1 && v <= 4) {
+                        return [true];
+                    } else {
+                        return [false,"必须为1-4之间的数字"];
+                    }
+                }
+            },
+            classSize : {
+                o:$("#data-classSize"),
+                e:"blur",
+                f:function(v){
+                    if (v >= 1 && v <= 4) {
+                        return [true];
+                    } else {
+                        return [false,"必须为1-4之间的数字"];
+                    }
+                }
+            },
+            transactionSize : {
+                o:$("#data-transactionSize"),
+                e:"blur",
+                f:function(v){
+                    if (v >= 1 && v <= 4) {
+                        return [true];
+                    } else {
+                        return [false,"必须为1-4之间的数字"];
+                    }
+                }
+            }
+        }
+        var from = new Y.From(fromConfig,"id",{getURL:ucIP + "/api/uc/v0.1/numberRules",postURL:ucIP + "/api/uc/v0.1/numberRules",putURL:ucIP + "/api/uc/v0.1/numberRules/{id}",title:"编辑学号生成规则",dataJson:false,intGet:true});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this),function(){
+                Y.alertx('修改成功!');
+                from.getData();
+            });
+        })
+    })()
+</script>

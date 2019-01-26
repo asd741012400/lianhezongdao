@@ -1,0 +1,130 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="keyword" class="input" type="text" placeholder="" vl/>
+            <input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+
+        <input type="button" value="导入值班表" id="upLoadList" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<div id="planBox" class="boxShadow">
+    <div class="planBoxTitle">当前正在导入</div>
+    <div class="planBoxContent">
+        <div class="planPercent"><font id="percent">0</font>%</div>
+        <div class="planNum">导入<font id="allNum">--</font>/<font id="sumNum">--</font>条，失败<font id="falseNum">--</font>条</div>
+    </div>
+    <div class="planBoxBtns"><span id="cancelPlan"  class="bg_00b7ee">中断导入</span></div>
+</div>
+<style>
+.statusBtns{
+    text-align:right;
+}
+.reasonLook{
+    color:#6AB81C;
+    cursor:pointer;
+    position:relative;
+}
+.reasonDetail{
+    display:none;
+    position:absolute;
+    width:288px;
+    height:60px;
+    border:1px solid #6AB81C;
+    right:-30px;
+    background: #fff;
+    top:31px;
+    border-radius:5px;
+    padding:14px 12px;
+    color:#666;
+    font-size:12px;
+    z-index:1;
+    line-height:20px;
+    text-align:left;
+}
+.triangle-6AB81C{
+    position:absolute;
+    background:url('images/6AB81C_triangle.png');
+    height:14px;
+    width:29px;
+    top:-13px;
+    right:28px;
+    z-index:2;
+}
+
+
+</style>
+
+<script type="text/javascript">
+    (function() {
+   
+        initList()
+
+        function initList(id){
+            var option = {semesterId:id,pageSize: "", pageNum: 1};
+            var config = [
+                {CH: "值班表标题", EN: "title"},
+                {CH: "导入时间", EN: "import_time"},
+                {CH: "使用状态", EN: "state",htmlFormat:function(k,v,o){
+                    return v ? '<input type="radio" class="enable" checked />启用<input type="radio" class="enable" />禁用' : '<input type="radio" class="enable" />启用<input type="radio" class="enable" checked />禁用';
+                }},
+            ];
+            list = new Y.List(httpIp + "/sys/getOndutyAll", option, config);
+            list.btns = "<span class='editlist color_59A9E1'>查看</span><span class='delList color_CC2E0E'>删除</span>";
+            list.listNumTitle = "";
+            list.load(function () {
+                $("tr").each(function(i){
+                    if(i > 0 && list.data.rows.length > 0){
+                        var data = list.data.rows[i - 1];
+                        //详情
+                        $(this).find(".editlist").click(function(){
+                            Y.open({url:"modules/beOnDuty/beOnDutyManagementDetailed.html",title:"值班表详情",data:{id:data.id}});
+                        })
+                        //删除
+                        $(this).find(".delList").click(function(){
+                            list.deleteFn([data],httpIp + "/sys/getOndutyDel/","id","值班安排",{vKey:"id",obj:$(this),errHeight:100});
+                        })
+                        //修改状态
+                        $(this).find(".enable:not(:checked)").click(function(){
+                            var checked = data.state != 1,
+                            type = checked?'1':'0';
+                            $(this).removeAttr('checked');
+                            Y.confirmx("确定修改状态为" + (checked ? "启用？" : "禁用？") + "",function(){
+                                Y.ajax(httpIp + "/sys/getOndutyStatus",function(res){
+                                    if(res.status == 200){
+                                        list.load();
+                                        Y.alertx("修改状态成功！",'',{toast:true,height:70});
+                                    }else{
+                                        Y.alertx( res.errorMsg ,'',{toast:true,height:70});
+                                    }
+                                },{meth:'GET',data:{id:data.id,status:type}})
+                            })
+                        })
+                    }
+                })
+            });
+
+         
+
+            //Excel信息批量导入
+            // Y.excelImport(httpIp + "/getOndutyImport");
+            
+            //搜索
+            var listSearch = new Y.ListSearch(list,{
+                so:$("#keyword")
+            });
+        }
+
+    })()
+</script>
+
+<style>
+ 
+</style>

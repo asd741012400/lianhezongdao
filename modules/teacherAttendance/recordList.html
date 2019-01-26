@@ -1,0 +1,205 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="keyword" type="text" placeholder="请输入部门/姓名"/>
+            <input id="beg" class="input" type="text" placeholder="开始时间"/>
+            <input id="end" class="input" type="text" placeholder="结束时间"/>
+            <input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+            <span id="advancedSearch_btn">高级查询<img src="images/gjcx.png" /></span>
+        </div>
+        <input id="downLoadExcel" type="button" value="EXCEL导出" class="bg_eeeeee"/>
+        <div class="clear"></div>
+        <div id="advancedSearch_box">
+            <div class="advancedSearch_data"><input id="deptName" class="input" type="text" placeholder="部门"/></div>
+            <div class="advancedSearch_data"><select id="status" class="input"><option value="">全部</option><option value="1">迟到</option><option value="2">早退</option><option value="3">范围外</option><option value="4">缺卡</option><option value="5">旷工</option><option value="6">请假</option><option value="7">正常</option></select></div>
+            <div class="clear"></div>
+            <div class="advancedSearch_data"><input id="startDate" class="input" type="text" placeholder="开始时间"/></div>
+            <div class="advancedSearch_data"><input id="endDate" class="input" type="text" placeholder="结束时间"/></div>
+            <div class="advancedSearch_btn"><input type="button" value="搜索" id="advancedSearchBtn" class="bg_00b7ee"/><input type="button" value="取消" id="advancedSearchCancle" class="bg_ffffff"/></div>
+        </div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "record", pageNum: 1};
+        var config = [
+            {CH: "部门", EN: "deptName"},
+            {CH: "姓名", EN: "name"},
+            {CH: "工号", EN: "jobNumber"},
+            {CH: "考勤日期", EN: "date"},
+            {CH: "第一次上班打卡", EN: "time1",COLS:[
+                {CH: "时间",EN: "time1"},
+                {CH: "状态",EN: "statusName1",htmlFormat:htmlEval},
+                {CH: "备注",EN: "remark1"},
+                {CH: "改卡后",EN: "remarkStatusName1"}
+            ]},
+            {CH: "第一次下班打卡", EN: "time1",COLS:[
+                {CH: "时间",EN: "time2"},
+                {CH: "状态",EN: "statusName2",htmlFormat:htmlEval},
+                {CH: "备注",EN: "remark2"},
+                {CH: "改卡后",EN: "remarkStatusName2"}
+            ]},
+            {CH: "第二次上班打卡", EN: "time1",COLS:[
+                {CH: "时间",EN: "time3"},
+                {CH: "状态",EN: "statusName3",htmlFormat:htmlEval},
+                {CH: "备注",EN: "remark3"},
+                {CH: "改卡后",EN: "remarkStatusName3"}
+            ]},
+            {CH: "第二次下班打卡", EN: "time1",COLS:[
+                {CH: "时间",EN: "time4"},
+                {CH: "状态",EN: "statusName4",htmlFormat:htmlEval},
+                {CH: "备注",EN: "remark4"},
+                {CH: "改卡后",EN: "remarkStatusName4"}
+            ]},
+            {CH: "第三次上班打卡", EN: "time1",COLS:[
+                {CH: "时间",EN: "time5"},
+                {CH: "状态",EN: "statusName5",htmlFormat:htmlEval},
+                {CH: "备注",EN: "remark5"},
+                {CH: "改卡后",EN: "remarkStatusName5"}
+            ]},
+            {CH: "第三次下班打卡", EN: "time1",COLS:[
+                {CH: "时间",EN: "time6"},
+                {CH: "状态",EN: "statusName6",htmlFormat:htmlEval},
+                {CH: "备注",EN: "remark6"},
+                {CH: "改卡后",EN: "remarkStatusName6"}
+            ]}
+        ];
+        function htmlEval(k,v,o){
+            var html = "<font style='color:#";
+            switch(o['status' + k.charAt(k.length - 1)]){
+                case 1:
+                    html += "00b7ee";
+                    break;
+                case 2:
+                    html += "ef6b3c";
+                    break;
+                case 3:
+                    html += "ef6b3c";
+                    break;
+                case 4:
+                    html += "f74c01";
+                    break;
+                case 5:
+                    html += "fc4210";
+                    break;
+                case 6:
+                    html += "7bb86e";
+                    break;
+                case 7:
+                    html += "38c0e9";
+                    break;
+                default:
+                    html += "38c0e9";
+                    break;
+            }
+            html += "'>";
+            html += v.replace(" ","<br />");
+            html += "</font>"
+            return html;
+        }
+        var list = new Y.List(eschoolIP + "/api/attn/v0.1", option, config);
+        list.btns = "<span class=\"listLook bg_dfba49\">查看</span>";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 1 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 2];
+                    //修改考勤信息
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url: "modules/teacherAttendance/recordEdit.html",title: "考勤详情",data: {teacherId: data.teacherId,date:data.date + "-00:00:00"}});
+                    })
+                }
+            })
+        })
+
+
+        //开始日期
+        var beg = new Y.Calendar($("#beg"),{date:""});
+        $("#beg").focus(function () {
+            var _this = $(this);
+            beg.open(function (d) {
+                if ($("#end").val() != "" && $("#end").val() < d) {
+                    Y.alertx("开始日期不能大于结束日期");
+                    return false;
+                }
+                _this.val(d);
+                beg.close();
+            });
+        });
+
+        //结束日期
+        var end = new Y.Calendar($("#end"),{date:""});
+        $("#end").focus(function () {
+            var _this = $(this);
+            end.open(function (d) {
+                if ($("#beg").val() != "" && d != "" &&$("#beg").val() > d) {
+                    Y.alertx("结束日期不能小于开始日期");
+                    return false;
+                }
+                _this.val(d);
+                end.close();
+            });
+        });
+
+        //精确搜索开始日期
+        var startDate = new Y.Calendar($("#startDate"),{date:""});
+        $("#startDate").focus(function () {
+            var _this = $(this);
+            startDate.open(function (d) {
+                if ($("#endDate").val() != "" && $("#endDate").val() < d) {
+                    Y.alertx("开始日期不能大于结束日期");
+                    return false;
+                }
+                _this.val(d);
+                startDate.close();
+            });
+        });
+        //精确搜索结束日期
+        var endDate = new Y.Calendar($("#endDate"),{date:""});
+        $("#endDate").focus(function () {
+            var _this = $(this);
+            endDate.open(function (d) {
+                if ($("#startDate").val() != "" && d != "" &&$("#startDate").val() > d) {
+                    Y.alertx("结束日期不能小于开始日期");
+                    return false;
+                }
+                _this.val(d);
+                endDate.close();
+            });
+        });
+
+        $("#downLoadExcel").click(function () {
+            Y.download((eschoolIP + '/api/attn/v0.1/export?schoolId=' + schoolId + '&keyword={keyword}&startDate={startDate}&endDate={endDate}&deptName={deptName}&status={status}')._eval(list.paramet,'',function(s){
+                return s.replace(/{.+}/,'');
+            }))
+        })
+
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword"),
+            startDate:$("#beg"),
+            endDate:$("#end")
+        },eschoolIP + "/api/attn/v0.1",{
+            deptName:new Y.OnlySelectBox($("#deptName"),{
+                vKey:"name",
+                sKey:"name",
+                SelectBox:{
+                    paramet:{key:"deptName"},
+                    url:ucIP + "/api/uc/v0.1/groups",
+                    dataString:"<div class='autoList' vaule='{groupId}'><span>{name}</span></div>"
+                },
+                selectedFn:function(res){
+                    if(res && res.years) $("#data-years").val(res.years);
+                }
+            }),
+            startDate:$("#startDate"),
+            endDate:$("#endDate"),
+            status:$("#status")
+        });
+    })()
+</script>

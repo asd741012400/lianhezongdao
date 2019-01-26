@@ -1,0 +1,256 @@
+<div class="form">
+    <div class="info-head">
+        <h1>编辑值班表</h1>
+        <span class="info-btn info-btn_bg_00B7EE align-right" id="submit">保存设置</span>
+        <span class="info-btn info-btn_bg_eeeeee align-right" id="cancel">取消编辑</span>
+    </div>
+    <div class="info-titles">
+        <div class="info-title">
+            <div class="info-title-text">
+                <h3>基本信息</h3>
+                <div>
+                    <a>标题</a>
+                    <input type="text" placeholder="凉州区职业中专2018年9月29日-2019年1月10日值班安排表" />
+                    <span>0/40</span>
+                </div>
+            </div>
+                <br clear="all">
+            <div class="info-title-tel">
+                <div class="list-setting">
+                    <a>总值班领导</a>
+                    <div class="select-wrap"><input type="text" placeholder="何生玉"></span></div>
+                    
+                </div>
+                <div class="list-setting">
+                    <a>值班领导电话</a>
+                    <div class="select-wrap"><input type="text" placeholder="13993530369"></span></div>
+                </div>
+            </div>
+        </div>
+        <div  class="info-instructions">
+            <h3>表格备注说明</h3>
+            <textarea  placeholder="1.弘毅楼一、二层由一位值班老师负责；2.值班表从2018年9月29日起执行。"></textarea>
+        </div>
+    </div>
+    <div class="info-table">
+        <h3>表格明细<span>（直接点击单个表格单元格进行修改）</span></h3>
+        
+        <div class="table" style="border-color: rgb(228, 228, 228);">
+            <div id="table">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<style type="text/css">
+.info-titles{
+    padding-top: 40px;
+    margin-left: -10px;
+    width: calc( 100% + 20px );
+}
+.info-title{
+    overflow: hidden;
+    margin: 0 40px 24px;
+}
+.info-title-text{
+    float: left;
+    width:100%;
+    border-bottom:1px solid #eee;
+    padding-bottom: 16px;
+}
+.info-title-text h3{
+    font-size: 18px;
+    color: #666666;
+    padding-bottom: 16px;
+}
+.info-title-text div{
+    font-size: 16px;
+    color: #666666;
+}
+.info-title-text div a{
+    margin-right: 24px;
+}
+.info-title-text div input{
+    width:60%;
+    font-size: 16px;
+    border:0;
+}
+.info-title-text div span{
+    float:right;
+    color: #999999;
+}
+.info-title-btn{
+    float: right;
+}
+.info-title-btn span{
+    display: block;
+    padding: 12px 19px;
+    color: #666666;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all .2s;
+    font-weight: bold;
+    font-size: 15px;
+    background: #EEEEEE;
+}
+.info-instructions{
+    font-size: 14px;
+    padding: 16px 0;
+    color: #2A2A2A;
+    text-indent: 0;
+    margin: 0 40px;
+}
+.info-instructions h3{
+    padding-bottom:32px;
+    font-size: 18px;
+    color: #666666;
+}
+.info-instructions textarea{
+    border:1px solid #eee;
+    padding:16px;
+    width: 846px;
+    height: 68px;
+    resize:none;
+    font-size:16px;
+}
+.info-table{
+    margin-left: -10px;
+    width: calc( 100% + 20px );
+    margin-top: 30px;
+}
+.info-table h3{
+    font-size: 18px;
+    color: #666666;
+    margin-left:40px;
+    margin-bottom:32px;
+}
+.info-table h3 span{
+    font-weight: normal;
+    font-size: 12px;
+}
+.info-table .table{
+    margin: 0 40px;
+}
+
+
+#table tr td span{
+    display: block;
+    text-align: center;
+}
+
+table tr:nth-of-type(2) td:nth-of-type(1){
+    width:50px;
+}
+table tr:nth-of-type(2) td:nth-of-type(2){
+    width:100px;
+}
+table tr:nth-of-type(2) td:nth-of-type(3){
+    width:100px;
+}
+table tr:nth-of-type(2) td:nth-of-type(4){
+    width:100px;
+}
+table tr:nth-of-type(2) td:nth-of-type(5){
+    width:60px;
+}
+table tr:nth-of-type(2) td:nth-of-type(6){
+    width:60px;
+}
+.info-title-tel{
+    margin-top: 40px;
+    overflow: hidden;
+}
+table tr td input{
+    border:0;
+    text-align:center;
+    height:26px;
+    background: none;
+    width:100%;
+    font-size:14px;
+}
+.list-setting{
+    float:left;
+}
+.list-setting:nth-of-type(2){
+    margin-left:80px;
+}
+.select-wrap{
+    position:relative;
+    border-bottom:1px solid #eee;
+    height:40px;
+    width: 400px;
+}
+.select-wrap input{
+    height:40px;
+    line-height:40px;
+    border:0;
+    background:none;
+    width: 300px;
+}
+
+.select-content{
+    position:absolute;
+    display:block;
+    height:40px;
+    line-height:40px;
+    cursor:pointer;
+    width:calc(100% - 16px);
+    z-index:6;
+}
+.arrow-i{
+    position:absolute;
+    width:16px;
+    height:16px;
+    background:url('images/arrow.png');
+    top:50%;
+    margin-top:-8px;
+    right:5px;
+    transform:rotate(90deg);
+    z-index:5;
+}
+.select-list-warp{
+    display:none;
+    max-height:171px;
+    overflow-y:auto;
+    border:1px solid #eee;
+    width:100%;
+    position:absolute;
+    top:40px;
+    left:-1px;
+    background:#fff;
+    z-index:1000;
+}
+.select-list-warp li{
+    height:42px;
+    line-height:42px;
+    border-bottom:1px solid #eee;
+    cursor:pointer;
+    padding: 0 16px;
+}
+.select-list-warp li:hover{
+    background:#eee;
+}
+.select-list-warp li:last-child{
+    border-bottom:none;
+}
+</style>
+<script>
+    (function() {
+        var option = Y.getUrlParam("id");
+        var config = [
+            {CH: "周次"},
+            {CH: "值周负责人"},
+            {CH: "值周组长"},
+            {CH: "值班日期"},
+            {CH: "是否排班"},
+            {CH: "值班教师"},
+        ];
+        var list = new Y.ListDateiledSetting(httpIp + "/sys/getOndutyDetail", 37, config);
+
+        //返回
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>
+

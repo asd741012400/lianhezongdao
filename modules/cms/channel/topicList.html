@@ -1,0 +1,55 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "cmsTopicList", pageNum: 1};
+        var config = [
+            {CH: "图片", EN: "image",htmlFormat:'<img src="{image}" style="max-width:200px;max-height:38px;" />'},
+            {CH: "专题名称", EN: "name"},
+            {CH: "是否推荐", EN: "recommend", Option:{"0":"不推荐", "1":"推荐"}, OptionExcel:{"0":"不推荐", "1":"推荐"}},
+            {CH: "推荐权重", EN: "recommendOrder"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/cms/mgt/topic/v0.1/list", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/cms/channel/topicEdit.html",title:"编辑专题",data:{id:data.id,zIndex:i}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/cms/mgt/topic/v0.1/","id","专题",{vKey:"title",obj:$(this)});
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/cms/mgt/topic/v0.1/","id","专题",{vKey:"title"});
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/cms/channel/topicEdit.html",title:"新增专题",data:{zIndex:$("tr").size()}});
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("内容");
+        })
+    })()
+</script>

@@ -1,0 +1,247 @@
+<form class="form">
+    <div class="info-head">
+        <h1>编辑班级信息</h1>
+        <span class="info-btn align-right info-btn_bg_eeeeee" id="numberRules_add">生成学号</span>
+    </div>
+    <div class="form_title">
+        <div class="classInfo">
+            <div class="classInfo_t">
+                <div class="classInfo_w">
+                    <span>班级名称：</span><input class="input" id="className" value="" />
+                </div>
+                <div class="classInfo_w">
+                    <span>班主任：</span><!-- <img id="headTeacherPhoto" src="images/avatar9.jpg" /> --><!-- <span id="headTeacherName">--</span> --><input class="input" id="headTeacherName" type="text" placeholder="请选择班主任"/>
+                </div>
+            </div>
+            <div class="classInfo_b"><span>已分配人数</span><span id="assigned">--</span><span>(人)</span><img src="images/icon_boy.png" /><span id="boy">--</span><img src="images/icon_girl.png" /><span id="girl">--</span></div>
+        </div>
+
+        <div class="clear"></div>
+    </div>
+    <div class="formBox">
+        <div class="data widthAll">
+            <div class="data_title"><b class="red">*</b>添加学生</div>
+            <div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div><div id="data-studentInfo"></div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    .form_title{
+        text-align: right;
+        border-bottom: 1px solid #e4e4e4;
+        padding-bottom: 20px;
+    }
+    .classInfo{
+        float: left;
+        text-align: left;
+    }
+    .classInfo span,.classInfo img{
+        float: left;
+        margin-right: 5px;
+    }
+    .classInfo_t{
+        padding:0px 10px;
+        font-size: 16px;
+        margin: 20px 0;
+    }
+    .classInfo_w{
+        clear:both;
+        overflow:hidden;
+    }
+    #className{
+        margin-right: 20px;
+        font-size: 14px;
+        color: #8da5b6;
+        width:300px;
+    }
+    #headTeacherPhoto{
+        width: 32px;
+        height: 32px;
+        border-radius: 32px;
+        margin-top: 10px;
+    }
+    #headTeacherName{
+        font-size: 14px;
+        color: #999999;
+    }
+    #assigned{
+        margin: 0px 5px;
+    }
+    .classInfo_b{
+        margin-left: 10px;
+    }
+    .classInfo_b img{
+        margin: 5px 10px auto 10px;
+    }
+    #boy,#girl{
+        color: #00b7ee;
+        font-size: 24px;
+        margin-right: 10px;
+    }
+    #numberRules_add{
+        border: 1px solid #e4e4e4;
+        padding: 10px 20px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+    .nameShow{
+        float: left;
+    }
+    .sexImg{
+         float: left;
+        margin-left: 5px;
+        margin-top: 4px;
+    }
+    .studentNo{
+        color:#3ec0ef;
+        font-size:12px;
+    }
+    .studentName{
+        height: 15px;
+        overflow: hidden;
+    }
+    .personData{
+        width: 100px;
+        line-height: 15px;
+    }
+</style>
+<script>
+    (function() {
+        var classId = Y.getUrlParam("id"),type = Y.getUrlParam("type"),
+            headTeacher = {
+                o:new Y.OnlySelectBox($("#headTeacherName"),Y.getSelectBox('teacher')),
+                s:"headTeacherName",
+                _o:$("#headTeacherName"),
+                f:function(v){
+                    if (v == "") {
+                        return [false,"班主任不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            headTeacherId = headTeacher.o.val();
+        var studentInfo;
+        //修改的时候根据id加载数据
+        Y.ajax(ucIP + "/api/uc/v0.1/welcome/class/" + classId,function(res){
+            if(res && res.classId){
+                $("#className").val(res.className);
+                $("#headTeacherName").val(res.headTeacherName).attr('teacherid',res.headTeacherId);
+                $("#headTeacherPhoto").attr("src",res.headTeacherPhoto);
+                $("#assigned").html(res.assigned);
+                $("#boy").html(res.boy);
+                $("#girl").html(res.girl);
+                studentInfo = new Y.AnySelectBox($("#data-studentInfo"),$("#data-studentInfo").prev(),{
+                    idKey:"accountId",
+                    valArr:true,
+                    valueString:"<div accountId='{accountId}' class='personData'><div class='icon_img' imgUrl='{photo}'><img src='images/headPortrait.png' /></div><div class='studentName'>{name}</div><div class='studentNo'>{studentNo}</div></div>",
+                    SelectBox:{
+                        paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword",type:2,reportStatu:1},
+                        url:ucIP + "/api/uc/v0.1/welcome/report",
+                        dataString:"<div class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><div style='display: inline-block;vertical-align: middle;width:calc(100% - 65px)'><div style='text-align:right;'><span class='nameShow'>{name}</span>{_statu}</div><span style='color:#ccc;display:block;'>{major}</span></div></div>",
+                        dataStringEval:function(s,k,v,data){
+                            return s.replace("{_statu}",function(){
+                                var payStatu = "";
+                                switch(data.payStatu){
+                                    case 0:
+                                        payStatu = "<font class='payStatu'>未缴费</font>";
+                                        break;
+                                    case 1:
+                                        payStatu = "<font class='payStatu' style='color:#00b7ee'>缴费完成</font>";
+                                        break;
+                                    case 2:
+                                        payStatu = "<font class='payStatu' style='color:#ee2700'>欠费</font>";
+                                        break;
+                                    default:
+                                        payStatu = "<font class='payStatu'>未缴费</font>";
+                                        break;
+                                }
+                                if(data.reportStatu == 0) payStatu = "<font class='payStatu' style='color:#d09d3b'>未报到</font>";
+                                return "<img class='sexImg' src='images/" + (data.sex == 1 ? "iconBoy" : "iconGirl") + ".png' />" + payStatu;
+                            })
+                        }
+                    }
+                })
+                //修改学号
+                studentInfo.appendFn = function(){
+                    $(".studentNo").dblclick(function(){
+                        var index = $(this).parent().prevAll().size();
+                        var html = studentInfo.value[index].studentNo;
+                        var accountId = studentInfo.value[index].accountId;
+                        Y.confirmx("<div>学号:<input id='studentNo' class='input' value='" + html + "' /></div>",function(){
+                            var studentNo = $("#studentNo").val();
+                            if(!studentNo){
+                                Y.alertx("学号不能为空");
+                            }else if(studentNo == html){
+                                //相同不修改
+                            }else{
+                                Y.ajax(ucIP + "/api/uc/v0.1/numberRules/student/" + accountId,function(res){
+                                    if(res && res.result){
+                                        Y.alertx("该学号可用，保存后修改",function(){
+                                            studentInfo.value[index].studentNo = studentNo;
+                                            studentInfo.append();
+                                        });
+                                    }else{
+                                        Y.alertx("该学号不可用," + res.errorMsg);
+                                    }
+                                },{data:{classId:classId,accountId:accountId,studNo:studentNo},meth:"PUT"})
+                            }
+                        })
+                    })
+                }
+                studentInfo.val(res.studentInfo);
+            }
+        })
+        //生成学号
+        $("#numberRules_add").click(function(){
+            var data = [];
+            for(var i = 0; i < studentInfo.value.length; i++){
+                data.push({accountId:studentInfo.value[i].accountId});
+            }
+            Y.ajax(ucIP + "/api/uc/v0.1/numberRules/create/" + classId,function(res){
+                if(res && res.length == studentInfo.value.length){
+                    for(var i = 0; i < res.length; i++){
+                        studentInfo.value[i].studentNo = res[i].studNo;
+                    }
+                    Y.alertx("生成成功，保存后确定",function(){
+                        studentInfo.append();
+                    })
+                }else{
+                    Y.alertx("生成失败，" + res.errorMsg);
+                }
+            },{meth:"POST",data:data,dataJson:false})
+        })
+        //操作及验证
+        $("#submit").click(function () {
+            var className = $('#className').val(),
+                headTeacherIdres = $('#headTeacherName').attr('teacherid');
+            headTeacherId = headTeacher.o.val()||headTeacherIdres;
+            if (className=='') {
+                Y.alertx("班级名称不能为空");
+                return false;
+            }
+            if (headTeacherId==''||headTeacherId=='null') {
+                Y.alertx("班主任不能为空");
+                return false;
+            }
+            Y.ajax(ucIP + "/api/uc/v0.1/welcome/class",function(res){
+                if(res && res.result){
+                    Y.alertx("分班成功");
+                    $("#cancel").click();
+                }else{
+                    Y.alertx("分班失败，" + res.errorMsg);
+                }
+            },{meth:"PUT",data:{classId:classId,className:className,headTeacherId:headTeacherId,info:studentInfo.value},dataJson:false})
+        });
+        //取消
+        $("#cancel").click(function(){
+            var goHtml = type == 'manu' ? 'classListManual' : 'classList';
+            Y.open({url:"modules/welcome/" + goHtml + ".html",title:"新生分班管理",data:{type:"autoBack"}});
+        });
+    })()
+</script>

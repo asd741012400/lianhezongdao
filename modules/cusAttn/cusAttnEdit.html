@@ -1,0 +1,788 @@
+<form class="form">
+    <div class="form_title"> <b>考勤模块编辑</b>
+        <span class="red">(*为必填项)</span>
+    </div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>模块名称</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-name" type="text" placeholder="请填写模块名称" maxlength="20" />
+        </div>
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>考勤类型</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-type" type="text" placeholder="请选择考勤类型" />
+        </div>
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>应用类型</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-userType" type="text" placeholder="请选择应用类型" />
+        </div>
+        <div class="clear"></div>
+        <div class="data widthAll">
+            <div class="data_title">组织责任人</div>
+            <div id="data-leaderList"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+        </div>
+        <div class="clear"></div>
+        <div class="data width100">
+            <div class="data_title"> 用户范围列表(范围内的用户可使用,不选为所有)</div>
+            <div id="users-show"></div>
+            <span class="data_error"></span>
+            <div class="users-box">
+                <input class="input" id="data-users_deptes" type="text" placeholder="请选择部门" />
+                <input class="input" id="data-users_classes" type="text" placeholder="请选择班级" />
+                <input class="input" id="data-users_teachers" type="text" placeholder="请选择老师" />
+                <input class="input" id="data-users_students" type="text" placeholder="请选择学生" />
+            </div>
+        </div>
+        <div class="clear"></div>
+        <div id="address"></div>
+        <div class="clear"></div>
+        <div class="data width100">
+            <div class="data_title"> <b class="red">*</b>考勤周期</div>
+            <span class="data_error"></span>
+            <div class="rules1">
+                <div class="rulesTime">
+                    <span class="rulesSpan">周　期:</span>
+                    <div class="rulesDiv" id="rulesTime"></div>
+                </div>
+                <div class="rulesWorkDay">
+                    <span class="rulesSpan">工作日:</span>
+                    <div class="rulesDiv" id="rulesWorkDay">
+                        <label class="checkboxItem" for="_day0"><input value="0" id="_day0" type="checkbox" />全选</label>
+                        <label class="checkboxItem" for="_day1"><input value="1" id="_day1" type="checkbox" />周一</label>
+                        <label class="checkboxItem" for="_day2"><input value="2" id="_day2" type="checkbox" />周二</label>
+                        <label class="checkboxItem" for="_day3"><input value="3" id="_day3" type="checkbox" />周三</label>
+                        <label class="checkboxItem" for="_day4"><input value="4" id="_day4" type="checkbox" />周四</label>
+                        <label class="checkboxItem" for="_day5"><input value="5" id="_day5" type="checkbox" />周五</label>
+                        <label class="checkboxItem" for="_day6"><input value="6" id="_day6" type="checkbox" />周六</label>
+                        <label class="checkboxItem" for="_day7"><input value="7" id="_day7" type="checkbox" />周日</label>
+                    </div>
+                </div>
+                <div class="rulesException">
+                    <span class="rulesSpan">例　外:</span>
+                    <div class="rulesDiv" id="rulesException"></div>
+                </div>
+            </div>
+        </div>
+        <div class="data width50">
+            <div class="data_title">考勤时间</div>
+            <span class="data_error"></span>
+            <span id="data-rules-type" type="radio"><input type="radio" value="1" checked/>时间点<input type="radio" value="2"/>时间段</span>
+        </div>
+        <div class="data width100">
+            <div class="data_title"> <b class="red">*</b>考勤规则</div>
+            <span class="data_error"></span>
+            <div class="rulesType" style="width: 502px;">
+                <div class="rulesTypeLimit"><font>00:00</font></div>
+                <div class="rulesTypeStatu">
+                    <div class="colorPicker"></div>
+                    <input class="rulesTypeInput" placeholder="可输入状态名称" />
+                </div>
+                <div class="rulesTypeTime">
+                    <div class="rulesTypeTimeShow">12:00:00</div>
+                    <img src="images/icon_cicly.png" />
+                    <div class="rulesTypeTimeTip">点击设置时间</div>
+                </div>
+                <div class="rulesTypeStatu">
+                    <div class="colorPicker"></div>
+                    <input class="rulesTypeInput" placeholder="可输入状态名称" />
+                </div>
+                <div class="rulesTypeLimit"><font style="margin-left: 0px;">24:00</font></div>
+                <div class="clear"></div>
+            </div>
+            <div class="rulesType" style="width: 802px;">
+                <div class="rulesTypeLimit"><font>00:00</font></div>
+                <div class="rulesTypeStatu">
+                    <div class="colorPicker"></div>
+                    <input class="rulesTypeInput" placeholder="可输入状态名称" />
+                </div>
+                <div class="rulesTypeTime">
+                    <div class="rulesTypeTimeShow">13:00:00</div>
+                    <img src="images/icon_cicly.png" />
+                    <div class="rulesTypeTimeTip">点击设置时间</div>
+                </div>
+                <div class="rulesTypeStatu">
+                    <div class="colorPicker"></div>
+                    <input class="rulesTypeInput" placeholder="可输入状态名称" />
+                </div>
+                <div class="rulesTypeTime">
+                    <div class="rulesTypeTimeShow">14:00:00</div>
+                    <img src="images/icon_cicly.png" />
+                    <div class="rulesTypeTimeTip">点击设置时间</div>
+                </div>
+                <div class="rulesTypeStatu">
+                    <div class="colorPicker"></div>
+                    <input class="rulesTypeInput" placeholder="可输入状态名称" />
+                </div>
+                <div class="rulesTypeLimit"><font style="margin-left: 0px;">24:00</font></div>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style type="text/css">
+    .qrcodeBtn{
+        position: relative;
+        top:5px;
+        cursor: pointer;
+        right: 40px;
+    }
+    .addressAdd{
+        padding: 3px 10px;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+    .qrcodeDel{
+        position: relative;
+        right: 35px;
+        cursor: pointer;
+    }
+    #qrcode{
+        height: 100px;
+    }
+    .rules1{
+        border: 1px solid #e4e4e4;
+        padding-bottom: 8px;
+    }
+    .rulesSpan{
+        position: absolute;
+        margin-top: 10px;
+        margin-left: 8px;
+    }
+    .rulesDiv{
+        margin-left: 64px;
+    }
+    #rulesWorkDay,#rulesException{
+        padding-top: 10px;
+    }
+    .timeDel{
+        cursor: pointer;
+        position: relative;
+        top: 5px;
+        left: 8px;
+    }
+    .checkboxItem{
+        margin-right: 8px;
+        display: inline-block;
+    }
+    .rulesType{
+        border-bottom: 1px solid #e4e4e4;
+        height: 30px;
+        margin-left: 50px;
+        display: none;
+    }
+    .rulesTypeLimit{
+        width: 1px;
+        float: left;
+    }
+    .rulesTypeLimit font{
+        position: absolute;
+        font-size: 12px;
+        margin-left: -35px;
+        margin-top: 8px;
+    }
+    .rulesTypeStatu{
+        float: left;
+        width: 200px;
+    }
+    .rulesTypeTime{
+        float: left;
+        width: 100px;
+        text-align: center;
+        cursor: pointer;
+    }
+    .colorPicker{
+        width: 10px;
+        height: 10px;
+        background: #75cd1f;
+        float: left;
+        margin-left: 40px;
+        margin-top: 14px;
+        margin-right: 8px;
+        cursor: pointer;
+        line-height: 10px;
+    }
+    .rulesTypeInput{
+        border: none;
+        background: none;
+        width: 120px;
+        float: left;
+        margin-top: 10px;
+        font-size: 14px;
+        color: #75cd1f;
+    }
+    .rulesTypeTimeShow{
+        font-size: 20px;
+    }
+    .rulesTypeTimeTip{
+        font-size: 12px;
+        color: #ccc;
+    }
+    #users-show{
+        background: #eee;
+        border-radius: 5px;
+        padding: 5px 10px;
+    }
+    .users-title-show{
+        color:red;
+    }
+    .users-box {
+        display: flex;
+    }
+</style>
+<script>
+    (function() {
+        function Addresses(){
+            var _this = this;
+            this.timestamp = new Date().only();
+            this.data = [{address:'',qrCode:''}];
+            this.append = function(){
+                $('#address').html('');
+                var html = '';
+                for(var i = 0; i < this.data.length; i ++){
+                    html += '<div class="data width50"><div class="data_title"> <b class="red">*</b>考勤点名称 ' + (i + 1) + '</div><span class="data_error"></span><input class="input address" type="text" placeholder="请填写考勤点名称" value="' + this.data[i].address + '" maxlength="20" /> <img class="qrcodeBtn" src="images/icon_ewm_grey.png" />' + (this.data.length == 1 ? '' : '<span class=\"listDelete bg_f11c1c qrcodeDel\">--</span>') + '</div>';
+                }
+                $('#address').html(html + '<div class="clear" style="padding-top:8px;"><span class="addressAdd" style="color: #59a9e1;cursor: pointer;margin-left:16px;">+ 添加考勤点</span></div>');
+                $('.addressAdd').click(function(){
+                    _this.data.push({address:'',qrCode:'',timestamp:_this.timestamp});
+                    _this.append();
+                })
+                $('.address').each(function(i){
+                    $(this).change(function(){
+                        _this.data[i].address = this.value;
+                    })
+                })
+                $(".qrcodeBtn").each(function(i){
+                    $(this).click(function(){
+                        var address = $('.address').eq(i).val();
+                        if(!Y.Verify.NotNull(address)[0]) {
+                            Y.alertx('地址不能为空','',{toast:true,height:70});
+                            return false;
+                        }
+                        var name = fromConfig.name.o.val();
+                        if(!Y.Verify.NotNull(name)[0]) {
+                            Y.alertx('模块名称不能为空','',{toast:true,height:70});
+                            return false;
+                        }
+                        var type = fromConfig.type.o.val();
+                        if(!Y.Verify.NotNull(type)[0]) {
+                            Y.alertx('模块类型不能为空','',{toast:true,height:70});
+                            return false;
+                        }
+                        Y.ajax(eschoolIP + '/api/cusAttn/mgt/v0.1/qrcode',function(ret){
+                            if(ret && !ret.errorMsg){
+                                Y.confirmx('<div id="qrcode" style="width:200px;height:200px;margin:0px auto;"></div>',function(){},{
+                                    _w:240,
+                                    _h:300,
+                                    title:'二维码',
+                                    initFn:function(){
+                                        $("#qrcode").qrcode({
+                                            render: "canvas", //table方式
+                                            width: 200, //宽度
+                                            height:200, //高度
+                                            text: JSON.stringify(ret) //任意内容
+                                        })
+                                    }
+                                })
+                            }else{
+                                Y.alertx('获取二维码出错,' + ret.errorMsg,'',{toast:true,height:70});
+                            }
+                        },{data:{address:address,name:name,type:type,timestamp:(_this.data[i].timestamp || _this.timestamp)}})
+                    })
+                })
+                $('.qrcodeDel').each(function(i){
+                    $(this).click(function(){
+                        Y.confirmx('确定要删除吗?',function(){
+                            if(_this.data[i].id){
+                                Y.ajax(eschoolIP + '/api/cusAttn/mgt/v0.1/address/' + _this.data[i].id,function(ret){
+                                    if(ret && ret.result){
+                                        _this.remove(i);
+                                    }else{
+                                        Y.alertx('删除失败,' + ret.errorMsg,'',{toast:true,height:70})
+                                    }
+                                },{meth:'DELETE'})
+                            }else{
+                                _this.remove(i);
+                            }
+                        },{
+                            _w:200,
+                            _h:110,
+                            titleHeight:0,
+                            styles:{bottom:'border-top:none;',center:'border-top:none;',box:'left:' + ($(this).offset().left - 150) + 'px;top:' + ($(this).offset().top - 110) + 'px;'}
+                        })
+                    })
+                })
+            }
+            this.remove = function(i){
+                this.data.splice(i,1);
+                this.append();
+            }
+            this.val = function(s){
+                if(s){
+                    this.data = s;
+                    this.append();
+                }else{
+                    $('.address').each(function(i){
+                        _this.data[i].address = this.value;
+                        _this.data[i].timestamp = _this.data[i].timestamp || _this.timestamp;
+                    })
+                    return this.data;
+                }
+            }
+            this.append();
+        }
+        function Rules(){
+            var _this = this;
+            this.time = [{s:'',e:''}];
+            this.type = 1;
+            this.exception = [{v:0,c:false}];
+            this.rules = [];
+            this.buildTime = function(){
+                $('#rulesTime').html('');
+                var html = '';
+                for(var i = 0; i < this.time.length; i ++){
+                    html += '<div class="rulesTimeDiv"><input type="text" class="input" style="width:300px;" placeholder="请输入开始时间" /><span style="margin:0px 16px">至</span><input type="text" class="input" style="width:300px;" placeholder="请输入结束时间" />' + (this.time.length == 1 ? '' : '<span class=\"listDelete bg_f11c1c timeDel\">--</span>') + '</div>';
+                }
+                html += '<div style="margin: 10px 0px;"><span id="addTime" style="color: #59a9e1;cursor: pointer;">+ 添加</span></div>';
+                $('#rulesTime').html(html);
+                $('#addTime').click(function(){
+                    _this.time.push({s:'',e:''});
+                    _this.buildTime();
+                })
+                $('.rulesTimeDiv').each(function(i){
+                    var inputs = $(this).find('input');
+                    //开始日期
+                    var begDate = new Y.Calendar(inputs.eq(0),{date:_this.time[i].s});
+                    inputs.eq(0).focus(function () {
+                        var $this = $(this);
+                        begDate.open(function (d) {
+                            $this.val(d);
+                            _this.time[i].s = d;
+                            begDate.close();
+                        });
+                    });
+                    //结束日期
+                    var endDate = new Y.Calendar(inputs.eq(1),{date:_this.time[i].e});
+                    inputs.eq(1).focus(function () {
+                        var $this = $(this);
+                        endDate.open(function (d) {
+                            $this.val(d);
+                            _this.time[i].e = d;
+                            endDate.close();
+                        });
+                    });
+                })
+                $('.timeDel').each(function(i){
+                    $(this).click(function(){
+                        Y.confirmx('确定要删除吗?',function(){
+                            if(_this.time.length > 1) _this.time.splice(i,1);
+                            _this.buildTime();
+                        },{
+                            _w:200,
+                            _h:110,
+                            titleHeight:0,
+                            styles:{bottom:'border-top:none;',center:'border-top:none;',box:'left:' + ($(this).offset().left - 150) + 'px;top:' + ($(this).offset().top - 110) + 'px;'}
+                        })
+                    })
+                })
+            }
+            this.buildTime();
+            $('#rulesWorkDay input').click(function(){
+                var all = $('#_day0')[0];
+                if(this.value == 0){
+                    var checked = this.checked;
+                    $('#rulesWorkDay input').each(function(){
+                        this.checked = checked;
+                    })
+                }else if(!this.checked && all.checked){
+                    all.checked = false;
+                }
+            })
+            this.buildException = function(){
+                var html = '<label class="checkboxItem" for="holiday"><input id="holiday" type="checkbox" value="0" />法定节假日</label>';
+                html = '';
+                $('#rulesException').html('');
+                for(var i = 0; i < this.exception.length; i ++){
+                    html += '<label class="checkboxItem" for="day' + this.exception[i].v + '"><input value="' + this.exception[i].v + '" id="day' + this.exception[i].v + '" type="checkbox"' + (this.exception[i].c ? ' checked' : '') + ' />' + (this.exception[i].v == 0 ? '法定节假日' : this.exception[i].v) + '</label>';
+                }
+                html += '<span id="addException" style="color: #59a9e1;cursor: pointer;margin-left:16px;">+ 添加</span>';
+                $('#rulesException').html(html);
+                $('#addException').click(function(){
+                    var time = new Y.Calendar(null,{date:"",boxStyles:'left:50%;top:20%;margin-left:-150px;'});
+                    time.open(function (d) {
+                        if($('#day' + d).size() == 0) {
+                            _this.exception.push({v:d,c:false});
+                            _this.buildException();
+                        }
+                        time.close();
+                    });
+                })
+                $('#rulesException input').each(function(i){
+                    $(this).change(function(){
+                        _this.exception[i].c = this.checked;
+                    })
+                })
+            }
+            this.buildException();
+            var radio = new Y.Radio($("#data-rules-type input"),{changeFn:function(v){
+                $('.rulesType').hide();
+                $('.rulesType').eq(v - 1).show();
+            }})
+            $('.rulesType').each(function(i){
+                var $this = $(this);
+                $(this).find('.rulesTypeTime').click(function(){
+                    var $this = $(this);
+                    var time = new Y.Calendar(null,{date:"",type:'time',boxStyles:'left:50%;top:20%;margin-left:-150px;'});
+                    var timeType = $this.find('.rulesTypeTimeShow').html().split(':');
+                    timeType.length = 3;
+                    time.timeType = timeType;
+                    time.open(function (d) {
+                        $this.find('.rulesTypeTimeShow').html(d || '00:00:00');
+                        time.close();
+                    });
+                })
+                $(this).find('.colorPicker').each(function(j){
+                    var pick = $(this);
+                    var input = $this.find('.rulesTypeInput').eq(j);
+                    new Y.ColorPicker(pick,function(color){
+                        pick.css('background',color);
+                        input.css('color',color);
+                        input.attr('color',color);
+                    },{clear:'<div></div>'});
+                })
+            })
+            this.ruleId = '';
+            this.buildRule = function(args){
+                radio.val(args.type);
+                this.ruleId = args.id;
+                var ruleType = $('.rulesType').eq(args.type - 1);
+                var rulesTypeTimeShow = ruleType.find('.rulesTypeTimeShow');
+                if(args.startTime) rulesTypeTimeShow.eq(0).html(args.startTime);
+                if(args.endTime) rulesTypeTimeShow.eq(1).html(args.endTime);
+                if(args.expression){
+                    args.expression = JSON.parse(args.expression);
+                    var rulesTypeInput = ruleType.find('.rulesTypeInput');
+                    for(var k in args.expression){
+                        rulesTypeInput.eq(k - 1).val(args.expression[k].name);
+                        args.expression[k].rgb = args.expression[k].rgb || '#75cd1f';
+                        rulesTypeInput.eq(k - 1).css('color',args.expression[k].rgb);
+                        rulesTypeInput.eq(k - 1).attr('color',args.expression[k].rgb);
+                        ruleType.find('.colorPicker').eq(k - 1).css('background',args.expression[k].rgb);
+                    }
+                }
+            }
+            this.val = function(s){
+                if(s){
+                    if(s.time) {
+                        this.time = JSON.parse(s.time);
+                        this.buildTime();
+                    }
+                    if(s.exception) {
+                        this.exception = [];
+                        s.exception = s.exception.split(',');
+                        for(var i = 0; i < s.exception.length; i ++){
+                            if(i == 0 && s.exception[i] != 0) this.exception.push({v:0,c:false});
+                            this.exception.push({v:s.exception[i],c:true});
+                        }
+                    }
+                    this.buildException();
+                    if(s.workDay){
+                        s.workDay = s.workDay.split(',');
+                        if(s.workDay.length == 7) $('#_day0')[0].checked = true;
+                        for(var i = 0; i < s.workDay.length; i ++){
+                            $('#_day' + s.workDay[i])[0].checked = true;
+                        }
+                    }
+                    this.buildRule(s);
+                }else{
+                    var rc = {time:[],exception:[],workDay:[],type:radio.val(),expression:{},id:this.ruleId};
+                    $('.rulesTimeDiv').each(function(i){
+                        var inputs = $(this).find('input');
+                        var s = inputs.eq(0).val(),e = inputs.eq(1).val();
+                        if(s || e) rc.time.push({s:s,e:e});
+                    })
+                    rc.time = JSON.stringify(rc.time);
+                    $('#rulesWorkDay input').each(function(i){
+                        if(this.checked && i > 0) rc.workDay.push(this.value);
+                    })
+                    rc.workDay = rc.workDay.join(',');
+                    $('#rulesException input').each(function(i){
+                        if(this.checked) rc.exception.push(this.value);
+                    })
+                    rc.exception = rc.exception.join(',');
+                    var ruleType = $('.rulesType').eq(rc.type - 1);
+                    var rulesTypeTimeShow = ruleType.find('.rulesTypeTimeShow');
+                    rc.startTime = rulesTypeTimeShow.eq(0).html();
+                    if(rc.type == 2) rc.endTime = rulesTypeTimeShow.eq(1).html();
+                    ruleType.find('.rulesTypeInput').each(function(i){
+                        rc.expression[i + 1] = {name:this.value,rgb:$(this).attr('color') || '#75cd1f'};
+                    })
+                    rc.expression = JSON.stringify(rc.expression);
+                    return rc;
+                }
+            }
+        }
+        var UsersData=function(){
+            this.data=[];
+            this.val=function(values,notFirst){
+                if(values){
+                    var showUsers={};
+                    //判断是否为首次显示
+                    //console.log(values);
+                    //console.log(values)
+                    if(!notFirst){
+                        var returnUsers={};
+                        for(var k in values) {
+                            var value = values[k];
+                            var type = value.type;
+                            var id = value.dataId;
+                            if(!returnUsers[type])
+                                returnUsers[type]=new Array();
+                            switch (type){
+                                case 1 :value.groupId=value.dataId;break;
+                                case 2 :value.classId=value.dataId;value.className=value.name;break;
+                                case 3 :value.accountId=value.dataId;break;
+                                case 4 :value.accountId=value.dataId;break;
+                            }
+                            value.groupId=value.dataId+"" ;
+                            returnUsers[type].push(value);
+                        }
+                        for(var k in returnUsers){
+                            //console.log(k,returnUsers[k])
+                            switch (k){
+                                case '1' :depts.value=returnUsers[k];break;
+                                case '2' :myclasses.value=returnUsers[k];break;
+                                case '3' :teachers.value=returnUsers[k];break;
+                                case '4' :students.value=returnUsers[k];break;
+                            }
+                        }
+                        this.data=values;
+                        refreshUsersData();
+                        return;
+                    }
+                    for(var k in values) {
+                        var value = values[k];
+                        var type = value.type;
+                        var name = value.name;
+                        if (!showUsers[type])
+                            showUsers[type] = [];
+                        showUsers[type].push(name);
+                    }
+                    //数据显示到菜单上
+                    $("#users-show").empty();
+                    for(var k in showUsers){
+                        var $box=$("<div class='users-show-item'></div>");
+                        var stype="";
+                        var type=parseInt(k+"");
+                        switch (type){
+                            case 1 :stype="部门";break;
+                            case 2 :stype="班级";break;
+                            case 3 :stype="教师";break;
+                            case 4 :stype="学生";break;
+                        }
+                        $box.html("<span class='users-title-show'>"+stype+"</span> "+showUsers[k].join(", ")+"<hr>");
+                        $("#users-show").append($box)
+                    }
+                    this.data=values;
+                }else{
+                    var tempData=new Array();
+                    if(this.data&&this.data.length>0)
+                        for(var k in this.data){
+                            var thisItem=this.data[k];
+                            var thisItemType=thisItem.type;
+                            if(userDataArray[thisItemType-1].is(":hidden"))continue;
+                            tempData.push(thisItem)
+                        }
+                    //如果有类型被隐藏
+                    console.log("data",this.data);
+                    return tempData;
+                }
+            }
+        }
+        var changeSelect=new Y.Select($('#data-userType'),{'1':'学生','2':'教师','3':'学生和教师'},{eachChangeFn:function(){
+            var userType=changeSelect.val();
+            if(userType==1){
+                $("#data-users_deptes").hide();
+                $("#data-users_classes").show();
+                $("#data-users_teachers").hide();
+                $("#data-users_students").show();
+            }else if(userType==2){
+                $("#data-users_deptes").show();
+                $("#data-users_classes").hide();
+                $("#data-users_teachers").show();
+                $("#data-users_students").hide();
+            }else if(userType==3){
+                $("#data-users_deptes").show();
+                $("#data-users_classes").show();
+                $("#data-users_teachers").show();
+                $("#data-users_students").show();
+            }
+            refreshUsersData();
+        }});
+
+        var usersData=new UsersData();
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            id : Y.getUrlParam("id"),
+            name : {
+                o:$("#data-name"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"模块名称不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            addresses:{
+                o:new Addresses(),
+                f:function(v){
+                    var rc = true,msg = [];
+                    if(v.length > 0){
+                       for(var i = 0; i < v.length; i ++){
+                            if(!v[i].address){
+                                rc = false;
+                                msg.push('考勤地点 ' + (i + 1) + ' 不能为空');
+                            }
+                       }
+                    }else{
+                        rc = false;
+                        msg.push('请输入考勤地点');
+                    }
+                    return [rc,msg.join('<br />'),true];
+                }
+            },
+            rules:{
+                o:new Rules(),
+                f:function(v){
+                    var rc = true,msg = [];
+                    var time = JSON.parse(v.time);
+                    if(time.length > 0){
+                        for(var i = 0; i < time.length; i ++){
+                            if(!time[i].s){
+                                rc = false;
+                                msg.push('考勤周期 ' + (i + 1) + ' 开始时间不能为空');
+                            }
+                            if(!time[i].e){
+                                rc = false;
+                                msg.push('考勤周期 ' + (i + 1) + ' 结束时间不能为空');
+                            }
+                       }
+                    }else{
+                        rc = false;
+                        msg.push('请填写考勤周期');
+                    }
+                    if(!v.workDay){
+                        rc = false;
+                        msg.push('请选择考勤周期工作日');
+                    }
+                    var expression = JSON.parse(v.expression);
+                    var hasExpression = false;
+                    for(var key in expression) if(expression[key].name) hasExpression = true;
+                    if(!hasExpression){
+                        rc = false;
+                        msg.push('考勤状态名称不能同时为空');
+                    }
+                    return [rc,msg.join('<br />'),true];
+                }
+            },
+            type:{o:new Y.Select($('#data-type'),{'1':'通用'})},
+            userType:{
+                o:changeSelect,
+                i:function(o){
+
+                },
+                f:function(v){
+                    return [v,'用户类型不能为空',true]
+                }
+            },
+            leaderList:{
+                o:new Y.AnySelectBox($("#data-leaderList"),$("#data-leaderList").next(),{idKey:"accountId",valueString:"<div accountId='{accountId}' class='personData'><div style='width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #e4e4e4;color:#00b7ee;font-size:20px;margin:7px auto;border-radius:50px;' imgUrl='{photo}' class='icon_img'>{listStyle_name}</div><div>{name}</div></div>",
+                    SelectBox:{paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div title='{name}' class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}<font style='color:#3ec0ef;margin-left:5px;'>{phone}</font></span><span style='color:#ccc;display:block;'>组织:{groupName}</span></div>",eachClickFn:function(obj,data,i){
+                           /* if(new RegExp("(^|,)" + data.accountId + "(,|$)").test(fromConfig.userList.o.val())){
+                                Y.alertx("该用户已经设置为组织人员");
+                                return false;
+                            }else{
+                                return true;
+                            }*/
+                           return true;
+                        }}
+                })
+            },
+            users:{
+                o:usersData
+            }
+            // users_deptes:{
+            //     o:new Y.AnySelectBox($("#data-users_deptes"),$("#data-users_deptes"),Y.getSelectBox('depts')),
+            // },
+            // users_classes:{
+            //     o:new Y.AnySelectBox($("#data-users_classes"),$("#data-users_classes"),Y.getSelectBox('classes')),
+            // },
+            // users_teachers:{
+            //     o:new Y.AnySelectBox($("#data-users_teachers"),$("#data-users_teachers"),Y.getSelectBox('teachers')),
+            // },
+            // users_students:{
+            //     o:new Y.AnySelectBox($("#data-users_students"),$("#data-users_students"),Y.getSelectBox('students')),
+            // }
+        }
+        var userDataArray=[$("#data-users_deptes"),$("#data-users_classes"),$("#data-users_teachers"),$("#data-users_students")];
+        //刷新所选数据
+        function refreshUsersData(){
+            var eles=[depts,myclasses,teachers,students];
+            var resultData=new Array();
+            for(var k in eles){
+                var ele=eles[k];
+                var $ele=userDataArray[k];
+                if($ele.is(":hidden"))continue;
+                var val=ele.val();
+                var value=ele.value;
+                if(val&&val.length>0){
+                    var vals=val.split(",")
+                    for(var j in vals){
+                        var id=vals[j];
+                        var ivalue=value[j];
+                        var type=parseInt(k)+1
+                        var item={type:type,dataId:id};
+                        switch (type){
+                            case 1 :item.name=ivalue.name;break;
+                            case 2 :item.name=ivalue.className;break;
+                            case 3 :item.name=ivalue.name;break;
+                            case 4 :item.name=ivalue.name;break;
+                        }
+                        resultData.push(item);
+                    }
+                }
+
+            }
+            usersData.val(resultData,true);
+        }
+
+        var depts=new Y.AnySelectBox($("#data-users_deptes"),$("#data-users_deptes"),Y.getSelectBox('depts'));
+        var myclasses=new Y.AnySelectBox($("#data-users_classes"),$("#data-users_classes"),Y.getSelectBox('classes'));
+        var teachers=new Y.AnySelectBox($("#data-users_teachers"),$("#data-users_teachers"),Y.getSelectBox('teachers'));
+        var students=new Y.AnySelectBox($("#data-users_students"),$("#data-users_students"),Y.getSelectBox('students'));
+        depts.appendFn=refreshUsersData;
+        myclasses.appendFn=refreshUsersData;
+        teachers.appendFn=refreshUsersData;
+        students.appendFn=refreshUsersData;
+
+        fromConfig.userType.o.val(3);
+        var from = new Y.From(fromConfig,"id",{getURL:eschoolIP + "/api/cusAttn/mgt/v0.1/{id}/detail",postURL:eschoolIP + "/api/cusAttn/mgt/v0.1",putURL:eschoolIP + "/api/cusAttn/mgt/v0.1",title:"提交考勤模块信息",dataJson:false});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+
+    })()
+</script>

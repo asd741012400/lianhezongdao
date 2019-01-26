@@ -1,0 +1,58 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="title" class="input" type="text" placeholder="输入标题"/><input type="button" value="搜索" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "carousel", pageNum: 1};
+        var config = [
+            {CH: "标题", EN: "title"},
+            {CH: "发布人", EN: "publisherName",Width:50},
+            {CH: "创建时间", EN: "createDate"},
+            {CH: "类型", EN: "type", Option:{"1":"专题", "2":"新闻"}, OptionExcel:{"1":"专题", "2":"新闻"}},
+            {CH: "位置", EN: "carouselPos", Option:{"1":"首页"}, OptionExcel:{"1":"首页"}},
+            {CH: "状态", EN: "status", Option:{"1":"启用", "2":"停用"}, OptionExcel:{"1":"启用", "2":"停用"}}
+        ];
+        var list = new Y.List(eschoolIP + "/api/carousel/v0.1/carousels", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    $(this).find(".listEdit").click(function(){
+                        Y.open(data.type == 1 ? {url:"portal/advertiseEdit.html",title:"查看广告",data:{id:data.id}} : {url:"modules/news/newsEdit.html",title:"查看新闻",data:{id:data.id}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/carousel/v0.1/carousels/","id","轮播",{vKey:"title",obj:$(this)});
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/carousel/v0.1/carousels/","id","轮播",{vKey:"title"});
+        })
+        $("#downLoadExcel").click(function(e){
+            list.toExcel("首页轮播");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            title:$("#title")
+        });
+    })()
+</script>

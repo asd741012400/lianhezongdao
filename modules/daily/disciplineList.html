@@ -1,0 +1,128 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="statusBtns" id="typeBtns"></div>
+        <div class="search">
+            <input id="classId" class="input" type="text" placeholder="选择班级"/>
+            <input id="userId" class="input" type="text" placeholder="选择学生"/>
+            <input id="startDate" class="input" type="text" placeholder="开始时间"/>
+            <input id="endDate" class="input" type="text" placeholder="结束时间"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    .statusBtns{
+        border-bottom: 1px solid #eeeeee;
+        padding: 20px 0px;
+        text-align: left;
+        margin-bottom: 16px;
+    }
+    .statusBtn{
+        padding:10px 30px;
+        margin-bottom: 8px;
+        border: 1px solid #e4e4e4;
+        margin-right:8px;
+        background: #f8f8f8;
+        color:#666666;
+        cursor: pointer;
+        display: inline-block;
+    }
+    .statusBtn.active{
+        border: 1px solid #00b7ee;
+        background: #00b7ee;
+        color:#ffffff;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var config = [
+            {CH: "班级", EN: "className"},
+            {CH: "班主任", EN: 'headTeacherName'},
+            {CH: "学生", EN: "userName"},
+            {CH: "学号", EN: "studNo"},
+            {CH: "操行项", EN: 'dicLevel2Name'},
+            {CH: "备注", EN: "remark"},
+            {CH: "检查人", EN: "createUserName"},
+            {CH: "时间", EN: "checkTime"},
+            {CH: "审批状态", EN: "status", Option: {"0":"待审批","1": "通过", "2": "驳回"},OptionExcel:{"0":"待审批","1": "通过", "2": "驳回"}}
+        ];
+        var active = '',title = '';
+        Y.ajax(eschoolIP + '/api/daily/v0.1/mgt/dic',function(ret){
+            if(ret && ret.rows){
+                var html = '';
+                for(var i = 0; i < ret.rows.length; i ++) html += '<span class="statusBtn">{value}</span>'._eval(ret.rows[i]);
+                $('#typeBtns').html(html);
+                var defaultI = Y.Storage.get('disciplineListActive') || 0;
+                changeType(ret.rows[defaultI].id,defaultI);
+                title = ret.rows[defaultI].value;
+                $('.statusBtn').each(function(i){
+                    $(this).click(function(){
+                        changeType(ret.rows[i].id,i);
+                        title = ret.rows[i].value;
+                    })
+                })
+            }
+        },{data:{type:2,parentId:0}})
+        var list = '';
+        var classId = new Y.OnlySelectBox($("#classId"),Y.getSelectBox('classe'));
+        var userId = new Y.OnlySelectBox($("#userId"),Y.getSelectBox('student'));
+        var startDateCalendar = new Y.Calendar($("#startDate"),{date:""});
+        startDateCalendar.maxDate = new Date();
+        $("#startDate").focus(function(){
+            var _this = $(this);
+            startDateCalendar.open(function(d){
+                _this.val(d);
+                startDateCalendar.close();
+            });
+        })
+        var endDateCalendar = new Y.Calendar($("#endDate"),{date:""});
+        endDateCalendar.maxDate = new Date();
+        $("#endDate").focus(function(){
+            var _this = $(this);
+            endDateCalendar.open(function(d){
+                _this.val(d);
+                endDateCalendar.close();
+            });
+        })
+        function changeType(dicId,i){
+            if(active) active.removeClass('active');
+            active = $('.statusBtn').eq(i);
+            Y.Storage.set('disciplineListActive',i);
+            active.addClass('active');
+            classId.val('','');
+            userId.val('','');
+            $("#endDate,#startDate").val('');
+            var option = {pageSize: "disciplineList" + dicId, pageNum: 1,dicId:dicId};
+            list = new Y.List(eschoolIP + "/api/daily/v0.1/mgt/discipline", option, config);
+            list.btns = "<span class=\"listLook bg_dfba49\">查看</span>";
+            list.listNumTitle = "序号";
+            list.load(function () {
+                $("tr").each(function(i){
+                    if(i > 0 && list.data && list.data.rows && list.data.rows.length > 0){
+                        var data = list.data.rows[i - 1];
+                        //查看
+                        $(this).find(".listLook").click(function(){
+                            Y.open({url:"modules/daily/disciplineEdit.html",title:title + "操行检查信息",data:{data:data,title:title}});
+                        })
+                    }
+                })
+            });
+            var listSearch = new Y.ListSearch(list,{
+                classId:classId,
+                userId:userId,
+                startTime:$('#startDate'),
+                endTime:$('#endDate')
+            });
+        }
+        $("#downLoadExcel").click(function(){
+            list.toExcel(title + "操行检查记录");
+        })
+    })()
+</script>

@@ -1,0 +1,396 @@
+<div id="classifyBox">
+    <div id='classifyBox_1' class="classifyBox">
+    <div class="classifyBox_t"><span>菜单管理</span></div>
+        <div class="classifyBox_c"></div>
+    </div>
+    <div id='classifyBox_2' class="classifyBox">
+        <div class="classifyBox_t"><span class="nav"></span></div>
+        <div class="classifyBox_c"></div>
+    </div>
+</div>
+<style type="text/css">
+    #classifyBox{
+        margin:10px;
+    }
+    .classifyBox{
+        width: 260px; 
+        float: left;
+        border: 1px solid #e4e4e4;
+        border-radius: 5px;
+        margin-right: 20px;
+        min-height: 79px;
+        display: none;
+        margin-bottom: 20px;
+    }
+    .classifyBox_t{
+        line-height: 40px;
+        border-bottom: 1px dashed #e4e4e4;
+    }
+    .classifyBox_t span{
+        margin-left: 10px;
+        font-weight: bold;
+    }
+    .treeNode_self{
+        text-align:right;
+        height:40px; 
+        line-height:40px;
+    }
+    .treeNode_name{
+        float:left;
+        margin-left:5px;
+        cursor:pointer;
+    }
+    .treeNode_self .listBtns{
+        margin-right:8px;
+        cursor:pointer;
+        float: right;
+        margin-top: 15px;
+        *margin-top: 0px;
+        width: 16px;
+        height: 16px;
+        *height: 28px;
+        padding: 0px;
+    }
+    .treeNode_self_active{
+        background: #f4f4f4;
+    }
+    .treeNode_child{
+        margin-left:20px;
+    }
+    .listAdd{
+        line-height: 40px;
+        text-align: center;
+        color: #19b0e0;
+        cursor:pointer;
+        border-top: 1px solid #e4e4e4;
+    }
+    .moveup1,.movedown1,.moveup2,.movedown2{
+        display: none;
+        margin-right:10px;
+        cursor: pointer;
+        position: relative;
+        margin-top: 15px;
+    }
+    .checkbox1,.checkbox2{
+        float: left;
+        margin-top: 13px;
+        margin-left: 8px;
+    }
+    .showActionsBox{
+        position: relative;
+        border:1px solid #d5d5d5;
+        min-width:100px;
+        background:#fff;
+        display: none;
+        top:20px;
+        left: -10px;
+    }
+    .treeActionDiv{
+        color: #9cbdd3;
+        padding: 0px 10px;
+        border-bottom: 1px solid #d5d5d5;
+        cursor: pointer;
+        text-align: right;
+        line-height: 30px;
+    }
+    .treeActionDiv:hover{
+        background: #fbfbfb;
+    }
+    .treeActionLabel{
+        float: left;
+    }
+    .treeActionIcon img{
+        position: relative;
+        top: 3px;
+    }
+</style>
+<script type="text/javascript">
+    (function(){
+      var tree = new Y.TreeModel($("#classifyBox_1 .classifyBox_c"));
+        tree.levelMax = 2;
+        tree.editable = true;
+        tree.dataModelConfig = {
+            confirmx:{
+                _w:300,
+                _h:300,
+                title:'编辑栏目',
+                initFn:function(){
+                    if($('#dataModel_contentType').size() > 0){
+                        if($('#dataModel_contentType').val() != 2){
+                            $('#dataModel_url').parent().hide();
+                        }else{
+                            $('#dataModel_url').parent().show();
+                        }
+                        $('#dataModel_contentType').change(function(){
+                            if(this.value != 2){
+                                $('#dataModel_url').parent().hide();
+                            }else{
+                                $('#dataModel_url').parent().show();
+                            }
+                        })
+                    }
+                }
+            }
+        };
+        tree.dataModel = {
+            id:{primary:true},
+            name:{
+                input:{
+                    title:"名称",
+                    html:"<input maxlength='10' value='{name_}' id='dataModel_name' type='text' style='border:1px solid #e4e4e4;height:25px;padding:0px 3px;' />",
+                    htmlEval:function(s,k,v,o){
+                        return s.replace('{name_}',o.name ? o.name : '');
+                    },
+                    val:function(){
+                        var vaule = $("#dataModel_name").val();
+                        if(!vaule){
+                            return {result:false,msg:"名称不能为空"};
+                        }else{
+                            return {result:true,vaule:vaule};
+                        }
+                    }
+                }
+            },
+            contentType:{
+                input:{
+                    title:"类型",
+                    html:"<select style='width:177px;height:25px;border:1px solid #e4e4e4;' id='dataModel_contentType'>{options_contentType}</select>",
+                    htmlEval:function(s,k,v){
+                        return s.replace(new RegExp('{options_' + k + '}'),function(){
+                            return '<option value="0" ' + (v == '0' || !v ? 'selected' : '') + '>文字列表</option>' + '<option value="1" ' + (v == '1' ? 'selected' : '') + '>图片列表</option>' + '<option value="2" ' + (v == '2' ? 'selected' : '') + '>超链接</option>';
+                        })
+                    },
+                    val:function(){
+                        return {result:true,vaule:$("#dataModel_contentType").val()};
+                    }
+                }
+            },
+            url:{
+                input:{
+                    title:"链接地址",
+                    html:"<input value='{url}' id='dataModel_url' type='text' style='border:1px solid #e4e4e4;height:25px;padding:0px 3px;' />",
+                    val:function(){
+                        var vaule = $("#dataModel_url").val();
+                        if(!vaule && $("#dataModel_contentType").val() == '2'){
+                            return {result:false,msg:"请输入超链接地址"};
+                        }else{
+                            return {result:true,vaule:vaule};
+                        }
+                    }
+                }
+            },
+            parentId:{}
+        }
+        function sortFn(data1,data2,n){
+            var sort1 = data1.sort;
+            data1.sort = data2.sort;
+            data2.sort = sort1;
+            var d = tree.data.num0;
+            tree.data = {num0:n == 0 ? '' : d};
+            Y.ajax(eschoolIP + "/api/cms/mgt/channel/v0.1/{id}/update",function(ret){
+                if(ret && ret.result){
+                    Y.ajax(eschoolIP + "/api/cms/mgt/channel/v0.1/{id}/update",function(ret){
+                        Y.alertx('移动成功','',{toast:true,height:70,width:100});
+                        Y.refresh();
+                    },{meth:'PUT',data:data2,dataJson:false})
+                }else{
+                    Y.alertx('移动失败,' + ret.errorMsg,'',{toast:true,height:70});
+                    Y.refresh();
+                }
+            },{meth:'PUT',data:data1,dataJson:false})
+        }
+        tree.levelConfig = [{
+            url:eschoolIP + "/api/cms/mgt/channel/v0.1/list",
+            meth:"GET",
+            idKey:"id",
+            pidKey:"parentId",
+            req:{parentId:0,level:1,pageSize: 10000, pageNum: 1},
+            res:{
+                obj:$("#classifyBox_1 .classifyBox_c").eq(0),
+                clickBox:"treeNode_name",
+                activeClass:"treeNode_self_active",
+                childBox:"treeNode_child",
+                arrKey:["rows"],
+                add:{
+                    btnClass:"listAdd",
+                    url:eschoolIP + "/api/cms/mgt/channel/v0.1/save",
+                    meth:"POST",
+                    req:{level:1,sort:1},
+                    ajaxConfig:{},
+                    res:{successKey:"result"},
+                    html:"<div class='listAdd'>+ 添加菜单</div>"
+                },
+                edit:{
+                    btnClass:"listEdit",
+                    url:eschoolIP + "/api/cms/mgt/channel/v0.1/{id}/update",
+                    meth:"PUT",
+                    ajaxConfig:{},
+                    req:{},
+                    res:{successKey:"result"}
+                },
+                del:{
+                    btnClass:"listDelete",
+                    url:eschoolIP + "/api/cms/mgt/channel/v0.1/{id}",
+                    meth:"DELETE",
+                    req:{},
+                    res:{successKey:"result"}
+                },
+                beforeFn:function(){
+                    $("#classifyBox_1").show();
+                },
+                endFn:function(){
+                    $("#classifyBox_2,#classifyBox_3").hide();
+                    var datas = tree.data.num0;
+                    tree.levelConfig[0].res.add.req.sort =  datas.length > 0 ? datas[datas.length - 1].sort + 1 : 1;
+                    $('.checkbox1').each(function(i){
+                        $(this).change(function(){
+                            var self = this;
+                            datas[i].status = !datas[i].status ? 1 : 0;
+                            Y.ajax(eschoolIP + "/api/cms/mgt/channel/v0.1/{id}/update",function(ret){
+                                if(ret && ret.result){
+                                    Y.alertx(datas[i].status ? '启用成功' : '禁用成功','',{toast:true,height:70,width:100});
+                                }else{
+                                    self.checked = !datas[i].status;
+                                    datas[i].status = !datas[i].status;
+                                }
+                            },{meth:'PUT',data:datas[i],dataJson:false})
+                        })
+                    })
+                },
+                editBtn:"listEdit",
+                deleteBtn:"listDelete",
+                html:"<div class='treeNode'><div class='treeNode_self'><input type='checkbox' class='checkbox1' {status_} /><span class='treeNode_name'>{name}</span><span class='listBtns' style='float:right;height:1px;width:1px;margin-right:0px;'><div class='boxShadow showActionsBox'></div></span><span class='listTreeAction listBtns showActions'>　</span><span class='listDelete listBtns'>　</span><span class='listEdit listBtns'>　</span></div></div>",
+                htmlEval:function(s,k,v){
+                    return s.replace(new RegExp('{' + k + '_}'),function(){
+                        return !v ? '' : 'checked';
+                    })
+                },
+                actions:[
+                    {label:'上移',icon:'images/i_up.png',action:function(dom,datas,i){
+                        sortFn(datas[i],datas[i - 1],0)
+                    }},
+                    {label:'下移',icon:'images/i_down.png',action:function(dom,datas,i){
+                        sortFn(datas[i],datas[i + 1],0);
+                    }},
+                    {html:'<label class="treeActionLabel">审批</label><span class="treeActionIcon"></span><div class="clear"></div>',action:function(dom,datas,i){
+                        dom.find('.treeActionIcon').click(function(){
+                            datas[i].checked = datas[i].checked == 1 ? 2 : 1;
+                            Y.ajax(eschoolIP + "/api/cms/mgt/channel/v0.1/{id}/update",function(ret){
+                                if(ret && ret.result){
+                                    show();
+                                    Y.alertx('操作成功','',{toast:true,height:70,width:100});
+                                }else{
+                                    datas[i].checked = datas[i].checked == 1 ? 2 : 1;
+                                    Y.alertx('操作失败,' + ret.errorMsg,'',{toast:true,height:70});
+                                }
+                            },{data:datas[i],meth:'PUT',dataJson:false})
+                            
+                        })
+                        show();
+                        function show(){
+                            dom.find('.treeActionIcon').html('<img src="images/icon_checkbox_' + (datas[i].checked == 1 ? 'true' : 'false') + '.png" />');
+                        }
+                    }}
+                ],
+                style:''
+            }
+        },
+        {
+            url:eschoolIP + "/api/cms/mgt/channel/v0.1/list",
+            meth:"GET",
+            idKey:"id",
+            pidKey:"parentId",
+            req:{parentId:0,level:2,pageSize:10000},
+            res:{
+                obj:$("#classifyBox_2 .classifyBox_c").eq(0),
+                clickBox:"treeNode_name",
+                activeClass:"treeNode_self_active",
+                childBox:"treeNode_child",
+                arrKey:["rows"],
+                add:{
+                    btnClass:"listAdd",
+                    url:eschoolIP + "/api/cms/mgt/channel/v0.1/save",
+                    meth:"POST",
+                    ajaxConfig:{},
+                    req:{level:2,sort:1},
+                    res:{successKey:"result"},
+                    html:"<div class='listAdd'>+ 添加菜单</div>"
+                },
+                edit:{
+                    btnClass:"listEdit",
+                    url:eschoolIP + "/api/cms/mgt/channel/v0.1/{id}/update",
+                    meth:"PUT",
+                    ajaxConfig:{},
+                    req:{},
+                    res:{successKey:"result"}
+                },
+                del:{
+                    btnClass:"listDelete",
+                    url:eschoolIP + "/api/cms/mgt/channel/v0.1/{id}",
+                    meth:"DELETE",
+                    req:{},
+                    res:{successKey:"result"}
+                },
+                beforeFn:function(clickData){
+                    $("#classifyBox_2 .nav").html(clickData.name);
+                    $("#classifyBox_2").show();
+                },
+                endFn:function(){
+                    var datas = tree.data['num' + tree.active[0].id];
+                    tree.levelConfig[1].res.add.req.sort = datas.length > 0 ? datas[datas.length - 1].sort + 1 : 1;
+                    $('.checkbox2').each(function(i){
+                        $(this).change(function(){
+                            var self = this;
+                            datas[i].status = !datas[i].status ? 1 : 0;
+                            Y.ajax(eschoolIP + "/api/cms/mgt/channel/v0.1/{id}/update",function(ret){
+                                if(ret && ret.result){
+                                    Y.alertx(datas[i].status ? '启用成功' : '禁用成功','',{toast:true,height:70,width:100});
+                                }else{
+                                    self.checked = !datas[i].status;
+                                    datas[i].status = !datas[i].status;
+                                }
+                            },{meth:'PUT',data:datas[i],dataJson:false})
+                        })
+                    })
+                },
+                editBtn:"listEdit",
+                deleteBtn:"listDelete",
+                html:"<div class='treeNode'><div class='treeNode_self'><input type='checkbox' class='checkbox2' {status_} /><span class='treeNode_name'>{name}</span><span class='listBtns' style='float:right;height:1px;width:1px;margin-right:0px;'><div class='boxShadow showActionsBox'></div></span><span class='listTreeAction listBtns showActions'>　</span><span class='listDelete listBtns'>　</span><span class='listEdit listBtns'>　</span></div></div>",
+                htmlEval:function(s,k,v){
+                    return s.replace(new RegExp('{' + k + '_}'),function(){
+                        return !v ? '' : 'checked';
+                    })
+                },
+                actions:[
+                    {label:'上移',icon:'images/i_up.png',action:function(dom,datas,i){
+                        sortFn(datas[i],datas[i - 1],0)
+                    }},
+                    {label:'下移',icon:'images/i_down.png',action:function(dom,datas,i){
+                        sortFn(datas[i],datas[i + 1],0);
+                    }},
+                    {html:'<label class="treeActionLabel">审批</label><span class="treeActionIcon"></span><div class="clear"></div>',action:function(dom,datas,i){
+                        dom.find('.treeActionIcon').click(function(){
+                            datas[i].checked = datas[i].checked == 1 ? 2 : 1;
+                            Y.ajax(eschoolIP + "/api/cms/mgt/channel/v0.1/{id}/update",function(ret){
+                                if(ret && ret.result){
+                                    show();
+                                    Y.alertx('操作成功','',{toast:true,height:70,width:100});
+                                }else{
+                                    datas[i].checked = datas[i].checked == 1 ? 2 : 1;
+                                    Y.alertx('操作失败,' + ret.errorMsg,'',{toast:true,height:70});
+                                }
+                            },{data:datas[i],meth:'PUT',dataJson:false})
+                            
+                        })
+                        show();
+                        function show(){
+                            dom.find('.treeActionIcon').html('<img src="images/icon_checkbox_' + (datas[i].checked == 1 ? 'true' : 'false') + '.png" />');
+                        }
+                    }}
+                ],
+                style:''
+            }
+        }]
+        tree.getData(0);  
+    })()
+</script>

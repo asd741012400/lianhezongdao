@@ -1,0 +1,317 @@
+<div class="form">
+    <div class="info-head">
+        <h1>评课评分细则设置</h1>
+        <span class="info-btn info-btn_bg_00B7EE align-right" id="submit">保存设置</span>
+        <span class="info-btn info-btn_bg_eeeeee align-right" id="addTemplate">新增模板</span>
+    </div>
+    <div class="info-body">
+        <div class="info-body-list" id="questionnaireFrom">
+        </div>
+    </div>
+    <div class="bottom">
+
+    </div>
+</div>
+<style type="text/css">
+
+.inline-block{
+    display:inline-block;
+}
+.col_999{
+    color:#999;
+}
+
+.info-body{
+    padding:40px 25px;
+}
+
+.list-title{
+    font-size:18px;
+    margin-bottom:32px;
+}
+.title-s{
+    font-size:12px;
+}
+.info-body-list{
+    margin-top:64px;
+}
+.info-body-list:first-child{
+    margin:0;
+}
+.info-body-list-input{
+    display:block;
+    width:35%;
+    border:none;
+    border-bottom:1px solid #eee;
+    font-size:16px;
+    height:42px;
+    line-height:42px;
+}
+.list-grid{
+    display:inline-block;
+    margin-right:80px;
+}
+.list-grid input{
+    width:100%;
+}
+.add-reduce-wrap{
+    width:90px;
+    text-align:right;
+}
+.add-reduce-wrap span{
+    color:#59A9E1;
+    width:20px;
+    height:20px;
+    text-align:center;
+    line-height:18px;
+    display:inline-block;
+    border:1px solid #59A9E1;
+    border-radius:20px;
+    font-size:16px;
+    cursor:pointer;
+    margin-left:20px;
+    font-weight:bold;
+}
+.info-body-list-detailed-inline .info-body-list-num{
+    margin-right:20px;
+    width:46px;
+}
+.info-body-list-detailed-inline .info-body-list-describe{
+    width:calc(100% - 192px);
+}
+.info-body-list-describe input{
+    border:none;
+    width:86%;
+    line-height:40px;
+    height:40px;
+}
+.info-body-list-notes input{
+    width:calc(100% - 48px);
+}
+.info-body-list-describe span{
+    color:#999;
+}
+.info-body-list-score-wrap{
+    margin-left:66px;
+}
+.info-body-list-classify-wrap span{
+    cursor:pointer;
+    transition:all .2s;
+}
+.info-body-list-classify-wrap span:hover{
+    background:#00B7EE;
+    border-top-color: #00B7EE;
+    border-bottom-color: #00B7EE;
+    color:#fff;
+}
+.info-body-list-score-wrap-ps{
+    margin:0;
+    margin-left:24px;
+    text-indent:0;
+    display:inline-block;
+    color:#999;
+    font-size:12px;
+}
+.info-body-list-score-min{
+    margin-top:16px;
+}
+.info-body-list-score-min-item{
+    float:left;
+    width:275px;
+    margin-right:8px;
+    margin-bottom:10px;
+}
+.item-input{
+    width:241px;
+    border:1px solid #eee;
+    border-radius:5px;
+    height:40px;
+    line-height:40px;
+    padding:0 16px;
+}
+.down-arrow{
+    display:block;
+    margin:10px;
+    width:13px;
+    height:19px;
+    background:url('images/down_arrow.png') no-repeat;
+}
+
+
+.select-wrap{
+    position:relative;
+    border:1px solid #eee;
+    height:40px;
+}
+.select-content{
+    position:absolute;
+    display:block;
+    height:40px;
+    line-height:40px;
+    cursor:pointer;
+    padding-left:16px;
+    width:calc(100% - 16px);
+    z-index:6;
+}
+.arrow-i{
+    position:absolute;
+    width:16px;
+    height:16px;
+    background:url('images/arrow.png');
+    top:50%;
+    margin-top:-8px;
+    right:5px;
+    transform:rotate(90deg);
+    z-index:5;
+}
+.select-list-warp{
+    display:none;
+    border:1px solid #eee;
+    max-height:171px;
+    overflow-y:auto;
+    width:100%;
+    position:absolute;
+    top:40px;
+    left:-1px;
+    background:#fff;
+    z-index:1000;
+}
+.select-list-warp li{
+    height:42px;
+    line-height:42px;
+    padding:0 16px;
+    border-bottom:1px solid #eee;
+    cursor:pointer;
+}
+.select-list-warp li:hover{
+    background:#eee;
+}
+
+.select-list-warp li:last-child{
+    border-bottom:none;
+}
+.title-r-59A9E1{
+    float:right;
+    font-size:14px;
+    font-weight: normal;
+    color:#59A9E1;
+    background:url('images/icon_delete_59A9E1.png') no-repeat;
+    padding-left:20px;
+    cursor:pointer;
+    background-position:0 center;
+}
+</style>
+<script>
+    (function() {
+        var UpperArr = ['一','二','三','四','五','六','七','八','九'];
+        var config = {
+            notes:true
+        }
+        var form = new Y.QuestionnaireFrom($("#questionnaireFrom"),'',config,eschoolIP + "/api/teachingEvaluation/v0.1/wj/question/teacher/detail");
+        form.init()
+        $("#addTemplate").click(function(){
+            Y.confirmx('<input class="input" id="title" type="text" placeholder="请输入标题"/>',function(){
+                var v = $("#title").val();
+                if (v == '') {
+                    Y.alertx("请输入模板标题");
+                    return false;
+                }
+                if (v.length>10) {
+                    Y.alertx("标题字数不能大于10");
+                    return false;
+                }
+                addTemplate(v)
+            })
+        })
+
+        function addTemplate(val){
+            var n = $(".big-wrap").length
+            var tit = UpperArr[n] + '、' + val
+            var head = {
+                parentTitle:tit,
+                del:"删除此模块"
+            }
+            form.addAppend(head);
+            $(".right div").animate({scrollTop:$(".bottom").offset().top},500)
+        }
+        function sum(arr) {
+            var len = arr.length;
+            if(len == 0){
+                return 0;
+            } else if (len == 1){
+                return arr[0];
+            } else {
+                return arr[0] + sum(arr.slice(1));
+            }
+        }
+        $("#submit").click(function(){
+            var items = []
+            var isOK = true
+            var error = ''
+            /*if ($(".big-wrap").length == '0') {
+                isOK = false
+                error = "请添加模板"
+            };*/
+            $(".big-wrap").each(function(i){
+                var parentTitle = $(this).find('.list-title-title').text()
+                items.push({parentTitle:parentTitle,questions:[],score:''})
+                var scoreArrB = []
+                $(this).find('.info-body-list-detailed-wrap').children().each(function(j){
+                    var title = $(this).find("input[name=title]").val()
+                    var description = $(this).find(".input-description").text()
+                    if (!title) {
+                        isOK = false
+                        error = "描述不能为空"
+                        return false
+                    };
+                    if (title.length>10) {
+                        isOK = false
+                        error = "描述字数不能大于10"
+                        return false
+                    };
+                    if (description.length>100) {
+                        isOK = false
+                        error = "注释字数不能大于100"
+                        return false
+                    };
+                    var scoreArr = []
+                    items[i].questions.push({title:(j+1)+'、'+title,description:description,options:[]})
+                    $(this).find('.info-body-list-score-min-item').each(function(){
+                        var option = $(this).find(".item-input").val()
+                        var score = $(this).find(".select-content").attr('data')
+                        scoreArr.push(score)
+                        if (!option) {
+                            isOK = false
+                            error = "选项内容不能为空"
+                            return false
+                        };
+                        if (option.length>4) {
+                            isOK = false
+                            error = "选项字数不能大于4"
+                            return false
+                        };
+                        items[i].questions[j].options.push({optionName:option,score:score})
+                    })
+                    max = Math.max.apply(null,scoreArr);
+                    scoreArrB.push(max)
+                })
+                items[i].score = sum(scoreArrB)
+            })
+
+            if (!isOK) {
+                Y.alertx(error)
+            }else{
+                Y.ajax(eschoolIP + "/api/teachingEvaluation/v0.1/wj/question/teacher",function(ret){
+                    if (ret.dataId) {
+                        Y.alertx("保存成功");
+                    };
+                },{meth:'POST',data:{items:items},dataJson:false})
+            };
+        })
+
+        //返回
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

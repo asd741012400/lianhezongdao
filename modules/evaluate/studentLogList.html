@@ -1,0 +1,128 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="s_id" class="input" type="text" placeholder="选择学期"/>
+            <input id="num" class="input" type="text" placeholder="选择评教顺序"/>
+            <input id="teacherName" class="input" type="text" placeholder="选择被评老师"/>
+            <input id="classId" class="input" type="text" placeholder="选择班级"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+
+<style>
+.statusBtns{
+    text-align:right;
+}
+.reasonLook{
+    color:#6AB81C;
+    cursor:pointer;
+    position:relative;
+}
+.reasonDetail{
+    display:none;
+    position:absolute;
+    width:288px;
+    border:1px solid #6AB81C;
+    right:-30px;
+    background: #fff;
+    top:31px;
+    border-radius:5px;
+    padding:14px 12px;
+    color:#666;
+    font-size:12px;
+    z-index:1;
+    line-height:20px;
+    text-align:left;
+}
+.reasonDetail p{
+    text-indent:0;
+    margin:auto;
+    max-height:60px;
+    overflow-y:auto;
+}
+.triangle-6AB81C{
+    position:absolute;
+    background:url('images/6AB81C_triangle.png');
+    height:14px;
+    width:29px;
+    top:-13px;
+    right:28px;
+    z-index:2;
+}
+</style>
+
+<script type="text/javascript">
+    (function() {
+        Y.ajax(ucIP + "/api/uc/v0.1/semester",function(ret){
+            var active = '';
+            if(ret && !ret.errorMsg) {
+                for(var i = 0; i < ret.rows.length; i ++) if(ret.rows[i].current) active = ret.rows[i];
+            }
+            s_id = new Y.OnlySelectBox($('#s_id'),Y.getSelectBox('semester',{delFn:false}));
+            s_id.val(active.id,active.name);
+            initList(active.id)
+        })
+
+        function initList(id){
+            var option = {semesterId:id,pageSize: "", pageNum: 1};
+            var config = [
+                {CH: "评教学期", EN: "semesterName"},
+                {CH: "评教顺序", EN: "num"},
+                {CH: "班级", EN: "className"},
+                {CH: "班主任", EN: "headTeacherName"},
+                {CH: "评教学生", EN: "pjStudentName"},
+                {CH: "被评老师", EN: "bpTeacherName"},
+                {CH: "评教总分", EN: "scoreTotal",htmlFormat:"<span class=''>{scoreTotal}</span>"},
+            ];
+            list = new Y.List(eschoolIP + "/api/teachingEvaluation/v0.1/student/record/web", option, config);
+            list.btns = "<span class=\"listLook bg_dfba49\">查看</span>";
+            list.listNumTitle = "";
+            list.load(function () {
+                $("tr").each(function(i){
+                    if(i > 0 && list.data.rows.length > 0){
+                        var data = list.data.rows[i - 1];
+                        //查看
+                        $(this).find(".listLook").click(function(){
+                            Y.open({url:"modules/evaluate/studentLogInfo.html",title:"评课详情",data:{recordId:data.recordId}});
+                        })
+                    }
+
+                    $(this).find('.reasonLook').hover(function(e) {
+                        if(e.target==this){
+                            $(this).children('.reasonDetail').fadeIn(200);
+                        }
+                    }, function(e) {
+                        $(this).children('.reasonDetail').fadeOut(200);
+                    });
+                })
+
+            });
+            var numarr = [];
+            for (var i = 1; i <= 20; i++) {
+                numarr.push(i)
+            };
+            new Y.Select($('#num'),numarr),
+            new Y.OnlySelectBox($("#teacherName"),Y.getSelectBox('teacher'))
+            //搜索
+            var listSearch = new Y.ListSearch(list,{
+                semesterId:s_id,
+                num:$("#num"),
+                teacherName:$("#teacherName"),
+                classId:new Y.OnlySelectBox($("#classId"),Y.getSelectBox('classe'))
+            });
+        }
+
+        $("#downLoadExcel").click(function(){
+            list.toExcel("学生评教记录");
+        })
+
+    })()
+</script>

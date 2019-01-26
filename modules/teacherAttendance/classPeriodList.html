@@ -1,0 +1,105 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="keyword" class="input" type="text" placeholder="请输入部门/姓名"/>
+            <input id="begDate" class="input" type="text" placeholder="开始日期"/>
+            <input id="endDate" class="input" type="text" placeholder="结束日期"/>
+            <input type="button" value="" id="searchBtn" class="bg_00b7ee"/><span id="advancedSearch_btn">高级查询<img src="images/gjcx.png" /></span>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+        <div id="advancedSearch_box">
+            <div class="advancedSearch_data"><input id="deptName" class="input" type="text" placeholder="部门名称"/></div>
+            <div class="advancedSearch_data"><input id="name" class="input" type="text" placeholder="教师姓名"/></div>
+            <div class="advancedSearch_data"><input id="begDate1" class="input" type="text" placeholder="开始时间"/></div>
+            <div class="advancedSearch_data"><input id="endDate2" class="input" type="text" placeholder="结束时间"/></div>
+            <div class="advancedSearch_data"><input id="className" class="input" type="text" placeholder="班级"/></div>
+            <div class="clear"></div>
+            <div class="advancedSearch_btn"><input type="button" value="搜索" id="advancedSearchBtn" class="bg_00b7ee"/><input type="button" value="取消" id="advancedSearchCancle" class="bg_ffffff"/></div>
+        </div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "classPeriod", pageNum: 1};
+        var config = [
+            {CH: "部门名称", EN: "deptName"},
+            {CH: "教师姓名", EN: "name"},
+            {CH: "工号", EN: "num"},
+            {CH: "课时日期", EN: "courseDate"},
+            {CH: "班级", EN: "className"},
+            {CH: "节次", EN: "sectionName"},
+            {CH: "提交时间", EN: "subTime"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/attendance/v0.1/ct/fuzzyresult", option, config);
+        list.load(function () {
+            $("tr").each(function(i) {
+                if(i > 0 && list.data.rows.length > 0) {
+                    var data = list.data.rows[i - 1];
+                    var text = data.courseDate + data.weekday;
+                    $($(this).find("td")[4]).text(text);
+                }
+            });
+        });
+
+        //开始日期
+        var begDate = new Y.Calendar($("#begDate"));
+        $("#begDate").focus(function () {
+            var _this = $(this);
+            begDate.open(function (d) {
+                _this.val(d);
+                begDate.close();
+            });
+        });
+        //结束日期
+        var endDate = new Y.Calendar($("#endDate"));
+        $("#endDate").focus(function () {
+            var _this = $(this);
+            endDate.open(function (d) {
+                _this.val(d);
+                endDate.close();
+            });
+        });
+
+        //开始日期
+        var begDate1 = new Y.Calendar($("#begDate1"));
+        $("#begDate1").focus(function () {
+            var _this = $(this);
+            begDate1.open(function (d) {
+                _this.val(d);
+                begDate1.close();
+            });
+        });
+        //结束日期
+        var endDate2 = new Y.Calendar($("#endDate2"));
+        $("#endDate2").focus(function () {
+            var _this = $(this);
+            endDate2.open(function (d) {
+                _this.val(d);
+                endDate2.close();
+            });
+        });
+
+        $("#downLoadExcel").click(function(){
+            list.toExcel("课时记录统计信息");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword"),
+            begDate:$("#begDate"),
+            endDate:$("#endDate")
+        },eschoolIP + "/api/attendance/v0.1/ct/preciseresult",{
+            deptName:$("#deptName"),
+            name:$("#name"),
+            begDate:$("#begDate1"),
+            endDate:$("#endDate2"),
+            className:$("#className")
+        });
+    })()
+</script>

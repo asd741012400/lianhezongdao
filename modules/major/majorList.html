@@ -1,0 +1,66 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="majorName" class="input" type="text" placeholder="输入专业名称"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value = "删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "major", pageNum: 1,schoolId:schoolId};
+        var config = [
+            {CH: "专业代码", EN: "code"},
+            {CH: "院系", EN: "groupName"},
+            {CH: "专业名称", EN: "name"},
+            {CH: "学制", EN: 'years'},
+            {CH: "学费", EN: "tuition"},
+            {CH: "学历", EN: "degree",Option:{"1":"中职","2":"高职"},OptionExcel:{"1":"中职","2":"高职"}},
+            {CH: "重点专业", EN: "type",Align:"center",Option:{"1":"普通","2":"重点","3":"特色"},OptionExcel:{"1":"普通","2":"重点","3":"特色"}},
+            {CH: "状态", EN: "status",Option:{"0":"未启用","1":"启用","2":"删除"},OptionExcel:{"0":"未启用","1":"启用","2":"删除"}}
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/majors", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/major/majorEdit.html",title:"编辑专业信息",data:{id:data.id}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],ucIP + "/api/uc/v0.1/majors/","id","专业",{vKey:"name",obj:$(this)});
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),ucIP + "/api/uc/v0.1/majors/","id","专业",{vKey:"name"});
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/major/majorEdit.html",title:"新增专业"});
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("专业信息");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            majorName:$("#majorName")
+        });
+    })()
+</script>

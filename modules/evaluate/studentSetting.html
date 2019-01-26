@@ -1,0 +1,118 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="s_id" class="input" type="text" placeholder="选择学期"/>
+            <input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+
+        <input type="button" value="新增评教" id="addBtn" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+
+<style>
+.statusBtns{
+    text-align:right;
+}
+.reasonLook{
+    color:#6AB81C;
+    cursor:pointer;
+    position:relative;
+}
+.reasonDetail{
+    display:none;
+    position:absolute;
+    width:288px;
+    height:60px;
+    border:1px solid #6AB81C;
+    right:-30px;
+    background: #fff;
+    top:31px;
+    border-radius:5px;
+    padding:14px 12px;
+    color:#666;
+    font-size:12px;
+    z-index:1;
+    line-height:20px;
+    text-align:left;
+}
+.triangle-6AB81C{
+    position:absolute;
+    background:url('images/6AB81C_triangle.png');
+    height:14px;
+    width:29px;
+    top:-13px;
+    right:28px;
+    z-index:2;
+}
+</style>
+
+<script type="text/javascript">
+    (function() {
+        Y.ajax(ucIP + "/api/uc/v0.1/semester",function(ret){
+            var active = '';
+            if(ret && !ret.errorMsg) {
+                for(var i = 0; i < ret.rows.length; i ++) if(ret.rows[i].current) active = ret.rows[i];
+            }
+            s_id = new Y.OnlySelectBox($('#s_id'),Y.getSelectBox('semester',{delFn:false}));
+            s_id.val(active.id,active.name);
+            initList(active.id)
+        })
+
+        function initList(id){
+            var option = {semesterId:id,pageSize: "", pageNum: 1};
+            var config = [
+                {CH: "评教学期", EN: "title"},
+                {CH: "评教顺序", EN: "num"},
+                {CH: "使用状态", EN: "status",htmlFormat:function(k,v,o){
+                return v ? '<input type="radio" class="enable" checked />启用<input type="radio" class="enable" />禁用' : '<input type="radio" class="enable" />启用<input type="radio" class="enable" checked />禁用';
+            }},
+            ];
+            list = new Y.List(eschoolIP + "/api/teachingEvaluation/v0.1/wj/student", option, config);
+            list.btns = "<span class=\"listEdit\">编辑</span>";
+            list.listNumTitle = "";
+            list.load(function () {
+                $("tr").each(function(i){
+                    if(i > 0 && list.data.rows.length > 0){
+                        var data = list.data.rows[i - 1];
+                        //修改
+                        $(this).find(".listEdit").click(function(){
+                            Y.open({url:"modules/evaluate/studentSettingEdit.html",title:"小组成员编辑",data:{wjId:data.wjId}});
+                        })
+                        //修改状态
+                        $(this).find(".enable:not(:checked)").click(function(){
+                            var checked = data.status != 1,
+                            type = checked?'1':'0';
+                            $(this).removeAttr('checked');
+                            Y.confirmx("确定修改状态为" + (checked ? "启用？" : "禁用？") + "",function(){
+                                Y.ajax(eschoolIP + "/api/teachingEvaluation/v0.1/wj/{wjId}/student",function(res){
+                                    if(res.result){
+                                        list.load();
+                                        Y.alertx("修改状态成功！",'',{toast:true,height:70});
+                                    }else{
+                                        Y.alertx("修改失败，" + res.errorMsg,'',{toast:true,height:70});
+                                    }
+                                },{meth:'PUT',data:{wjId:data.wjId,type:type}})
+                            })
+                        })
+                    }
+                })
+            });
+
+            $("#addBtn").click(function(){
+                Y.open({url:"modules/evaluate/studentSettingEdit.html",title:"新增小组成员",data:{}});
+            })
+                //搜索
+            var listSearch = new Y.ListSearch(list,{
+                semesterId:s_id,
+            });
+        }
+
+    })()
+</script>

@@ -1,0 +1,265 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="keyword" class="input" type="text" placeholder="班级名称/班主任"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="reClass" type="button" value="分班" class="bg_eeeeee"/>
+<!--        <input id="downLoadTemplate" type="button" value="下载导入模板" class="bg_eeeeee"/>
+        <input id="importData" type="button" value="导入数据" class="bg_eeeeee"/>-->
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+        <div id="advancedParam_box">
+            <div class="advancedSearch_data"><input id="majorId" class="input" type="text" placeholder="分班专业"/></div>
+            <div class="advancedSearch_data"><input id="limitNum" class="input" type="text" placeholder="班级限制人数(必填)"/></div>
+            <div class="advancedSearch_data"><input id="period" class="input" type="text" placeholder="年级(必填)"/></div>
+            <div class="advancedSearch_data"><input id="rate" class="input" type="text" placeholder="男女比例 例如: 1:1"/></div>
+            <div class="advancedSearch_data textLeft"><input id="changeChecked" type="checkbox" checked />已选中班级学生</div>
+            <div class="advancedSearch_data textLeft"><input id="changeNoClass" type="checkbox" checked/>未分班学生</div>
+            <div class="clear"></div>
+            <div class="textLeft">
+                <div id="preCountMsg"></div>
+            <!--<div class="advancedSearch_data"><select id="reportStatu" class="input"><option value="">全部报名状态</option><option value="0">未报到</option><option value="1">已报到</option></select></div>-->
+            <div class="clear" style="height: 10px"></div>
+            <div class="advancedSearch_btn"><input type="button" style="display: none" value="确认分班" id="advanceClassBtn" class="bg_00b7ee"/><input type="button" value="分班预统计" id="advancedSearchBtn" class="bg_00b7ee"/><input type="button" value="取消" id="advancedSearchCancle" class="bg_ffffff"/></div>
+        </div>
+    </div>
+</div>
+<div style="line-height: 40px;padding:0px 10px;border-top: 1px solid #e4e4e4;">
+    未分班学生人数为
+    <span id="unAssigned" style="color: #f87941;margin:10px;">--</span>
+    人
+    <input id="goDivisionStuMsg" type="button" value="查看" class="bg_eeeeee" style="cursor:pointer;margin-left: 10px;" />
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var type = Y.getUrlParam("type");
+        if (type != 'autoBack') {
+            intChoice();
+        };
+        var config = [
+            {CH: "班级名称", EN: "className"},
+            {CH: "班级代码", EN: "classCode"},
+            {CH: "班主任", EN: "headTeacherName"},
+            {CH: "已分配人数", EN: "assigned"},
+            {CH: "男生人数", EN: "boy"},
+            {CH: "女生人数", EN: "girl"},
+            {CH: "未分配正式学号人数", EN: "unsignedStuNo"},
+            {CH: "生成学号", EN: "",htmlFormat: "<span title='生成学号' class=\"listSchoolNumber\">生成学号</span>"},
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/welcome/class", {pageSize:"welcome_class",pageNum:1}, config);
+        list.btns = "<span class=\"listAddPersonWel\">添加</span><span class=\"listOfficial\">班级归档</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("#unAssigned").html(list.data.unAssigned);
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listAddPersonWel").click(function(){
+                        Y.open({url:"modules/welcome/classEdit.html",title:"新生分班",data:{id:data.classId,type:'auto'}});
+                    })
+                    //生成学号
+                    $(this).find(".listSchoolNumber").click(function(){
+                        Y.ajax(ucIP + "/api/uc/v0.1/numberRules/createAndSave/"+data.classId,function(res){
+                            if(res && res.result){
+                                Y.alertx("生成成功");
+                                list.reLoad();
+                            }else{
+                                Y.alertx("生成失败，" + res.errorMsg);
+                            }
+                        },{meth:"PUT",data:{classId:data.classId},dataJson:false})
+                    });
+                    //班级归档
+                    $(this).find(".listOfficial").click(function(){
+                        Y.confirmx("<div>归档后班级将进入校园数据管理</div>",function(){
+                            Y.ajax(ucIP + "/api/uc/v0.1/classes/official/"+data.classId,function(res){
+                                if(res && res.result){
+                                    Y.alertx("操作成功");
+                                    list.reLoad();
+                                }else{
+                                    Y.alertx("操作成功," + res.errorMsg);
+                                }
+                            },{meth:"PUT",data:{classId:data.classId},dataJson:false})
+                        })
+                    })
+                }
+            });
+        });
+        var downloadList=new Y.AnySelectBox($("#downLoadTemplate"),$("#downLoadTemplate"),Y.getSelectBox('majors',{maxSize:20,valArr:true}));
+        //点击确定事件
+        downloadList.appendFn=function(){
+            //下载模板
+            var val=downloadList.val();
+            if(val==null||val.length==0){
+                Y.alertx("请至少选择一个专业");
+            }
+            var downloadUrl=ucIP+"/api/uc/v0.1/welcome/class/export/dataImportTemplate?schoolId="+schoolId+"&majorId="+val.join(",");
+            window.location.href=downloadUrl;
+            downloadList.value = [];
+        }
+        $('#importData').click(function(){
+            Y.upload(ucIP + '/api/uc/v0.1/welcome/class/export/dataImport',function(res){
+                if(res && res.result){
+                    Y.alertx("导入成功," + res.msg,function(){
+                        list.reLoad();
+                    });
+                }else{
+                    if(res && res.url){
+                        Y.confirmx("<div style='color: #ff0000;font-weight:bold;'>导入失败！</div>" + res.msg + "<div style='color: #ff0000;'>点击确定下载失败的数据？</div>",function(){
+                            Y.download(res.url);
+                            list.reLoad();
+                        });
+                    }else{
+                        Y.alertx("导入失败，" + res.errorMsg);
+                    }
+                }
+            })
+        })
+        $("#downLoadExcel").click(function(){
+            list.toExcel("新生分班管理");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword")
+        });
+        $("#reClass").on("click",function(){
+            $("#advancedParam_box").show();
+            var checked = list.getChecked();
+            if(!checked||checked.length==0) {
+                $("#changeChecked").prop("checked",false);
+            }else{
+                $("#changeChecked").prop("checked",true);
+            }
+
+        });
+        var majors=new Y.OnlySelectBox($("#majorId"),Y.getSelectBox('newMajor'));
+        var calendar = new Y.Calendar($("#period"),{type:"year"});
+        calendar.maxDate = new Date();
+        $("#period").focus(function(){
+            var _this = $(this);
+            _this.prev().hide();
+            calendar.open(function(d){
+                _this.val(d);
+                calendar.close();
+            });
+        });
+        var tempParam;
+        $("#advancedSearchBtn").on("click",function(){
+            var param={
+                majorId:majors.val(),
+                classStuNum:$("#limitNum").val(),
+                grade:$("#period").val(),
+                rate:$("#rate").val(),
+                changeChecked:$("#changeChecked").is(":checked"),
+                changeNoClass:$("#changeNoClass").is(":checked")
+            }
+            if(!param.classStuNum||!/^\d*\d$/.test(param.classStuNum)){
+                Y.alertx("班级限制人数必须填写");
+                return;
+            }
+            if(!param.changeChecked&&!param.changeNoClass){
+                Y.alertx("至少勾选一种学生类型");
+                return;
+            }
+            if(param.changeChecked) {
+                var classIds = list.getChecked();
+                if (!classIds || classIds.length == 0) {
+                    Y.alertx("勾选‘已选中班级学生’ 请至少选择一个班级");
+                    return;
+                }
+                var tempIds=new Array();
+                for(var k in classIds){
+                    tempIds.push(classIds[k].classId)
+                }
+                param.classIds=tempIds.join(",")
+            }
+            //console.log("param",param);
+            var ajax = new Y.Ajax(ucIP + "/api/uc/v0.1/welcome/class/pre/count", function (res) {
+                if (res && !res.errorMsg) {
+                    $("#preCountMsg").empty();
+                    for(var k in res){
+                        var item=res[k];
+                        var tips=item.tipList;
+                        var tipsStr=tips?'<br>'+tips.join("<br>"):'';
+                        var itemDivStr="<div style='border-bottom: 1px solid #59a9e1;' >专业‘<span style='color:#59a9e1'>"+item.majorName+"’</span>共有男生"+item.boy+"人\女生"+item.girl+"人 "+tipsStr+" </div>";
+                        $("#preCountMsg").append(itemDivStr);
+                    }
+                    tempParam=param;
+                    $("#advanceClassBtn").show();
+                }else{
+                    Y.alertx("预统计失败，" + res.errorMsg);
+                }
+            }, {
+                meth: "GET",
+                data: param
+            })
+            ajax.action();
+        })
+        //取消
+        $("#advancedSearchCancle").on("click",function(){
+            $("#advanceClassBtn").hide();
+            $("#advancedParam_box").hide();
+        })
+        //确认分班
+        $("#advanceClassBtn").on("click",function(){
+            Y.confirmx("确定要按照最后一次成功预统计的信息，进行分班吗?",function(){
+                var ajax = new Y.Ajax(ucIP + "/api/uc/v0.1/welcome/class/pre/execute", function (res) {
+                    if (res && !res.errorMsg) {
+                       Y.alertx("操作成功");
+                        $("#advanceClassBtn").hide();
+                        $("#advancedParam_box").hide();
+                        list.reLoad();
+                    }else{
+                        Y.alertx("分班失败，" + res.errorMsg);
+                        list.reLoad();
+                    }
+                }, {
+                    meth: "GET",
+                    data: tempParam
+                });
+                ajax.action();
+            })
+        })
+        //分班查询
+        $("#goDivisionStuMsg").click(function(){
+            Y.open({url:"modules/welcome/divisionStuMsg.html",title:"新生分班查询",data:{type:'auto'}});
+        })
+        //初始化选择
+        function intChoice(){
+            var box = "<div style='text-align:center;margin-top:38px'>"
+                    +    "<span id='manualDivision' style='display:inline-block;background:#00b7ee;color:#fff;font-size:16px;margin:0 10px;padding:6px 15px;cursor:pointer;border-radius:5px'>手动分班</span>"
+                    +    "<span id='autoDivision' style='display:inline-block;background:#00b7ee;color:#fff;font-size:16px;margin:0 10px;padding:6px 15px;cursor:pointer;border-radius:5px'>自动分班</span>"
+                    + "</div>"
+            var n = new Y.Windows();
+            n.title = '请选择分班方式';
+            n.content = box;
+            n.width = 300;
+            n.height = 200;
+            var len = Y.open.history.length;
+            var bac = Y.open.history[len-2];
+            if (len <= 1||bac.title=='新生分班管理') {
+                n.closeBtn = false;
+            };
+            n.closeFun = function(){
+                Y.back(-1);
+                $('.menu_1_active').find('.menu_2').removeClass('menu_2_active');
+                $('.menu_1_active').find('.menu_2:contains('+bac.title+')').addClass('menu_2_active');
+            }
+            n.open();
+            $('#manualDivision').click(function(){
+                Y.open({url: "modules/welcome/classListManual.html", title: "新生分班管理"});
+                n.close();
+            })
+            $('#autoDivision').click(function(){
+                n.close();
+            })
+        }
+    })()
+</script>

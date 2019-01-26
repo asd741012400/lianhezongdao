@@ -1,0 +1,209 @@
+<form class="form">
+    <div class="form_title"><b>收文编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>类型</div>
+        <span id="data-docType" type="radio"><input type="radio" value="1" checked/>公文<input type="radio" value="2"/>会议通知</span>
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>收文编号</div>
+        <span class="data_error">收文编号不能为空</span><input class="input" id="data-receiveDocNo" type="text" placeholder="请填写学校自定义公文管理编号" />
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>签收人</div>
+        <span class="data_error">签收人不能为空</span><input class="input" id="data-assignee" type="text" placeholder="请选择签收人"/>
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>签收日期</div>
+        <span class="data_error">签收日期不能为空</span><input class="input" id="data-assigneeDate" type="text" placeholder="请填写签收日期" />
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>来文机关</div>
+        <span class="data_error">来文机关不能为空</span><input class="input" id="data-inDocOrg" type="text" placeholder="请填写来文机关" />
+    </div>
+    <div class="data width50">
+        <div class="data_title">来文号</div>
+        <input class="input" id="data-inDocNo" type="text" placeholder="请填写公文上的文件号" />
+    </div>
+    <div class="data width50">
+        <div class="data_title">份数</div>
+        <span class="data_error">份数不能为空</span><input class="input" id="data-copies" type="text" placeholder="请填写份数" />
+    </div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>来文标题</div>
+        <span class="data_error">来文标题不能为空</span><input class="input" id="data-inDoctitle" type="text" placeholder="请填写来文标题" />
+    </div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>内容摘要</div>
+        <span class="data_error">内容摘要不能为空</span><input class="input" id="data-contentDigest" type="text" placeholder="请填写内容摘要" />
+    </div>
+    <div class="data width100">
+    <div class="data_title">附件<span id="data-attachment-click">选择文件</span></div>
+    <div id="data-attachment"></div>
+    </div>
+    <div class="data width100">
+        <div class="data_title">备注</div>
+        <span class="data_error">备注不能为空</span><input class="input" id="data-remark" type="text" placeholder="请填写备注" />
+    </div>
+    <div class="data widthAll">
+        <div class="data_title"><b class="red">*</b>下一级审批人</div>
+        <div id="data-next"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style type="text/css">
+    #data-attachment-click{
+        padding:4px 15px;
+        cursor: pointer;
+        color: #00b7ee;
+        border: 1px solid #e4e4e4;
+        border-radius: 3px;
+        margin-left: 10px;
+    }
+    #data-attachment{
+        border: 1px solid #e4e4e4;
+        padding:5px;
+        min-height: 30px;
+        margin-top: 10px;
+    }
+</style>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            docType : {o:new Y.Radio($("#data-docType input"))},
+            receiveDocNo : {
+                o:$("#data-receiveDocNo"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"收文编号不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            assignee:{
+                o:new Y.OnlySelectBox($("#data-assignee"),{
+                    vKey:"accountId",
+                    sKey:"name",
+                    SelectBox:{
+                        paramet:{key:"keyword",pageNum:1,pageSize:10},
+                        url:ucIP + "/api/uc/v0.1/teachers",
+                        dataString:"<div class='autoList' vaule='{accountId}'><b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"
+                    }
+                }),
+                _o:$("#data-assignee"),
+                f:function(v){
+                    if (v == "") {
+                        return [false,"签收人不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            assigneeDate : {
+                o:$("#data-assigneeDate"),
+                i:function(v){
+                    var assigneeDateCalendar = new Y.Calendar($("#data-assigneeDate"));
+                    //assigneeDateCalendar.minDate = new Date();
+                    $("#data-assigneeDate").focus(function(){
+                        var _this = $(this);
+                        _this.prev().hide();
+                        assigneeDateCalendar.open(function(d){
+                            _this.val(d);
+                            assigneeDateCalendar.close();
+                        });
+                    })
+                },
+                f:function(v){
+                    if (v == "") {
+                        return [false,"签收日期不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            inDocOrg : {
+                o:$("#data-inDocOrg"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"来文机关不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            inDocNo : {o:$("#data-inDocNo")},
+            copies : {
+                o:$("#data-copies"),
+                e:"blur",
+                f:function(v){
+                    if (v >= 0 || v == "") {
+                        return [true];
+                    } else {
+                        return [false,"份数必须为大于0的正整数"];
+                    }
+                }
+            },
+            inDoctitle : {
+                o:$("#data-inDoctitle"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"来文标题不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            contentDigest : {
+                o:$("#data-contentDigest"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"内容摘要不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            remark : {o:$("#data-remark")},
+            attachment : {o:new Y.Accessory($("#data-attachment-click"),$("#data-attachment"),{url:"attachermentUrl",name:"attachermentName",size:"attachermentSize"},false)},
+            next : {
+                o:new Y.AnySelectBox($("#data-next"),$("#data-next").next(),{
+                    valArr:true,
+                    idKey:"accountId",
+                    valueString:"<div accountId='{accountId}' class='personData'><div class='icon_img' imgUrl='{photo}'><img src='images/headPortrait.png' /></div><div>{name}</div></div>",
+                    SelectBox:{
+                        paramet:{pageNum:1,pageSize:10,key:"keyword"},
+                        url:ucIP + "/api/uc/v0.1/teachers",
+                        dataString:"<div class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"
+                    }
+                }),
+                f:function(v){
+                    if (v.length == 0) {
+                        return [false,"下一级审批人不能为空",true];
+                    } else if(v == accountId){
+                        return [false,"下一级审批人不能是发起人本人",true];
+                    } else {
+                        return [true];
+                    }
+                }
+            }
+        }
+        var from = new Y.From(fromConfig,"newsId",{dataJson:false,getURL:"",postURL:bpmIP + "/api/dp/v0.1/officialdoc",putURL:"",title:"新增收文"});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

@@ -1,0 +1,186 @@
+﻿<form class="form">
+    <div class="data widthAll">
+        <div class="data_title"><b class="red">*</b>姓名</div>
+        <span class="data_error">姓名不能为空</span><input class="input" id="de-data-name" type="text" placeholder="请填写姓名"/>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title"><b class="red">*</b>性别</div>
+        <span id="de-data-sex" type="radio"><input type="radio" value="1" checked/>男<input type="radio" value="0"/>女</span>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title"><b class="red">*</b>手机号</div>
+        <span class="data_error">手机号不能为空</span><input class="input" id="de-data-phone" type="text" placeholder="请填写手机号"/>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title"><b class="red">*</b>工号</div>
+        <span class="data_error">工号不能为空</span><input class="input" id="de-data-jobNumber" type="text" placeholder="请填写工号"/>
+    </div>
+    <!-- <div class="data widthAll">
+        <div class="data_title"><b class="red">*</b>部门</div><span class="data_error">部门不能为空</span>
+        <div id="data-roleIds"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+    </div> -->
+    <div class="data widthAll">
+        <div class="data_title"><b class="red">*</b>是否部门负责人</div>
+        <span id="de-data-org" type="radio"><input type="radio" value="1" checked/>是<input type="radio" value="0"/>否</span>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title">角色</div><span class="data_error">角色不能为空</span>
+        <div id="de-data-roleIds"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title">职务</div>
+        <input class="input" id="de-data-duty" type="text" placeholder="请输入职务"/>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title">排序号</div>
+        <input class="input" id="de-data-sort" type="text" placeholder="数字越小越靠前"/>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="返回" class="bg_ffffff"/>
+    </div>
+</form>
+<style type="text/css">
+    .form{
+        width: calc(100% - 3px);
+        border: 1px solid #e4e4e4;
+        padding: 10px 0;
+    }
+    .data{
+        padding: 0 15px;
+        min-height: 50px;
+        margin:10px 0 0 5px;
+    }
+    .data_title{
+        float: left;
+        margin-right:12px;
+    }
+    .widthAll .input{
+        height:28px;
+        line-height:28px;
+    }
+    .data_error{
+        margin-left:18px;
+    }
+    #de-data-org,#de-data-sex{
+        float:left;
+        margin:4px 0 0 0;
+    }
+</style>
+<script>
+    (function() {
+        //console.log(groupId,accountId)
+        //var roleIds = new Y.AnySelectBox($("#data-roleIds"),$("#data-roleIds").next(),Y.getSelectBox('groupRoles'));
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            departmentId:groupId,
+            accountId:accountId,
+            name:{
+                o:$("#de-data-name"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"姓名不能为空"];
+                    }else if(v.length>40){
+                        return [false,"姓名长度不能超过10"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            sex:{
+                o:new Y.Radio($("#de-data-sex input"))
+            },
+            phone:{
+                o:$("#de-data-phone"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"手机号码不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            jobNumber:{
+                o:$("#de-data-jobNumber"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"工号不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            roleIds:{
+                o:new Y.AnySelectBox($("#de-data-roleIds"),$("#de-data-roleIds").next(),Y.getSelectBox('groupRoles')),
+            },
+            duty:{
+                o:$("#de-data-duty")
+            },
+            isLeader:{o:new Y.Radio($("#de-data-org input"))},
+            sort:{
+                o:$("#de-data-sort")
+            },
+        }
+        var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+        if (accountId) {
+            Y.ajax(ucIP + "/api/uc/v0.1/teachers/" + accountId + "/detail",function(ret){
+                var from = new Y.From(fromConfig,"accountId",{postURL:ucIP + "/api/uc/v0.1/teachers/insertWithSingleDepartment",putURL:ucIP + "/api/uc/v0.1/teachers/updateWithSingleDepartment/{accountId}",title:"提交组织信息",data:ret});
+                //提交
+                $("#submit").click(function(){
+                    fromConfig.departmentId = groupId;
+                    if($("#de-data-jobNumber").val() == ""){
+                        Y.alertx("工号不能为空")
+                        return false;
+                    }
+                    from.submit($(this),function(){
+                        Y.alertx("修改成功", function () {
+                            var hasNodes = treeObj.getNodeByParam("id", accountId);
+                            hasNodes.name = $("#de-data-name").val();
+                            if (fromConfig.isLeader.o.val()=='1') {
+                                hasNodes.name += "(部门领导)";
+                            };
+                            treeObj.updateNode(hasNodes);
+                        },{toast:true,height:70});
+                        goBack();
+                    });
+                })
+            },{meth:'GET',data:{groupId:groupId},dataJson:false})
+        }else{
+            var from = new Y.From(fromConfig,"accountId",{postURL:ucIP + "/api/uc/v0.1/teachers/insertWithSingleDepartment",putURL:ucIP + "/api/uc/v0.1/teachers/updateWithSingleDepartment/{accountId}",title:"提交组织信息"});
+            $("#submit").click(function(){
+                fromConfig.departmentId = groupId;
+                from.submit($(this),function(res){
+                    var pidNode = treeObj.getSelectedNodes();
+                    treeObj.addNodes(pidNode[0],0,{id:res.dataId,pId:pidNode[0].id, name:$("#de-data-name").val()});
+                    Y.alertx("添加成功", function () {
+                        },{toast:true,height:70});
+                    goBack();
+                });
+            })
+        };
+
+
+
+        $("#table-header").show();
+        $(".list_footer,.list_header,#table-title").hide();
+
+        //取消
+        $("#cancel").click(function(){
+            goBack();
+        });
+        function goBack(){
+            var getSelectedNodes = treeObj.getSelectedNodes();
+            if (!getSelectedNodes[0].icon) {
+                var pNode = treeObj.getNodeByParam("id", getSelectedNodes[0].pId);
+                treeObj.selectNode(pNode);
+            };
+            Y.ajaxHtml('modules/groups/newgroup/newDepartmentDet.html',function(res){
+              $("#table-title").html(res);
+            })
+        }
+    })()
+</script>

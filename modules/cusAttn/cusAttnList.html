@@ -1,0 +1,159 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="key" class="input" type="text" placeholder="考勤模块/点名称"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+    <div class="arrow-up"></div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<div id="print"></div>
+<style type="text/css">
+    .ewmBtn{
+        padding:2px 10px;
+        cursor: pointer;
+        margin-right: 16px;
+    }
+    .ewmShowBtn{
+        font-size:12px;
+        cursor: default;
+        text-decoration: underline;
+        color: #75cd1f;
+    }
+    #print{
+        display: none;
+        background: #fff;
+    }
+    #printQrCode{
+        width: 500px;
+        height: 500px;
+        position: absolute;
+        left: 50%;
+        margin-left: -250px;
+        top:50%;
+        margin-top: -250px;
+    }
+    .changeStatus{
+        cursor: pointer;
+        text-decoration: underline;
+    }
+</style>
+<style type="text/css" media=print>  
+    .header,.left,.footer,#nav,#printBtn,.formBtns,.mouseOverShow{
+        display: none;
+    }
+    #print{
+        display: block;
+        position:fixed;
+        z-index: 99999999;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        border: none;
+        margin:0px;
+        padding: 10px 0px;
+        background: #fff;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "cusAttnList", pageNum: 1};
+        var config = [
+            {CH: "考勤模块名称", EN: "name"},
+            {CH: "考勤点名称", EN: "address"},
+            {CH: "二维码", EN: 'qrCode',htmlFormat:'<span class="ewmShowBtn">查看</span>'},
+            {CH: "应用类型", EN: 'userType',Option:{'1':'学生','2':'教师','3':'学生和教师'},OptionExcel:{'1':'学生','2':'教师','3':'学生和教师'}},
+            {CH: "状态", EN: 'status',Option:{'1':'<font class="changeStatus" style="color:#00b7ee;" title="双击停用">启用</font>','2':'<font class="changeStatus" style="color:#ccc;" title="双击启用">停用</font>'},OptionExcel:{'1':'启用','2':'停用'}}
+        ];
+        var list = new Y.List(eschoolIP + "/api/cusAttn/mgt/v0.1", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/cusAttn/cusAttnEdit.html",title:"编辑考勤模块",data:{id:data.attendanceId}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/cusAttn/mgt/v0.1/address/","id","考勤地点",{vKey:"address",obj:$(this)});
+                    })
+                    //启停
+                    $(this).find('.changeStatus').dblclick(function(){
+                        Y.ajax(eschoolIP + '/api/cusAttn/mgt/v0.1/address/status',function(ret){
+                            var msg = '操作成功';
+                            if(ret && !ret.errorMsg){
+                                list.load();
+                            }else{
+                                msg = '操作失败,' + ret.errorMsg;
+                            }
+                            Y.alertx(msg,'',{toast:true,height:70});
+                        },{data:{addressId:data.id,status:data.status == 1 ? 2 : 1}})
+                    })
+                    new Y.MouseOverShow($(this).find(".ewmShowBtn"),'',{
+                        string:'<div id="_ewm' + i + '"></div><div style="text-align:center;margin-top:5px;"><span id="reEwm' + i + '" class="bg_default ewmBtn">刷新</span><span id="downEwm' + i + '" class="bg_default ewmBtn">下载</span><span id="print' + i + '" class="bg_default ewmBtn">打印</span></div>',
+                        style:';width:220px;height:230px;background:#fff;border:1px solid #ccc;margin-left:20px;margin-top:-8px;',
+                        init:function(){
+                            $('#_ewm' + i).qrcode({
+                                render: "canvas", //table方式 
+                                width: 200, //宽度 
+                                height:200, //高度 
+                                text: data.qrCode //任意内容
+                            })
+                            $('#reEwm' + i).click(function(){
+                                Y.confirmx('确定需要刷新?',function(){
+                                    Y.ajax(eschoolIP + '/api/cusAttn/mgt/v0.1/qrcode',function(ret){
+                                        if(ret && !ret.errorMsg){
+                                            Y.alertx('刷新成功,请重新查看',function(){
+                                                data.qrCode = JSON.stringify(ret);
+                                            });
+                                        }else{
+                                            Y.alertx('刷新失败,' + ret.errorMsg);
+                                        }
+                                    },{meth:'PUT',data:{attendanceId:data.attendanceId,addressId:data.id}})
+                                })
+                            })
+                            $('#downEwm' + i).click(function(){
+                                Y.download(bpmIP + '/api/leave/v0.1/leave/qr?qrVal=' + data.qrCode + '&width=300&height=300&accessToken=' + accessToken + '&name=' + data.name + '_' + data.address + '.png');
+                            })
+                            $('#print' + i).click(function(){
+                                $('#print').html('<div id="printQrCode"></div>');
+                                $('#printQrCode').qrcode({
+                                    render: "canvas", //table方式 
+                                    width: 500, //宽度 
+                                    height:500, //高度 
+                                    text: data.qrCode //任意内容
+                                })
+                                window.print();
+                            })
+                        }
+                    });
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/cusAttn/mgt/v0.1/address/","id","考勤地点",{vKey:"address"});
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/cusAttn/cusAttnEdit.html",title:"新增考勤模块"});
+        });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            key:$("#key")
+        });
+    })()
+</script>

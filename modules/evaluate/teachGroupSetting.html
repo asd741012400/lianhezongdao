@@ -1,0 +1,99 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="teacherName" class="input" type="text" placeholder="小组成员信息"/>
+            <input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input type="button" value="新增小组" id="addBtn" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+
+<style>
+.statusBtns{
+    text-align:right;
+}
+.reasonLook{
+    color:#6AB81C;
+    cursor:pointer;
+    position:relative;
+}
+.reasonDetail{
+    display:none;
+    position:absolute;
+    width:288px;
+    height:60px;
+    border:1px solid #6AB81C;
+    right:-30px;
+    background: #fff;
+    top:31px;
+    border-radius:5px;
+    padding:14px 12px;
+    color:#666;
+    font-size:12px;
+    z-index:1;
+    line-height:20px;
+    text-align:left;
+}
+.triangle-6AB81C{
+    position:absolute;
+    background:url('images/6AB81C_triangle.png');
+    height:14px;
+    width:29px;
+    top:-13px;
+    right:28px;
+    z-index:2;
+}
+</style>
+
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "teacherEachList", pageNum: 1};
+        var config = [
+            {CH: "小组名", EN: "title"},
+            {CH: "组长", EN: "leaderName"},
+            {CH: "人员总数（人）", EN: "count"},
+            {CH: "最新更改时间", EN: "updateDate"},
+        ];
+        var list = new Y.List(eschoolIP + "/api/teachingEvaluation/v0.1/group", option, config);
+        list.btns = "<span class=\"listEdit\">编辑</span><span class=\"listDelete\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/evaluate/teachGroupSettingEdit.html",title:"小组成员编辑",data:{groupId:data.groupId,type:'edit'}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/teachingEvaluation/v0.1/group/","groupId","",{vKey:"title",obj:$(this)});
+                    })
+                }
+            })
+        });
+
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/teachingEvaluation/v0.1/group/","groupId","小组成员信息",{vKey:"title"});
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/evaluate/teachGroupSettingEdit.html",title:"新增小组成员",data:{type:'add'}});
+        });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            teacherName:$("#teacherName"),
+        });
+    })()
+</script>

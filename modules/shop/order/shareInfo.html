@@ -1,0 +1,117 @@
+<form class="form">
+    <div class="form_title"><b>订单详情</b></div>
+    <div id="orderStatus"></div>
+    <div style="margin-left: 16px;margin-right:16px;" id="detail"></div>
+    <div class="clear"></div>
+    <div class="formBtns" id="_formBtns"></div>
+</form>
+<style>
+    #orderStatus{
+        border: 1px solid #e4e4e4;
+        border-top: none;
+        height: 80px;
+        line-height: 80px;
+        padding-left: 36px;
+        font-size: 20px;
+    }
+    .data50{
+        padding-top: 16px;
+        width: 50%;
+        float: left;
+    }
+    .data100{
+        padding-top: 16px;
+        clear:both;
+    }
+    .dataText{
+        margin-left:116px;
+    }
+    ._title{
+        color:#59a9e1;
+    }
+    .dataTitle{
+        position: absolute;
+        width: 100px;
+        height: 20px;
+        text-align: right;
+    }
+    #_indexImage{
+        margin-left: 116px;
+    }
+    ._btn_{
+        border-radius: 3px;
+        border: none;
+    }
+    #_formBtns{
+        text-align: center;
+        padding-top: 32px;
+    }
+</style>
+<script>
+    (function() {
+        var data = Y.getUrlParam("data"),type = Y.getUrlParam("type"),orderStatusEmun = Y.getUrlParam("orderStatusEmun");
+        function _clear(s){
+            return s.replace(new RegExp('{.+}','g'),'');
+        }
+        Y.ajax(eschoolIP + "/api/shop/v0.1/orders/{orderId}/detail",function(ret){
+            if(ret && !ret.errorMsg){
+                $('#orderStatus').html(orderStatusEmun.html[ret.orderStatus]);
+                var html = '<div class="form_title"><b class="_title">买家信息</b></div>' +
+                    '<div class="data100"><div class="dataTitle">姓名:</div><span class="dataText">{name}</span></div>' +
+                    '<div class="data100"><div class="dataTitle">联系方式:</div><span class="dataText">{userPhone}</span></div>' +
+                    '<div class="data100"><div class="dataTitle">买家地点:</div><span class="dataText">{dorm}</span></div>' +
+                    '<div class="data100"><div class="dataTitle">取货地点:</div><span class="dataText">{address}</span></div>' +
+                    '<div class="data100"><div class="dataTitle">备注:</div><span class="dataText">{mark}</span></div>' +
+                    '<div class="form_title"><b>订单详情</b></div>' +
+                    '<div class="data100"><img width="100" height="100" id="_indexImage" src="{_indexImage}" /></div>' +
+                    '<div class="data100"><div class="dataTitle">商品名:</div><span class="dataText">{title}</span></div>' +
+                    '<div class="clear"></div>' +
+                    '<div class="data50"><div class="dataTitle">商品编号:</div><span class="dataText">{pId}</span></div>' +
+                    '<div class="data50"><div class="dataTitle">订单编号:</div><span class="dataText">{id}</span></div>' +
+                    '<div class="data50"><div class="dataTitle">租金:</div><span class="dataText">' + (ret.price ? ret.price + '元' : '') + '</span></div>' +
+                    '<div class="data50"><div class="dataTitle">押金:</div><span class="dataText">' + (ret.deposit ? ret.deposit + '元' : '') + '</span></div>' +
+                    '<div class="data50"><div class="dataTitle">规格:</div><span class="dataText">{property}</span></div>' +
+                    '<div class="data50"><div class="dataTitle">创建时间:</div><span class="dataText">{createTime}</span></div>'
+                html = html._eval(ret,function(s,k,v,o){
+                    return s.replace(new RegExp('{_' + k + '}'),function(){
+                        return o.images[0].imageUrl;
+                    })
+                },_clear);
+                var _html = '';
+                _html = !ret.orderConsume ? '' : '<div class="form_title"><b>费用核算</b></div>' +
+                    '<div class="data50"><div class="dataTitle">领取时间:</div><span class="dataText">{startTime}</span></div>' +
+                    '<div class="data50"><div class="dataTitle">归还时间:</div><span class="dataText">{endTime}</span></div>' +
+                    '<div class="data50"><div class="dataTitle">使用时间:</div><span class="dataText">{useTime}</span></div>' +
+                    '<div class="data50"><div class="dataTitle">消费金额:</div><span class="dataText">' + (ret.orderConsume.consume ? ret.orderConsume.consume + '元' : '') + '</span></div>' +
+                    '<div class="data50"><div class="dataTitle">损坏类型:</div><span class="dataText">{damage}</span></div>' +
+                    '<div class="data50"><div class="dataTitle">损坏赔偿金额:</div><span class="dataText">' + (ret.orderConsume.damagePayout ? ret.orderConsume.damagePayout + '元' : '') + '</span></div>' +
+                    '<div class="data50"><div class="dataTitle">返还金额:</div><span class="dataText">' + (ret.orderConsume.returnDeposit ? ret.orderConsume.returnDeposit + '元' : '') + '</span></div>' +
+                    '<div class="data50"><div class="dataTitle">欠费金额:</div><span class="dataText">' + (ret.orderConsume.arrearage ? ret.orderConsume.arrearage + '元' : '') + '</span></div>'
+                _html = ret.orderConsume ? _html._eval(ret.orderConsume,'',_clear) : '';
+                $('#detail').html(html + _html);
+                var btn = '';
+                for(var i = 0; i < ret.buttons.length; i ++) if(ret.buttons[i].code != 'detail') btn += '<input type="button" value="{text}" style="color:#ffffff;background:{color}" class="_btn_"/>'._eval(ret.buttons[i],'',_clear);
+                $('#_formBtns').html(btn + '<input type="button" id="cancel" value="返回" class="bg_ffffff"/>');
+                $('._btn_').each(function(i){
+                    $(this).click(function(){
+                        Y.ajax(eschoolIP + '/api/shop/v0.1/orders/{orderId}/{type}',function(ret){
+                            var msg = '';
+                            if(ret && !ret.errorMsg){
+                                msg = '操作成功!'
+                            }else{
+                                msg = '操作失败,' + ret.errorMsg;
+                            }
+                            Y.alertx(msg,function(){
+                                Y.back(-1);
+                            })
+                        },{meth:'PUT',data:{orderId:ret.id,type:type,orderStatus:ret.buttons[i].orderStatus}})
+                    })
+                })
+                //取消
+                $("#cancel").click(function(){
+                    Y.back(-1);
+                })
+            }
+        },{data:{orderId:data.id}})
+    })()
+</script>

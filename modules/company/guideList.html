@@ -1,0 +1,62 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var type = Y.urlQuery('type') || 1;
+        var typeText = type == 1 ? '实习计划' : '岗前培训';
+        var option = {pageSize: "companyGuide", pageNum: 1,type:type};
+        var config = [
+            {CH: "标题", EN: "title"},
+            {CH: "企业名称", EN: 'companyNames'},
+            {CH: "发布人", EN: "pusher"},
+            {CH: "发布时间", EN: 'createTime'}
+        ];
+        if(type != 1) config.push({CH: "确认人数", EN: 'count',htmlFormat:'{count}/{sum}<span class="listUsers bg_dfba49" style="cursor: pointer;" title="确认人员">人员</span>'});
+        var list = new Y.List(eschoolIP + "/api/company/v0.1/guide", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/company/guideEdit.html",title:"编辑" + typeText + "信息",data:{type:type,id:data.id,data:data}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/company/v0.1/guide/","id",typeText,{vKey:"name",obj:$(this)});
+                    })
+                    $(this).find('.listUsers').click(function(){
+                        var title = data.title + '岗前培训确认人员列表';
+                        Y.open({url:"modules/company/guideQrList.html",title:title,data:{title:title,id:data.id}});
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/company/v0.1/guide/","id",typeText,{vKey:"name"});
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/company/guideEdit.html",title:"新增" + typeText,data:{type:type}});
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel(typeText + "信息");
+        })
+    })()
+</script>

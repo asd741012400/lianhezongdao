@@ -1,0 +1,117 @@
+<form class="form">
+    <div class="form_title"><b><font id="_title"></font>操行检查信息</b></div>
+    <div class="formBox">
+        <div class="data width100">
+            <div class="data_title"><b>头像</b></div>
+            <span class="data_error"></span><span class="inputSpan" id="data-userPhoto"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b>学生</b></div>
+            <span class="data_error"></span><span class="inputSpan" id="data-userName"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b>学号</b></div>
+            <span class="data_error"></span><span class="inputSpan" id="data-studNo"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b>班级</b></div>
+            <span class="data_error"></span><span class="inputSpan" id="data-className"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b>班主任</b></div>
+            <span class="data_error"></span><span class="inputSpan" id="data-headTeacherName"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title">检查时间</div>
+            <span class="data_error"></span><span class="inputSpan" id="data-checkTime"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title">操行项</div>
+            <span class="data_error"></span><span class="inputSpan" id="data-dicLevel2Name"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title">备注</div>
+            <span class="data_error"></span><span class="inputSpan" id="data-remark"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title">提交人类型</div>
+            <span class="data_error"></span><span class="inputSpan" id="data-type"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title">检查人</div>
+            <span class="data_error"></span><span class="inputSpan" id="data-createUserName"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title">提交时间</div>
+            <span class="data_error"></span><span class="inputSpan" id="data-createTime"></span>
+        </div>
+        <div class="data width100">
+            <span id="data-status"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title">审批人</div>
+            <span class="data_error"></span><span class="inputSpan" id="data-approvalUserName"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title">审批理由</div>
+            <span class="data_error"></span><span class="inputSpan" id="data-approvalRemark"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title">审批时间</div>
+            <span class="data_error"></span><span class="inputSpan" id="data-approvalTime"></span>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    .data{
+        line-height: 32px;
+        margin:0px;
+    }
+    .data_title{
+        position: absolute;
+        margin-top:4px;
+    }
+    .inputSpan{
+        margin-left: 100px;
+        float: left;
+        margin-top: 5px;
+    }
+    #data-status span{
+        padding:3px 8px;
+    }
+    .userPhoto{
+        width: 100px;
+        height: 100px;
+        border-radius: 100px;
+    }
+</style>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var data = Y.getUrlParam("data");
+        $('#_title').html(Y.getUrlParam("title") || '');
+        if(data) {
+            for(var key in data) $('#data-' + key).html(data[key]);
+            $('#data-userPhoto').html('<img class="userPhoto" src="' + data.userPhoto + '" />');
+            $('#data-type').html(data.type == 1 ? '学生' : '老师');
+            switch(data.status){
+                case 1:
+                    $('#data-status').html('<span style="color:#ffffff;background:#75cd1f">已通过</span>');
+                    break;
+                case 2:
+                    $('#data-status').html('<span style="color:#ffffff;background:#ff0000">驳回</span>');
+                    break;
+                default:
+                    $('#data-status').html('<span style="color:#ffffff;background:#cccccc">待审批</span>');
+                    break;
+            }
+        }
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

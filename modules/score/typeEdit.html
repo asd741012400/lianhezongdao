@@ -1,0 +1,144 @@
+<form class="form">
+    <div class="form_title"><b>成绩标题类型编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>标题</div>
+        <span class="data_error"></span><input class="input" id="data-title" type="text" placeholder="请输入标题" maxlength="20" />
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>学期</div>
+        <span class="data_error"></span><input class="input" id="data-semesterId" type="text" placeholder="请选择学期" maxlength="20" />
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>开始日期</div>
+        <span class="data_error"></span><input class="input" id="data-startTime" type="text" placeholder="请填写开始日期" />
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>结束日期</div>
+        <span class="data_error"></span><input class="input" id="data-endTime" type="text" placeholder="请填写结束日期" />
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>发布时间</div>
+        <span class="data_error"></span><input class="input" id="data-pushTime" type="text" placeholder="请填写发布时间" />
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var data = Y.getUrlParam("data");
+        var fromConfig = {
+            id : Y.getUrlParam("id"),
+            title : {
+                o:$("#data-title"),
+                e:"blur",
+                f:{NotNull:'标题不能为空'}
+            },
+            semesterId:{
+                o:new Y.OnlySelectBox($("#data-semesterId"),Y.getSelectBox('semester',{defaultSelect:data || function(row){
+                    return row.current ? [row.id,row.name] : false;
+                }})),
+                _o:$("#data-semesterId"),
+                i:function(){
+                    //新增设置默认当前学期
+                    var _this = this;
+                    if(!data){
+                        Y.ajax(ucIP + "/api/uc/v0.1/semester?pageSize=10000&pageNum=1",function(ret){
+                            if(ret && ret.rows) for(var i = 0; i < ret.rows.length; i ++) if(ret.rows[i].current) _this.o.val(ret.rows[i].id,ret.rows[i].name);
+                        })
+                    }
+                },
+                f:{NotNull:'学期不能为空'},
+                s:'semesterName'
+            },
+            startTime : {
+                o:$("#data-startTime"),
+                i:function(o){
+                    var startTimeCalendar = new Y.Calendar(o,{timeType:[12,00,00]});
+                    o.focus(function(){
+                        var _this = $(this);
+                        _this.prev().hide();
+                        startTimeCalendar.open(function(d){
+                            _this.val(d);
+                            startTimeCalendar.close();
+                        });
+                    })
+                },
+                f:{NotNull:'开始时间不能为空'}
+            },
+            endTime : {
+                o:$("#data-endTime"),
+                i:function(o){
+                    var endTimeCalendar = new Y.Calendar(o,{timeType:[12,00,00]});
+                    o.focus(function(){
+                        var _this = $(this);
+                        _this.prev().hide();
+                        endTimeCalendar.open(function(d){
+                            _this.val(d);
+                            endTimeCalendar.close();
+                        });
+                    })
+                },
+                f:function(v){
+                    if(v){
+                        if($("#data-startTime").val() && new Date().parse(v) < new Date().parse($("#data-startTime").val())){
+                            return [false,'结束时间不能小于开始时间'];
+                        }else{
+                            return [true];
+                        }
+                    }else{
+                        return [false,'结束时间不能为空'];
+                    }
+
+                }
+            },
+            pushTime : {
+                o:$("#data-pushTime"),
+                i:function(o){
+                    var pushTimeCalendar = new Y.Calendar(o,{timeType:[12,00,00]});
+                    o.click(function(e){
+                        WinHeight = $(window).height()
+                        if (e.screenY > WinHeight/2+130) {
+                            pushTimeCalendar.alignTop = true
+                        }else{
+                            pushTimeCalendar.alignTop = false
+                        }
+                        var _this = $(this);
+                        _this.prev().hide();
+                        pushTimeCalendar.open(function(d){
+                            _this.val(d);
+                            pushTimeCalendar.close();
+                        });
+                    })
+                },
+                f:function(v){
+                    if(v){
+                        if($("#data-endTime").val()){
+                            if(new Date().parse($("#data-endTime").val()) > new Date().parse(v)){
+                                return [false,'发布时间不能小于结束时间'];
+                            }else{
+                                return [true];
+                            }
+                        }else{
+                            return [false,'请先选择结束时间'];
+                        }
+                    }else{
+                        return [false,'发布时间不能为空'];
+                    }
+                }
+            }
+        }
+        var from = new Y.From(fromConfig,"id",{data:data,postURL:eschoolIP + "/api/examscore/v0.1/type",putURL:eschoolIP + "/api/examscore/v0.1/type/{id}",title:"提交考试类型信息",dataJson:false});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

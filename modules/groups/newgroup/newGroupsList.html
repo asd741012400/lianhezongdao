@@ -1,0 +1,49 @@
+<script type="text/javascript">
+(function() {
+  var option = {pageSize: "groups", pageNum: 1};
+  var config = [
+      {CH: "部门名称", EN: "groupName", Align: "center"},
+      {CH: "负责人",EN: "users",htmlFormat:function(k,v){
+        if (v.length > 0) {
+          return v.length > 1 ? v[0].name + "..." : v[0].name;
+        }else{
+          return "";
+        }
+      }},
+      {CH: "常设部门", EN: "org",htmlFormat:function(k,v){
+        return v ? "是" : "否";
+      }}
+  ];
+  var list = new Y.List(ucIP + "/api/uc/v0.1/groupAndUsers", option, config);
+  list.btns = "<span class=\"listEdit\">修改</span><span class=\"listDelete\">删除</span>";
+  list.load(function(){
+    $("#table-header").html("组织架构列表")
+    $(".list_footer,.list_header").show();
+    $("tr").each(function(i){
+      if(i > 0 && list.data.rows.length > 0){
+        var data = list.data.rows[i - 1];
+        if(data.isDefault) $(this).find(".tdBtns").remove();
+        //修改
+        $(this).find(".listEdit").click(function(){
+          Y.ajaxHtml('modules/groups/newgroup/newGroupsEdit.html',function(res){
+            groupId = data.groupId;
+            $("#table").html(res);
+            $("#table-header").html("编辑部门");
+          })
+        })
+        //删除
+        $(this).find(".listDelete").click(function(){
+          list.deleteFn([data],ucIP + "/api/uc/v0.1/groups/","groupId","组织",{vKey:"name",obj:$(this)});
+        })
+      }
+    })
+  })
+  $("#downLoadExcel").click(function(){
+      list.toExcel("组织信息");
+  })
+  //搜索
+  var listSearch = new Y.ListSearch(list,{
+      groupName:$("#keyword"),
+  });
+})()
+</script>

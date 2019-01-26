@@ -1,0 +1,236 @@
+<form class="form">
+    <div class="workFlow">
+        <div class="workFlowTitle"><b class="workFlowTitleNum">流程一</b><span class="range"><font>预计金额</font><=<input id="range1" type="text" value="" /></span></div>
+        <div class="workFlowBox">
+            <div class="workFlowContent">
+                <div class="workFlowStart"><span class="workFlowStart_text">配置审批人</span><span class="workFlowCircle">责任人</span></div>
+                <div class="workFlowPerson">
+                    <div id="first_1"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>
+                </div>
+                <div class="workFlowEnd"><span class="workFlowCircle">确认</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="workFlow">
+        <div class="workFlowTitle"><b class="workFlowTitleNum">流程二</b><span class="range"><font id="range_1">--</font><预计金额<=<input id="range2" type="text" value="" /></span></div>
+        <div class="workFlowBox">
+            <div class="workFlowContent">
+                <div class="workFlowStart"><span class="workFlowStart_text">配置审批人</span><span class="workFlowCircle">责任人</span></div>
+                <div class="workFlowPerson">
+                    <div id="first_2"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>
+                </div>
+                <div class="workFlowPerson">
+                    <div id="second_2"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>
+                </div>
+                <div class="workFlowEnd"><span class="workFlowCircle">确认</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="workFlow">
+        <div class="workFlowTitle"><b class="workFlowTitleNum">流程三</b><span class="range"><font id="range_2">--</font><预计金额</span></div>
+        <div class="workFlowBox">
+            <div class="workFlowContent">
+                <div class="workFlowStart"><span class="workFlowStart_text">配置审批人</span><span class="workFlowCircle">责任人</span></div>
+                <div class="workFlowPerson">
+                    <div id="first_3"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>
+                </div>
+                <div class="workFlowPerson">
+                    <div id="second_3"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>
+                </div>
+                <div class="workFlowPerson">
+                    <div id="third_3"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>
+                </div>
+                <div class="workFlowEnd"><span class="workFlowCircle">确认</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+    </div>
+</form>
+<style type="text/css">
+    .workFlow{
+        margin:10px;
+        border: 1px solid #e4e4e4;
+        overflow: auto;
+    }
+    .workFlowTitle{
+        line-height: 70px;
+        border-bottom: 1px dashed #e4e4e4;
+    }
+    .workFlowTitleNum{
+        margin-left: 20px;
+        color: #77bde6;
+    }
+    .workFlowBox{
+        height: 150px;
+        overflow: auto;
+    }
+    .workFlowStart{
+        float: left;
+        height: 128px;
+        margin-right: 10px;
+    }
+    .workFlowStart_text{
+        float: left;
+        margin-left: 10px;
+        margin-top: 50px;
+        margin-right: 10px;
+    }
+    .workFlowCircle{
+        border: 2px solid #3ec0ef;
+        display: block;
+        width: 60px;
+        height: 60px;
+        border-radius: 60px;
+        text-align: center;
+        line-height: 60px;
+        overflow: hidden;
+        margin-top: 30px;
+    }
+    .workFlowContent{
+        float: left;
+        height: 128px;
+        overflow: hidden;
+        min-width: 100px;
+    }
+    .workFlowEnd{
+        float: left;
+        height: 128px;
+        overflow: hidden;
+        width: 70px;
+        background: url("images/workFlow_arrow.png") left center no-repeat;
+        padding-left: 110px;
+    }
+    .workFlowPerson{
+        float: left;
+        margin-top: 30px;
+        padding-left: 110px;
+        margin-right: 20px;
+        background: url("images/workFlow_arrow.png") left 25px no-repeat;
+    }
+    .range{
+        margin-left: 30px;
+    }
+    .range input{
+        border: 1px solid #e4e4e4;
+        padding:5px;
+        width: 50px;
+        margin-left: 10px;
+    }
+</style>
+<script>
+    (function() {
+        Y.ajax(bpmIP + "/api/tdr/v0.1/approval",function(res){
+            var firstWidth = 0;
+            var secondWidth = 0;
+            var thirdWidth = 0;
+            var first_1 = new Y.AnySelectBox($("#first_1"),$("#first_1").next(),{valArr:true,maxSize:5,idKey:"accountId",valueString:"<div accountId='{accountId}' class='personData'><img url='{photo}' src='images/headPortrait.png' /><div>{name}</div></div>",
+                    SelectBox:{paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"}
+                })
+            var first_2 = new Y.AnySelectBox($("#first_2"),$("#first_2").next(),{maxSize:5,idKey:"accountId",valueString:"<div accountId='{accountId}' class='personData'><img url='{photo}' src='images/headPortrait.png' /><div>{name}</div></div>",
+                    SelectBox:{paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"}
+                })
+            var first_3 = new Y.AnySelectBox($("#first_3"),$("#first_3").next(),{maxSize:5,idKey:"accountId",valueString:"<div accountId='{accountId}' class='personData'><img url='{photo}' src='images/headPortrait.png' /><div>{name}</div></div>",
+                    SelectBox:{paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"}
+                })
+            first_1.appendFn = function(){
+                firstSetSize();
+                first_2.value = first_1.value;
+                first_3.value = first_1.value;
+                first_2.append(true);
+                first_3.append(true);
+            }
+            first_2.appendFn = function(){
+                firstSetSize();
+                first_1.value = first_2.value;
+                first_3.value = first_2.value;
+                first_1.append(true);
+                first_3.append(true);
+            }
+            first_3.appendFn = function(){
+                firstSetSize();
+                first_1.value = first_3.value;
+                first_2.value = first_3.value;
+                first_1.append(true);
+                first_2.append(true);
+            }
+            function firstSetSize(){
+                $("#first_1,#first_2,#first_3").parent().parent().width(10000);
+                firstWidth = first_1.value.length * 85 + 75;
+                $("#first_1,#first_2,#first_3").parent().width(firstWidth);
+                $("#first_1").parent().parent().width(firstWidth + 480 + 110);
+                $("#first_2").parent().parent().width(firstWidth + secondWidth + 480 + 220);
+                $("#first_3").parent().parent().width(firstWidth + secondWidth + thirdWidth + 480 + 330);
+            }
+            var second_2 = new Y.AnySelectBox($("#second_2"),$("#second_2").next(),{valArr:true,maxSize:5,idKey:"accountId",valueString:"<div accountId='{accountId}' class='personData'><img url='{photo}' src='images/headPortrait.png' /><div>{name}</div></div>",
+                    SelectBox:{paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"}
+                })
+            var second_3 = new Y.AnySelectBox($("#second_3"),$("#second_3").next(),{maxSize:5,idKey:"accountId",valueString:"<div accountId='{accountId}' class='personData'><img url='{photo}' src='images/headPortrait.png' /><div>{name}</div></div>",
+                    SelectBox:{paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"}
+                })
+            second_2.appendFn = function(){
+                secondSetSize();
+                second_3.value = second_2.value;
+                second_3.append(true);
+            }
+            second_3.appendFn = function(){
+                secondSetSize();
+                second_2.value = second_3.value;
+                second_2.append(true);
+            }
+            function secondSetSize(){
+                $("#second_2,#second_3").parent().parent().width(10000);
+                secondWidth = second_2.value.length * 85 + 75;
+                $("#second_2,#second_3").parent().width(secondWidth);
+                $("#second_2").parent().parent().width(firstWidth + secondWidth + 480 + 220);
+                $("#second_3").parent().parent().width(firstWidth + secondWidth + thirdWidth + 480 + 330);
+            }
+            var third_3 = new Y.AnySelectBox($("#third_3"),$("#third_3").next(),{valArr:true,maxSize:5,idKey:"accountId",valueString:"<div accountId='{accountId}' class='personData'><img url='{photo}' src='images/headPortrait.png' /><div>{name}</div></div>",
+                    SelectBox:{paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"}
+                })
+            third_3.appendFn = function(){
+                thirdSetSize();
+            }
+            function thirdSetSize(){
+                $("#third_3").parent().parent().width(10000);
+                thirdWidth = third_3.value.length * 85 + 75;
+                $("#third_3").parent().width(thirdWidth);
+                $("#third_3").parent().parent().width(thirdWidth + secondWidth + firstWidth + 480 + 330);
+            }
+            if(res.length != 3 || res.errorMsg) {
+                return false;
+            }else{
+                $("#range1").val(res[0].endRange);
+                $("#range_1").html(res[0].endRange);
+                $("#range2").val(res[1].endRange);
+                $("#range_2").html(res[1].endRange);
+                $("#range1").change(function(){
+                    var value = $(this).val();
+                    $("#range_1").html(value);
+                })
+                $("#range2").change(function(){
+                    var value = $(this).val();
+                    $("#range_2").html(value);
+                })
+                firstWidth = res[0].approvalUsers.length * 85 + 75;
+                secondWidth = res[1].approvalUsers.length * 85 + 75;
+                thirdWidth = res[2].approvalUsers.length * 85 + 75;
+                first_1.val(res[0].approvalUsers);
+                second_2.val(res[1].approvalUsers);
+                third_3.val(res[2].approvalUsers);
+                $("#submit").click(function(){
+                    var range1 =  Number($("#range1").val());
+                    var range2 =  Number($("#range2").val());
+                    if (isNaN(range1)||isNaN(range2)||range1 >= range2) {
+                        Y.alertx("金额设置有误，请重新设置");
+                        return false;
+                    }
+                    Y.ajax(bpmIP + "/api/tdr/v0.1/approval",function(res){
+                        Y.alertx(res && res.result ? "设置成功!" : ("设置失败," + res.errorMsg));
+                    },{meth:"POST",data:[{taskKey:"tdr_jw_first",startRange:0,endRange:range1,userIds:first_1.val()},{taskKey:"tdr_xz_second",startRange:range1,endRange:range2,userIds:second_2.val()},{taskKey:"tdr_js_three",startRange:range2,endRange:null,userIds:third_3.val()}],dataJson:false})
+                })
+            }
+        })
+    })()
+</script>

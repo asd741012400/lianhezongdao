@@ -1,0 +1,166 @@
+<form class="form" id="schoolsModules">
+    <div class="form_title"><b>学校功能模块</b></div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data widthAll">
+            <div id="data-school"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+            <div class="btnsDiv"><input type="button" value="保存" class="btnsEdit bg_00b7ee"/></div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBox">
+        <div id="schoolGroups"></div>
+        <div class="clear"></div>
+        <div class="btnsDiv"><input id="addGroup" type="button" value="+ 添加组" /></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="cancel" value="返回" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    .data{
+        overflow: visible;
+    }
+    .personData{
+        line-height: 15px;
+    }
+    .btnsDiv{
+        clear: both;
+        padding-top: 10px;
+    }
+    .btnsEdit,.btnsDelete{
+        padding: 5px 20px;
+        cursor: pointer;
+        margin-right: 5px;
+    }
+    #addGroup{
+        border: none;
+        background: none;
+        color: #45b6af;
+        cursor: pointer;
+    }
+</style>
+<script>
+    (function() {
+        var schoolId = Y.getUrlParam("id");
+        var school = new Y.AnySelectBox($("#data-school"),$("#data-school").next(),{
+            idKey:"moduleId",
+            valueString:"<div moduleId='{moduleId}' class='personData'><div class='icon_img' imgUrl='{androidIcon}'><img src='images/schoolLogs.png' /></div><div>{name}</div><div style='color:#ccc;font-size:12px;'>{shortDesc}</div></div>",
+            SelectBox:{
+                paramet:{pageNum:1,pageSize:10,schoolId:schoolId,key: "keyword"},
+                url:eschoolIP + "/api/app/v0.1/modules",
+                dataString:"<div class='autoList' vaule='{moduleId}'>{has_moduleId}<b class='listStyle_cicle icon_img' imgUrl='{androidIcon}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>编码 {code} {shortDesc}</span></div>"
+            }
+        })
+        //学校功能模块
+        Y.ajax(eschoolIP + "/api/app/v0.1/schools/" + schoolId + "/all",function(res){
+            if(res){
+                school.val(res);
+                _schoolVal = school.val();
+            }
+        })
+        var _schoolVal;
+        //其他群组
+        var groups = [];
+        Y.ajax(eschoolIP + "/api/app/v0.1/schools/" + schoolId,function(res){
+            if(res && res.length > 0){
+                for(var i = 0; i < res.length; i++){
+                    var group = "<div class=\"data width100\">";
+                    group += "<div class=\"data_title\" style=\"border-bottom: 1px dashed #e4e4e4;margin-bottom: 20px;\">" + res[i].groupName + "</div>";
+                    group += "<div id=\"data-modules-" + i + "\"></div><div style=\"width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;\">+</div>";
+                    group += "<div class=\"btnsDiv\"><input index='" + i + "' type=\"button\" value=\"保存\" class=\"btnsEdit bg_00b7ee\"/><input index='" + i + "' type=\"button\" value=\"删除\" class=\"btnsDelete bg_ffffff\"/></div>";
+                    $("#schoolGroups").append(group);
+                    group = new Y.AnySelectBox($("#data-modules-" + i),$("#data-modules-" + i).next(),{
+                        idKey:"moduleId",
+                        valueString:"<div moduleId='{moduleId}' class='personData'><div class='icon_img' imgUrl='{androidIcon}'><img src='images/schoolLogs.png' /></div><div>{name}</div><div style='color:#ccc;font-size:12px;'>{shortDesc}</div></div>",
+                        SelectBox:{
+                            paramet:{pageNum:1,pageSize:10,key: "keyword"},
+                            url:eschoolIP + "/api/app/v0.1/schools/" + schoolId + "/list",
+                            dataString:"<div class='autoList' vaule='{moduleId}'>{has_moduleId}<b class='listStyle_cicle icon_img' imgUrl='{androidIcon}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>编码 {code} {shortDesc}</span></div>"}
+                        })
+                    if(res[i].modules) group.val(res[i].modules);
+                    groups.push([group,group.val(),res[i]]);
+                }
+            }
+        })
+        $("#schoolsModules").click(function(e){
+            if(/^btnsEdit/.test(e.target.className)){
+                var index = $(e.target).attr("index");
+                if(index == undefined){
+                    if(_schoolVal != school.val()){
+                        Y.ajax(eschoolIP + "/api/app/v0.1/schools/" + schoolId,function(res){
+                            if(res && res.result){
+                                Y.alertx("编辑学校功能模块成功!");
+                            }else{
+                                Y.alertx("编辑学校功能模块失败," + res.errorMsg);
+                            }
+                        },{meth:"POST",data:{schoolId:schoolId,moduleId:school.val()}})
+                    }
+                }else{
+                    if(groups[index][1] != groups[index][0].val()){
+                        Y.ajax(eschoolIP + "/api/app/v0.1/groups/" + groups[index][2].groupId + "/modules",function(res){
+                            if(res && res.result){
+                                Y.alertx("编辑 " + groups[index][2].groupName + " 功能模块成功!");
+                            }else{
+                                Y.alertx("编辑 " + groups[index][2].groupName + " 功能模块失败" + res.errorMsg);
+                            }
+                        },{meth:"PUT",data:{groupId:groups[index][2].groupId,moduleId:groups[index][0].val()}})
+                    }
+                }
+            }
+            if(/^btnsDelete/.test(e.target.className)){
+                Y.confirmx("确定要删除？",function(){
+                    var index = $(e.target).attr("index");
+                    Y.ajax(eschoolIP + "/api/app/v0.1/groups/" + groups[index][2].groupId + "/modules",function(res){
+                        if(res && res.result){
+                            Y.alertx("删除成功!",function(){
+                                Y.refresh();
+                            });
+                        }else{
+                            Y.alertx("删除失败," + res.errorMsg);
+                        }
+                    },{data:{groupId:groups[index][2].groupId},meth:"DELETE"})
+                })
+            }
+        })
+        //新增组
+        var addGroup = new Y.OnlySelectBox($("#addGroup"),{
+            vKey:"groupId",
+            sKey:"name",
+            htmlSelect:false,
+            SelectBox:{
+                onlySelect:true,
+                paramet:{schoolId:schoolId,key: "keyword"},
+                url:ucIP + "/api/uc/v0.1/groups",
+                dataString:"<div class='autoList' vaule='{groupId}'><b class='listStyle_cicle icon_img'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{description}</span></div>"
+            },
+            selectedFn:function(res){
+                $("#addGroup").val("+ 添加组");
+                if(res){
+                    var has = false;
+                    for(var i = 0; i < groups.length;i ++) if(groups[i][2].groupId == res.groupId) has = true;
+                    if(!has){
+                        i = groups.length;
+                        var group = "<div class=\"data width100\">";
+                        group += "<div class=\"data_title\" style=\"border-bottom: 1px dashed #e4e4e4;margin-bottom: 20px;\">" + res.name + "</div>";
+                        group += "<div id=\"data-modules-" + i + "\"></div><div style=\"width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;\">+</div>";
+                        group += "<div class=\"btnsDiv\"><input index='" + i + "' type=\"button\" value=\"保存\" class=\"btnsEdit bg_00b7ee\"/></div>";
+                        $("#schoolGroups").append(group);
+                        group = new Y.AnySelectBox($("#data-modules-" + i),$("#data-modules-" + i).next(),{
+                            idKey:"moduleId",
+                            valueString:"<div moduleId='{moduleId}' class='personData'><div class='icon_img' imgUrl='{androidIcon}'><img src='images/schoolLogs.png' /></div><div>{name}</div><div style='color:#ccc;font-size:12px;'>{shortDesc}</div></div>",
+                            SelectBox:{
+                                paramet:{pageNum:1,pageSize:10,key: "keyword"},
+                                url:eschoolIP + "/api/app/v0.1/schools/" + schoolId + "/list",
+                                dataString:"<div class='autoList' vaule='{moduleId}'>{has_moduleId}<b class='listStyle_cicle icon_img' imgUrl='{androidIcon}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>编码 {code} {shortDesc}</span></div>"}
+                            })
+                        groups.push([group,"",{groupId:res.groupId,groupName:res.name}]);
+                    }
+                }
+            }
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

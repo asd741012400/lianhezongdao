@@ -1,0 +1,56 @@
+<form class="form">
+    <div class="form_title"><b>损坏内容编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>损伤描述</div>
+        <span class="data_error"></span><input class="input" id="data-content" type="text" placeholder="请填写损伤描述"/>
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>赔付百分比</div>
+        <span class="data_error"></span><input class="input" id="data-payoutRatio" type="text" placeholder="请填写赔付百分比"/>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var data = Y.getUrlParam("data") || {id:'',content:'',payoutRatio:''};
+        var fromConfig = {
+            id : data.id,
+            content : {
+                o:$("#data-content"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"损伤描述不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            payoutRatio : {
+                o:$("#data-payoutRatio"),
+                e:"blur",
+                f:function(v){
+                    if (v >= 0 && v <= 100) {
+                        return [true];
+                    } else {
+                        return [false,"赔付百分百是0-100之间的数字"];
+                    }
+                }
+            }
+        }
+        var from = new Y.From(fromConfig,"id",{data:data,getURL:'',postURL:eschoolIP + "/api/shop/v0.1/damages",putURL:eschoolIP + "/api/shop/v0.1/damages/{id}",title:"提交损失类型",dataJson:false});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        })
+    })()
+</script>

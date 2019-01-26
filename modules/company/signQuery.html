@@ -1,0 +1,65 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="companyId" class="input" type="text" placeholder="选择企业"/>
+            <input id="startTime" class="input" type="text" placeholder="开始时间"/>
+            <input id="endTime" class="input" type="text" placeholder="结束时间"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "companySignQuery", pageNum: 1};
+        var config = [
+            {CH: "学生姓名", EN: 'studentName'},
+            {CH: "学号", EN: 'studentNo'},
+            {CH: "班级", EN: 'className'},
+            {CH: "专业", EN: 'majorName'},
+            {CH: "实习企业", EN: "companyName"},
+            {CH: "岗位", EN: "postName"},
+            {CH: "签到地址", EN: 'address'},
+            {CH: "签到时间", EN: "signTime"},
+            {CH: "备注", EN: "remark"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/company/v0.1/mgt/sign/query", option, config);
+        //list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.listNumTitle = "序号";
+        list.load();
+        $("#downLoadExcel").click(function(){
+            list.toExcel("学生签到列表");
+        })
+        var companyId = new Y.OnlySelectBox($("#companyId"),{vKey:"id",sKey:"name",SelectBox:{showNum:false,paramet:{key:"name"},url:eschoolIP + "/api/company/v0.1/list",dataString:"<div class='autoList' vaule='{id}'><span>{name}</span></div>"}});
+        var startDateCalendar = new Y.Calendar($("#startTime"),{date:"",timeType:[12,00,00]});
+        startDateCalendar.maxDate = new Date();
+        $("#startTime").focus(function(){
+            var _this = $(this);
+            startDateCalendar.open(function(d){
+                _this.val(d);
+                startDateCalendar.close();
+            });
+        })
+        var endDateCalendar = new Y.Calendar($("#endTime"),{date:"",timeType:[12,00,00]});
+        endDateCalendar.maxDate = new Date();
+        $("#endTime").focus(function(){
+            var _this = $(this);
+            endDateCalendar.open(function(d){
+                _this.val(d);
+                endDateCalendar.close();
+            });
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            companyId:companyId,
+            endTime:$('#endTime'),
+            startTime:$('#startTime')
+        });
+    })()
+</script>

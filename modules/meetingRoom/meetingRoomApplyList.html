@@ -1,0 +1,50 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="keyword" class="input" type="text" placeholder="输入申请人/会议室名称"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "meetingRoomApply", pageNum: 1};
+        var config = [
+            {CH: "申请人", EN: "name"},
+            {CH: "会议室名称", EN: "roomName"},
+            {CH: "会议主题", EN: "theme"},
+            {CH: "开始时间", EN: "begDate"},
+            {CH: "结束时间", EN: "endDate"},
+            {CH: "申请时间", EN: "applyDate"},
+            {CH: "状态", EN: "status",Align:"center",Option:{"1":"<font style='color:#4f997c;'>正在处理</font>","2":"<font style='color:#64a2d2;'>审批完成</font>","3":"<font style='color:#f72626;'>驳回</font>", "4":"<font style='color:#f87f13;'>撤销</font>"},OptionExcel:{"1":"正在处理","2":"审批完成","3":"驳回", "4":"撤销"}}
+        ];
+        var list = new Y.List(bpmIP + "/api/mra/v0.1", option, config);
+        list.btns = "<span class=\"listLook bg_f11c1c\">查看</span>";
+        list.load(function () {
+            //操作
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/meetingRoom/meetingRoomApplyInfo.html",title:"会议室申请详情",data:{id:data.id}});
+                    })
+                }
+            })
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("会议室申请");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword")
+        });
+    })()
+</script>

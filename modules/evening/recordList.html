@@ -1,0 +1,168 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="keyword" type="text" placeholder="请输入部门/姓名"/>
+            <input id="beg" class="input" type="text" placeholder="开始时间"/>
+            <input id="end" class="input" type="text" placeholder="结束时间"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+            <span id="advancedSearch_btn">高级查询<img src="images/gjcx.png" /></span>
+        </div>
+        <input id="downLoadExcel" type="button" value="EXCEL导出" class="bg_eeeeee"/>
+        <div class="clear"></div>
+        <div id="advancedSearch_box">
+            <div class="advancedSearch_data"><input id="deptName" class="input" type="text" placeholder="部门"/></div>
+            <div class="advancedSearch_data"><select id="status" class="input"><option value="">全部</option><option value="3">范围外</option><option value="7">正常</option></select></div>
+            <div class="clear"></div>
+            <div class="advancedSearch_data"><input id="startDate" class="input" type="text" placeholder="开始时间"/></div>
+            <div class="advancedSearch_data"><input id="endDate" class="input" type="text" placeholder="结束时间"/></div>
+            <div class="advancedSearch_btn"><input type="button" value="搜索" id="advancedSearchBtn" class="bg_00b7ee"/><input type="button" value="取消" id="advancedSearchCancle" class="bg_ffffff"/></div>
+        </div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "evening", pageNum: 1};
+        var config = [
+            {CH: "部门", EN: "deptName"},
+            {CH: "姓名", EN: "name"},
+            {CH: "工号", EN: "jobNumber"},
+            {CH: "考勤日期", EN: "date"},
+            {CH: "上班打卡时间", EN: "startTime"},
+            {CH: "下班打卡时间", EN: "endTime"},
+            {CH: "考勤状态", EN: "statusName"},
+            {CH: "备注状态", EN: "remarkStatusName"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/attn/evening/mgt/v0.1", option, config);
+        list.btns = "<span class=\"listLook bg_dfba49\">查看</span>";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    var html = "<font style='color:#";
+                    switch(data.status){
+                        case 1:
+                            html += "00b7ee";
+                            break;
+                        case 2:
+                            html += "ef6b3c";
+                            break;
+                        case 3:
+                            html += "ef6b3c";
+                            break;
+                        case 4:
+                            html += "f74c01";
+                            break;
+                        case 5:
+                            html += "fc4210";
+                            break;
+                        case 6:
+                            html += "7bb86e";
+                            break;
+                        case 7:
+                            html += "38c0e9";
+                            break;
+                        default:
+                            html += "38c0e9";
+                            break;
+                    }
+                    html += "'>";
+                    html += data.statusName.replace(" ","<br />");
+                    html += "</font>";
+                    $(this).find("td").eq(7).html(html);
+                    //修改考勤信息
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url: "modules/evening/recordEdit.html",title: "晚自习考勤详情",data: {teacherId: data.teacherId,date:data.date + "-00:00:00"}});
+                    })
+                }
+            })
+        })
+
+
+        //开始日期
+        var beg = new Y.Calendar($("#beg"),{date:""});
+        $("#beg").focus(function () {
+            var _this = $(this);
+            beg.open(function (d) {
+                if ($("#end").val() != "" && $("#end").val() < d) {
+                    Y.alertx("开始日期不能大于结束日期");
+                    return false;
+                }
+                _this.val(d);
+                beg.close();
+            });
+        });
+
+        //结束日期
+        var end = new Y.Calendar($("#end"),{date:""});
+        $("#end").focus(function () {
+            var _this = $(this);
+            end.open(function (d) {
+                if ($("#beg").val() != "" && d != "" &&$("#beg").val() > d) {
+                    Y.alertx("结束日期不能小于开始日期");
+                    return false;
+                }
+                _this.val(d);
+                end.close();
+            });
+        });
+
+        //精确搜索开始日期
+        var startDate = new Y.Calendar($("#startDate"),{date:""});
+        $("#startDate").focus(function () {
+            var _this = $(this);
+            startDate.open(function (d) {
+                if ($("#endDate").val() != "" && $("#endDate").val() < d) {
+                    Y.alertx("开始日期不能大于结束日期");
+                    return false;
+                }
+                _this.val(d);
+                startDate.close();
+            });
+        });
+        //精确搜索结束日期
+        var endDate = new Y.Calendar($("#endDate"),{date:""});
+        $("#endDate").focus(function () {
+            var _this = $(this);
+            endDate.open(function (d) {
+                if ($("#startDate").val() != "" && d != "" &&$("#startDate").val() > d) {
+                    Y.alertx("结束日期不能小于开始日期");
+                    return false;
+                }
+                _this.val(d);
+                endDate.close();
+            });
+        });
+
+        $("#downLoadExcel").click(function () {
+            list.toExcel("教师晚自习考勤信息");
+        })
+//        var groupId = new Y.OnlySelectBox($("#groupId"),{vKey:"groupId",sKey:"name",SelectBox:{showNum:false,paramet:{key:"name"},url:ucIP + "/api/uc/v0.1/groups/org",dataString:"<div class='autoList' vaule='{groupId}'><span>{name}</span></div>"}});
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword"),
+            startDate:$("#beg"),
+            endDate:$("#end")
+        },eschoolIP + "/api/attn/evening/mgt/v0.1",{
+            deptName:new Y.OnlySelectBox($("#deptName"),{
+                vKey:"name",
+                sKey:"name",
+                SelectBox:{
+                    paramet:{key:"deptName"},
+                    url:ucIP + "/api/uc/v0.1/groups",
+                    dataString:"<div class='autoList' vaule='{groupId}'><span>{name}</span></div>"
+                },
+                selectedFn:function(res){
+                    if(res && res.years) $("#data-years").val(res.years);
+                }
+            }),
+            startDate:$("#startDate"),
+            endDate:$("#endDate"),
+            status:$("#status")
+        });
+    })()
+</script>

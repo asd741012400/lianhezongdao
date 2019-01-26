@@ -1,0 +1,102 @@
+<form class="form">
+    <div class="form_title"><b>学期编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>学期名称</div>
+        <span class="data_error">学期名称不能为空</span><input class="input" id="data-name" type="text" placeholder="例：2015-2016 第一学期" maxlength="20" />
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>开始日期</div>
+        <span class="data_error">开始日期不能为空</span><input class="input" id="data-begdate" type="text" placeholder="请填写开始日期" />
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>结束日期</div>
+        <span class="data_error">结束日期不能为空</span><input class="input" id="data-enddate" type="text" placeholder="请填写结束日期" />
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>是否当前学期</div>
+        <span id="data-current" type="radio"><input type="radio" value="0" checked/>否<input type="radio" value="1"/>是 </span>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            id : Y.getUrlParam("id"),
+            name : {
+                o:$("#data-name"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"学期名称不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            begdate : {
+                o:$("#data-begdate"),
+                i:function(o){
+                    var begdateCalendar = new Y.Calendar(o);
+                    o.focus(function(){
+                        var _this = $(this);
+                        _this.prev().hide();
+                        begdateCalendar.open(function(d){
+                            var day = begdateCalendar.finalDate.getDay();
+                            if(day == 0 || day == 6){
+                                Y.alertx("开学时间不能选择周末，请重新选择!");
+                            }else{
+                                _this.val(d);
+                                begdateCalendar.close();
+                            }
+                        });
+                    })
+                },
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"开学时间不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            enddate : {
+                o:$("#data-enddate"),
+                i:function(o){
+                    var enddateCalendar = new Y.Calendar(o);
+                    o.focus(function(){
+                        var _this = $(this);
+                        _this.prev().hide();
+                        enddateCalendar.open(function(d){
+                            _this.val(d);
+                            enddateCalendar.close();
+                        });
+                    })
+                },
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"结束时间不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            current : {o:new Y.Radio($("#data-current input"))}
+        }
+        var from = new Y.From(fromConfig,"id",{getURL:ucIP + "/api/uc/v0.1/semester/{id}",postURL:ucIP + "/api/uc/v0.1/semester",putURL:ucIP + "/api/uc/v0.1/semester",title:"提交学期信息",dataJson:false});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

@@ -1,0 +1,36 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <input type="button" value="返回" id="cancel" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var id = Y.getUrlParam('id');
+        var option = {pageSize: 10, pageNum: 1,id:id};
+        var config = [
+            {CH: "学生", EN: 'studentName'},
+            {CH: "班级", EN: 'className'},
+            {CH: "岗位名称", EN: "postName"},
+            {CH: "状态", EN: 'status', Option: {"0": "待确定", "1": "已确定"},OptionExcel:{"0":"待确定","1":"已确定"}}
+
+        ];
+        var list = new Y.List(eschoolIP + "/api/company/v0.1/train/" + id, option, config);
+        list.listNumTitle = "序号";
+        list.load();
+        $("#downLoadExcel").click(function(){
+            list.toExcel(Y.getUrlParam('title'));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

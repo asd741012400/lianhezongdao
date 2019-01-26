@@ -1,0 +1,133 @@
+
+<script type="text/javascript">
+
+  var setting = {
+      view: {
+          selectedMulti: false
+      },
+      data: {
+          simpleData: {
+              enable: true
+          }
+      },
+      edit: {
+        enable: true,
+        showRemoveBtn: false,
+        showRenameBtn: false
+      },
+      callback: {
+        onClick: onClick,
+        beforeExpand: beforeExpand,
+      }
+  };
+
+      Y.ajax(ucIP + "/api/uc/v0.1/groups/nextLevel",function(ret){
+        var zNodes = [];
+        if (ret.length>0) {
+          thisNode = groupName;
+          if (!groupId) {
+            groupId = ret[0].groupId;
+            groupName = ret[0].groupName;
+            thisNode = groupName;
+            $("#table-title").load("modules/groups/newgroup/newDepartmentDet.html",function(res){
+              $("#table-header,.list_footer").hide();
+            })
+          };
+          for (var i = 0; i < ret.length; i++) {
+            var item = ret[i];
+            zNodes.push({id:item.groupId,name:item.groupName,icon:'css/metroStyle/img/parent.png',pId:0})
+            if (item.groupUserInfoDtoList.length>0) {
+              for (var j = 0; j < item.groupUserInfoDtoList.length; j++) {
+                var items = item.groupUserInfoDtoList[j];
+                zNodes.push({id:items.accountId,name:items.name,pId:item.groupId,isPerson:true})
+              };
+            };
+            if (item.nextLevelGroupAndUserInfoList.length>0) {
+              for (var j = 0; j < item.nextLevelGroupAndUserInfoList.length; j++) {
+                var items = item.nextLevelGroupAndUserInfoList[j];
+                zNodes.push({id:items.groupId,name:items.groupName,pId:item.groupId,icon:'css/metroStyle/img/parent.png'})
+
+                if (items.groupUserInfoDtoList.length>0) {
+                  for (var q = 0; q < items.groupUserInfoDtoList.length; q++) {
+                    var itemss = items.groupUserInfoDtoList[q];
+                    zNodes.push({id:itemss.accountId,name:itemss.name,pId:items.groupId,isPerson:true})
+                  };
+                };
+
+              };
+            };
+          };
+          $.fn.zTree.init($("#treeDemo"), setting, zNodes);
+          //默认选中第一个
+          var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+          var nodes = treeObj.getNodes();
+          if (nodes.length>0) {
+            treeObj.selectNode(nodes[0]);
+          };
+        }else{
+          $("#treeDemo").html("暂无数据");
+          $("#table").html("暂无数据").css({
+            border: "1px solid #e4e4e4",
+            padding: "12px",
+            width: "calc(100% - 27px)"
+          });
+        };
+      },{meth:'GET',data:{},dataJson:false})
+
+
+  function beforeExpand(treeId, treeNode){
+    for (var i = 0; i < treeNode.children.length; i++) {
+      var item = treeNode.children[i];
+      if (item.icon) {
+        itemAjax(item,treeNode);
+      };
+    };
+  }
+
+  function itemAjax(item,treeNode){
+    var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+    if (!treeNode.addnodes) {
+        Y.ajax(ucIP + "/api/uc/v0.1/groups/nextLevel",function(ret){
+        if (ret.length>0) {
+          item.hasChild = true;
+          for (var i = 0; i < ret.length; i++) {
+            var items = ret[i];
+            var groupUserInfoDtoList = [];
+            if (items.groupUserInfoDtoList.length>0) {
+              for (var j = 0; j < items.groupUserInfoDtoList.length; j++) {
+                var item_groupUserList = items.groupUserInfoDtoList[j];
+                groupUserInfoDtoList.push({id:item_groupUserList.accountId,name:item_groupUserList.name,pId:items.groupId,isPerson:true})
+              };
+            };
+            groupUserInfoDtoList = groupUserInfoDtoList.length>0?groupUserInfoDtoList:"";
+            zTree.addNodes(item, {id:items.groupId, pId:item.id, name:items.groupName,icon:'css/metroStyle/img/parent.png',children:groupUserInfoDtoList},true);
+            treeNode.addnodes = true; //添加过标识
+          };
+        };
+      },{meth:'GET',data:{parentId:item.id},dataJson:false})
+    };
+  }
+
+  function onClick(event, treeId, treeNode, clickFlag) {
+    /*if (treeNode.id=='0') {
+      Y.open({url:"modules/groups/newgroup/groupsHome.html"});
+    };*/
+    if (!treeNode.icon) {
+      var getParent = treeNode.getParentNode();
+      groupId = treeNode.pId;
+      thisNode = getParent.name;
+      Y.ajaxHtml('modules/groups/newgroup/newDepartmentEdit.html',function(res){
+        accountId = treeNode.id;
+        backUrl = "groupsHome.html";
+        $("#table").html(res);
+        $("#table-header").html(thisNode + " > 编辑人员");
+      })
+    }else{
+      thisNode = treeNode.name;
+      groupId = treeNode.id;
+      $("#table-title").load("modules/groups/newgroup/newDepartmentDet.html",function(){
+        $("#table-header,.list_footer").hide();
+      })
+    };
+  }
+</script>

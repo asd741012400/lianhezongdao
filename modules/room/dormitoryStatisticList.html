@@ -1,0 +1,97 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="begDate" class="input" type="text" placeholder="开始日期"/><input id="endDate" class="input" type="text" placeholder="结束日期"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+
+        <input id="printBtn" type="button" class="bg_eeeeee" value = "打印" />
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    #print{
+        display: none;
+    }
+</style>
+<style type="text/css" media=print>
+    body{
+        background:#fff;
+    }
+    .header,.left,.footer,.right,#nav,#printBtn,.formBtns,.list_header{
+        display: none;
+    }
+    #print{
+        display: block;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "dormitory", pageNum: 1};
+        var config = [
+            {CH: "宿舍", EN: "dormNo"},
+            {CH: "缺寝人数", EN: "absenceCount"},
+            {CH: "时间", EN: "date"},
+            {CH: "操作人", EN: "operator"},
+        ];
+        var list = new Y.List(eschoolIP + "/api/dormitory/v0.1/patrol/result/dorms", option, config);
+        list.listNumTitle = "序号";
+        list.btns = "<span class=\"listLook bg_f11c1c\">查看</span>";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/room/dormitoryStatisticDet.html",title:"",data:{dormId:data.dormId,date:data.date}});
+                    })
+                }
+            })
+        });
+
+        //开始日期
+        var begDate = new Y.Calendar($("#begDate"),{date:""});
+        $("#begDate").focus(function () {
+            var _this = $(this);
+            begDate.open(function (d) {
+                _this.val(d);
+                begDate.close();
+            });
+        });
+        //结束日期
+        var endDate = new Y.Calendar($("#endDate"),{date:""});
+        $("#endDate").focus(function () {
+            var _this = $(this);
+            endDate.open(function (d) {
+                _this.val(d);
+                endDate.close();
+            });
+        });
+
+        var time = function(sel){
+            this.val = function(){
+                if ($(sel).val()) {
+                   return $(sel).val() + " 00:00:00";
+                };
+            }
+        }
+
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            begDate:new time("#begDate"),
+            endDate:new time("#endDate"),
+        });
+        //打印
+        $("#printBtn").click(function(){
+            var table = "<div id='print' class='table'>"+$(".table").html()+"</div>";
+            $('body').append(table);
+            window.print();
+            $("#print").remove();
+        })
+    })()
+</script>

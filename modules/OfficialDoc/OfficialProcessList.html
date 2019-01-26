@@ -1,0 +1,50 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="keyword" class="input" type="text" placeholder="来文标题/机关"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var config = [
+            {CH: "来文标题", EN: "inDoctitle"},
+            {CH: "来文机关", EN: "inDocOrg"},
+            {CH: "来文号", EN: "inDocNo"},
+            {CH: "份数", EN: "copies"},
+            {CH: "收文编号", EN: "receiveDocNo"},
+            {CH: "签收人", EN: "assigneeName"},
+            {CH: "签收日期", EN: "assigneeDate"},
+            {CH: "状态", EN: "status",Option:{"1":"审批中","2":"<font style='color:#00b7ee'>完成</font>","3":"<font style='color:#ff6600'>撤销</font>"},OptionExcel:{"1":"审批中","2":"完成","3":"撤销"}}
+        ];
+        var list = new Y.List(bpmIP + "/api/dp/v0.1", {dpType:"officialdoc",pageSize:"OfficialProcess",pageNum:1}, config);
+        list.btns = "<span class=\"listLook\">查看</span>";
+        list.load(function () {
+            //查看
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/OfficialDoc/OfficialDocInfo.html",title:"收文详情",data:{id:data.id}});
+                    })
+                }
+            })
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("收文流程");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword")
+        });
+    })()
+</script>

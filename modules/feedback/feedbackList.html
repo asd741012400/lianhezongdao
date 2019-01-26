@@ -1,0 +1,67 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="_schoolName" type="text" placeholder="学校名称"/>
+            <input id="startDate" class="input" type="text" placeholder="开始时间"/>
+            <input id="endDate" class="input" type="text" placeholder="结束时间"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "feedback", pageNum: 1};
+        var config = [
+            {CH: "学校", EN: "school"},
+            {CH: "提出人", EN: "publisher"},
+            {CH: "日期", EN: "date"},
+            {CH: "意见内容", EN: "content"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/other/v0.1/feedback", option, config);
+        list.checkBtn = false;
+        list.load(function () {});
+        $("#downLoadExcel").click(function(){
+            list.toExcel("意见反馈");
+        })
+        //开始日期
+        var beg = new Y.Calendar($("#startDate"),{date:""});
+        $("#startDate").focus(function () {
+            var _this = $(this);
+            beg.open(function (d) {
+                if ($("#endDate").val() != "" && $("#endDate").val() < d) {
+                    Y.alertx("开始日期不能大于结束日期");
+                    return false;
+                }
+                _this.val(d);
+                beg.close();
+            });
+        });
+
+        //结束日期
+        var end = new Y.Calendar($("#endDate"),{date:""});
+        $("#endDate").focus(function () {
+            var _this = $(this);
+            end.open(function (d) {
+                if ($("#startDate").val() != "" && d != "" &&$("#startDate").val() > d) {
+                    Y.alertx("结束日期不能小于开始日期");
+                    return false;
+                }
+                _this.val(d);
+                end.close();
+            });
+        });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            schoolName:$("#_schoolName"),
+            startDate:$("#startDate"),
+            endDate:$("#endDate")
+        });
+    })()
+</script>

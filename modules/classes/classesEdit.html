@@ -1,0 +1,155 @@
+<form class="form">
+    <div class="form_title"><img class="form_title_img" src="images/headPortrait.png"/><font>班级信息编辑</font><span class="red">(*为必填项)</span></div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>班级名称</div>
+            <span class="data_error">班级名称不能为空</span><input class="input" id="data-className" type="text" placeholder="例 轨道2016级一班"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>班级代码</div>
+            <span class="data_error">班级代码不能为空</span><input class="input" id="data-classCode" type="text" placeholder="请填入班级代码"/>
+        </div>
+
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>入学年份</div>
+            <span class="data_error">入学年份不能为空</span><input class="input" id="data-period" type="text" placeholder="请填写入学年份"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>专业</div>
+            <span class="data_error">专业不能为空</span><input class="input" id="data-majorId" type="text" placeholder="请选择专业"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>班主任</div>
+            <span class="data_error">班主任不能为空</span><input class="input" id="data-headTeacherId" type="text" placeholder="请选择班主任"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">班级地址</div>
+            <input class="input" id="data-classAddress" type="text" />
+        </div>
+        <div class="data widthAll">
+            <div class="data_title">任课老师</div>
+            <div id="data-classTeacherInfo"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+        </div>
+        <div class="data widthAll">
+            <div class="data_title">宿管老师</div>
+            <div id="data-dormTeacherInfo"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+        </div>
+        <div class="data widthAll">
+            <div class="data_title">学生列表</div>
+            <div id="data-classStudentInfo"></div><div></div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        var readOnly = Y.getUrlParam("readOnly");
+        var type = Y.getUrlParam("type");
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            classId : Y.getUrlParam("id"),
+            className : {
+                o:$("#data-className"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"班级名称不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            classAddress:{o:$("#data-classAddress")},
+            classCode : {
+                o:$("#data-classCode"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"班级代码不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            period : {
+                o:$("#data-period"),
+                i:function(){
+                    var calendar = new Y.Calendar($("#data-period"),{type:"year"});
+                    calendar.maxDate = new Date();
+                    $("#data-period").focus(function(){
+                        var _this = $(this);
+                        _this.prev().hide();
+                        calendar.open(function(d){
+                            _this.val(d);
+                            calendar.close();
+                        });
+                    })
+                },
+                f:function(v){
+                    if (v == "") {
+                        return [false,"入学年份不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            majorId:{
+                o:new Y.OnlySelectBox($("#data-majorId"),Y.getSelectBox('major')),
+                s:"majorName",
+                _o:$("#data-majorId"),
+                f:function(v){
+                    if (v == "") {
+                        return [false,"专业不能为空"];
+                    } else {
+                        return [true];
+                    }
+                },
+            },
+            headTeacherId:{
+                o:new Y.OnlySelectBox($("#data-headTeacherId"),Y.getSelectBox('teacher')),
+                s:"headTeacherName",
+                _o:$("#data-headTeacherId"),
+                f:function(v){
+                    if (v == "") {
+                        return [false,"班主任不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            schoolId : schoolId,
+            classTeacherInfo:{
+                o:new Y.AnySelectBox($("#data-classTeacherInfo"),$("#data-classTeacherInfo").next(),Y.getSelectBox('teachers'))
+            },
+            dormTeacherInfo:{
+                o:new Y.AnySelectBox($("#data-dormTeacherInfo"),$("#data-dormTeacherInfo").next(),Y.getSelectBox('teachers'))
+            },
+            classStudentInfo:{
+                o:new Y.AnySelectBox($("#data-classStudentInfo"),$("#data-classStudentInfo").next(),Y.getSelectBox('students',{readOnly:true}))
+            }
+        }
+        if (type) {
+            fromConfig.welcome = true;
+        }
+        var from = new Y.From(fromConfig,"classId",{getURL:ucIP + "/api/uc/v0.1/classes/{classId}",postURL:ucIP + "/api/uc/v0.1/classes",putURL:ucIP + "/api/uc/v0.1/classes/{classId}",title:"提交班级信息"});
+        //只读
+
+        if(readOnly){
+            Y.disabled(fromConfig);
+            $(".remove").remove();
+        }
+
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

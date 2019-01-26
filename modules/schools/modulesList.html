@@ -1,0 +1,84 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="_schoolId" class="input" type="text" placeholder="选择学校"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "modules", pageNum: 1,schoolId:schoolId};
+        var config = [
+            {CH: "ios图标", EN: "iosIcon",htmlFormat: "<div style='height:60px;overflow:hidden;'><img width='90' src='{iosIcon}' /></div>"},
+            {CH: "安卓图标", EN: "androidIcon",htmlFormat: "<div style='height:60px;overflow:hidden;'><img width='32' style='margin-top: 15px;' src='{androidIcon}' /></div>"},
+            {CH: "模块名称", EN: "name"},
+            {CH: "模块类型", EN: "linkType",Option: {1: "<font style='color:#00b7ee'>原生</font>", 2: "<font style='color:#fda814'>HTML5</font>"},OptionExcel: {1: "原生", 2: "HTML5"}},
+            {CH: "模块描述", EN: "description",Style:"color:#999999;"},
+            {CH: "推送情况", EN: "pushType",htmlFormat:function(k,v){
+                return v.replace('reddot','红点').replace('notice','系统').replace('sms','短信').replace('wechat','微信').replaceAll(',','/');
+            }},
+            {CH: "教师端", EN: "accountTypeSupport",htmlFormat:function(k,v){
+                return v.indexOf("2") > -1 ? "<b style='color:#f95e12;font-size:20px;'>√</b>" : "";
+            }},
+            {CH: "学生端", EN: "accountTypeSupport",htmlFormat:function(k,v){
+                return v.indexOf("1") > -1 ? "<b style='color:#56bb4e;font-size:20px;'>√</b>" : "";
+            }},
+            {CH: "家长端", EN: "accountTypeSupport",htmlFormat:function(k,v){
+                return v.indexOf("3") > -1 ? "<b style='color:#e3cf27;font-size:20px;'>√</b>" : "";
+            }}
+        ];
+        var list = new Y.List(eschoolIP + "/api/app/v0.1/modules", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/schools/modulesEdit.html",title:"编辑模块信息",data:{id:data.moduleId}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/app/v0.1/modules/","moduleId","模块",{vKey:"name",obj:$(this)});
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/app/v0.1/modules/","moduleId","模块",{vKey:"name"});
+        })        
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/schools/modulesEdit.html",title:"新增模块"});
+        })
+        $("#downLoadExcel").click(function(){
+            list.toExcel("模块信息");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            schoolId:new Y.OnlySelectBox($("#_schoolId"),{
+                idKey:"schoolId",
+                sKey:'name',
+                vKey:'schoolId',
+                SelectBox:{
+                    paramet:{pageNum:1,pageSize:10,key:"name"},
+                    url:ucIP + "/api/uc/v0.1/schools",
+                    dataString:"<div class='autoList' vaule='{code}'><b class='listStyle_cicle icon_img' imgUrl='{logo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>编码 {code}</span></div>"
+                }
+            })
+        });
+    })()
+</script>

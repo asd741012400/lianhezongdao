@@ -1,0 +1,63 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="s_id" class="input" type="text" placeholder="选择学期"/>
+            <input id="classId" class="input" type="text" placeholder="选择班级"/>
+            <input id="userId" class="input" type="text" placeholder="选择学生"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var config = [
+            {CH: "班级", EN: "className"},
+            {CH: "学生", EN: "userName"},
+            {CH: "学号", EN: "studNo"},
+            {CH: "加分", EN: 'zhScore'},
+            {CH: "扣分", EN: "fuScore"},
+            {CH: "得分", EN: "score"}
+        ];
+        var option = {pageSize: "disciplineCountList", pageNum: 1};
+        Y.ajax(ucIP + "/api/uc/v0.1/semester",function(ret){
+            if(ret && !ret.errorMsg) {
+                var active = '';
+                for(var i = 0; i < ret.rows.length; i ++) if(ret.rows[i].current) active = ret.rows[i];
+                option.id = active.id;
+                var list = new Y.List(eschoolIP + "/api/daily/v0.1/discipline/count", option, config);
+                list.btns = "<span class=\"listLook bg_dfba49\">查看</span>";
+                list.listNumTitle = "序号";
+                list.load(function () {
+                    $("tr").each(function(i){
+                        if(i > 0 && list.data && list.data.rows && list.data.rows.length > 0){
+                            var data = list.data.rows[i - 1];
+                            //查看
+                            $(this).find(".listLook").click(function(){
+                                Y.open({url:"modules/daily/disciplineCountList.html",title:"操行检查统计信息",data:{startTime:active.begdate,endTime:active.enddate,data:data}});
+                            })
+                        }
+                    })
+                });
+                var classId = new Y.OnlySelectBox($("#classId"),Y.getSelectBox('classe'));
+                var userId = new Y.OnlySelectBox($("#userId"),Y.getSelectBox('student'));
+                var s_id = new Y.OnlySelectBox($('#s_id'),Y.getSelectBox('semester',{delFn:false}));
+                s_id.val(active.id,active.name);
+                var listSearch = new Y.ListSearch(list,{
+                    id:s_id,
+                    classId:classId,
+                    userId:userId
+                });
+                $("#downLoadExcel").click(function(){
+                    list.toExcel("操行检查统计记录");
+                })
+            }
+        })
+    })()
+</script>

@@ -1,0 +1,112 @@
+﻿<form class="form">
+    <div class="form_title"><b>消息推送设置</b><!-- <span class="red">(*为必填项)</span> --></div>
+    <div class="data widthAll">
+        <div class="data_title">设置教师</div>
+        <div id="data-teachers"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title">设置部门</div>
+        <div id="data-groups"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style type="text/css">
+    .tree{
+        margin: 10px 20px;
+        border:1px solid #e4e4e4;
+    }
+    .nodeData{
+        border-bottom:1px dashed #e4e4e4;
+        padding: 5px 0px;
+    }
+    .nodeData:hover{
+        background: #f9f9f9;
+    }
+    .lastNode .nodeData{
+        border:none;
+    }
+    @media screen and (min-width: 1000px) {
+        #data-userList .personData,#data-leaderList .personData{
+            width:48%;
+        }
+    }
+    @media screen and (max-width: 1000px) {
+        #data-userList .personData,#data-leaderList .personData{
+            width:100%;
+        }
+    }
+    #data-userList .role_list,#data-leaderList .role_list{
+        margin-top: 5px;
+        /*color:#59a9e1;*/
+        color:#9e96b7;
+        user-select: none;
+    }
+    #data-userList .personData,#data-leaderList .personData{
+        text-align: left;
+        position:relative;
+        height:60px;
+        margin-bottom: 10px;
+
+        /*测试*/
+        border-bottom:1px solid #e3e3e3;
+    }
+    #data-userList .remove,#data-leaderList .remove{
+        width: 20px !important;
+        height: 20px !important;
+        float: right;
+        margin: 20px 20px;
+        position: static!important;
+    }
+    #data-userList .inside_box,#data-leaderList .inside_box{
+        position: absolute;
+        padding-left: 80px;
+        width: calc(100% - 141px);
+    }
+    #data-userList .change_button,#data-leaderList .change_button{
+        float:right;
+        user-select: none;
+    }
+    .autoList{
+        position:relative;
+    }
+</style>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            leaveType : '2',
+            students : {
+                o:new Y.AnySelectBox($("#data-students"),$("#data-students").next(),Y.getSelectBox('students',{valArr:true}))
+            },
+            teachers : {
+                o:new Y.AnySelectBox($("#data-teachers"),$("#data-teachers").next(),Y.getSelectBox('teachers',{valArr:true}))
+            },
+            groups : {
+                o:new Y.AnySelectBox($("#data-groups"),$("#data-groups").next(),{
+                        idKey:"groupId",
+                        valueString:"<div groupId='{groupId}' class='personData'><div style='width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #e4e4e4;color:#00b7ee;font-size:20px;margin:7px auto;border-radius:50px;'>{listStyle_name}</div><div>{name}</div></div>",
+                        SelectBox:{
+                            paramet:{key:"keyword"},
+                            url:ucIP + "/api/uc/v0.1/groups",
+                            dataString:"<div class='autoList' vaule='{groupId}'>{has_groupId}<b class='listStyle_cicle icon_img'>{listStyle_name}</b><span>{name}<font style='color:#3ec0ef;margin-left:5px;'>({peopleNum}人)</font></span><span style='color:#ccc;display:block;'>{description}</span></div>",
+                            disabled:['全体老师','全体家长','全体学生']
+                        },
+                        valArr:true
+                    })
+            },
+        }
+        var from = new Y.From(fromConfig,"",{getURL:ucIP + "/api/uc/v0.1/leavePushSendee?leaveType=2",putURL:ucIP + "/api/uc/v0.1/leavePushSendee",title:"设置老师请假推送接收人",dataJson:false,intGet:true});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

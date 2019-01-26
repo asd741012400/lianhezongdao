@@ -1,0 +1,93 @@
+<div class="list_header">
+  <div class="list_header_form">
+    <div class="search">
+        <input id="keyword" class="input" type="text" placeholder="部门角色关键字"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+    </div>
+    <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+    <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+    <div class="clear"></div>
+  </div>
+</div>
+<div class="table">
+  <div id="table"></div>
+</div>
+<div class="list_footer">
+  <div id="pagaBtns"></div>
+</div>
+<style type="text/css">
+  .listRIdsEdit{
+    color: #03acde;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .listRIdsEdit{
+        background: url("images/icon_listModules.png") center center no-repeat;
+        width: 16px;
+        height: 16px;
+        border: none;
+        color: rgba(255,255,255,0);
+        overflow: hidden;
+        cursor: pointer;
+    }
+    .listRIdsEdit:hover{
+        background: url("images/icon_listModules_active.png") center center no-repeat;
+    }
+</style>
+<script type="text/javascript">
+(function() {
+  var option = {pageSize: "groups", pageNum: 1};
+  var config = [
+      {CH: "角色名称", EN: "name", Align: "center"},
+//      {CH: "所属部门",EN: "groupId",htmlFormat:function(k,v,item){
+//          var result="";
+//          if(v.length>0&&v[0]['name']){
+//            var name=v[0]['name'];
+//            result=name||''
+//          }
+//          if(item&&item.type==0){
+//            result="";
+//          }
+//          return result;
+//      }},
+      /*{CH: "所属部门",EN: "groupOf"},*/
+      {CH: "角色描述", EN: "description"},
+      //{CH: "人员总数", EN: "peopleNum",Align:"center"},
+/*      {CH: "负责人",EN: "leaderName",htmlFormat:function(k,v){
+        return v.length > 1 ? v[0] + "..." : v[0];
+      }},*/
+      {CH: "权限配置", EN: "",Align:"center",htmlFormat: "<span title='权限配置' class=\"listRIdsEdit\">权限配置</span>"}
+  ];
+  var list = new Y.List(ucIP + "/api/uc/v0.1/group/role/getGroupRole", option, config);
+  list.btns = "<span class=\"listEdit\">修改</span><span class=\"listDelete\">删除</span>";
+  list.load(function(){
+    $("tr").each(function(i){
+      if(i > 0 && list.data.rows.length > 0){
+        var data = list.data.rows[i - 1];
+        if(data.isDefault) $(this).find(".tdBtns").remove();
+        //修改角色信息
+        $(this).find(".listEdit").click(function(){
+          Y.open({url:"modules/groups/groupRoleEdit.html",title:"编辑角色",data:{id:data.id}});
+        })
+        //修改权限
+        $(this).find(".listRIdsEdit").click(function(){
+          Y.open({url:"modules/groups/groupsRIdsEdit.html",title:"角色权限配置",data:{id:data.id}});
+        });
+        //删除角色信息
+        $(this).find(".listDelete").click(function(){
+          list.deleteFn([data],ucIP + "/api/uc/v0.1/group/role/","id","角色",{vKey:"name",obj:$(this)});
+        })
+      }
+    })
+  })
+  //新增
+  $("#addBtn").click(function(){
+      Y.open({url:"modules/groups/groupRoleEdit.html",title:"新增角色"});
+  })
+  $("#downLoadExcel").click(function(){
+      list.toExcel("角色信息");
+  })
+  var listSearch = new Y.ListSearch(list,{
+      keyword:$('#keyword')
+  });
+})()
+</script>

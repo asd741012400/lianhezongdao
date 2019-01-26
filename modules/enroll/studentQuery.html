@@ -1,0 +1,185 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="enrollId" type="text" placeholder="选择招录信息"/>
+            <input class="input" id="majorId" type="text" placeholder="专业"/>
+            <input class="input" id="keyword" type="text" placeholder="姓名/身份证/电话"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadDetailExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<div id="print"></div>
+<style>
+    #enrollTotal{
+        text-align: left;
+        padding-top: 32px;
+        color: #59a9e1;
+    }
+    .goPrint{
+        padding:0px 8px;
+        display: inline-block;
+        cursor: pointer;
+    }
+    #print{
+        display: none;
+    }
+</style>
+<style type="text/css" media=print>
+    .header,.left,.footer,#nav,#printBtn,.formBtns,.mouseOverShow{
+        display: none;
+    }
+    #print{
+        display: block;
+        position:fixed;
+        z-index: 99999999;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        border: none;
+        margin:0px;
+        padding: 10px 0px;
+        background: #fff;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "enroll_studentQuery", pageNum: 1};
+        var config = [
+            {CH: "招生标题", EN: "enrollName"},
+            {CH: "入学年份", EN: "rxnd"},
+            {CH: "姓名", EN: "name"},
+            {CH: "性别", EN: "sex", Option: {"0": "女", "1": "男"},OptionExcel:{"0":"女","1":"男"}},
+            {CH: "报读专业", EN: "majorName"},
+            {CH: "手机号码", EN: 'phone'},
+            {CH: "身份证号", EN: "cardId"},
+            {CH: "报名号", EN: "enrollNum"},
+            {CH: "来源", EN: "teacherName"},
+            {CH: "录取状态", EN: "admit", Option: {"0": "<span style='color:#ff0000;'>未录取</span>", "1": "已录取"},OptionExcel:{"0":"未录取","1":"已录取"}},
+            {CH: "通知书", EN: "print", Option: {"0": "<span class='bg_dfba49 goPrint'>去打印</span>", "1": "<div style='color:#ccc;'>已打印</div><span class='bg_dfba49 goPrint'>再次打印</span>"},OptionExcel:{"0":"未打印","1":"已打印"}},
+            {CH: "自定义内容", EN: "customAttKey",FormExtMap:"customAttValue",Hide:true}
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/enroll/student/query", option, config);
+        list.btns = "<span class=\"listLook bg_dfba49\">查看</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            //新生隐藏编辑按钮
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //查看
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/enroll/studentEdit.html",title:"招录信息查看",data:{id:data.id,enrollId:data.enrollId,readOnly:true}});
+                    })
+                    //打印
+                    $(this).find(".goPrint").click(function(){
+                        Y.ajax(ucIP + "/api/uc/v0.1/enroll/template/" + data.enrollId,function(ret){
+                            var components = {
+                                name:{type:'input',value:data.name,label:'姓名'},
+                                portrait:{type:'image',value:data.portrait,label:'照片'},
+                                sex:{type:'radio',attr:{actions:[{value:1,name:'男'},{value:0,name:'女'}]},value:data.sex,label:'性别'},
+                                rxnd:{type:'input',value:data.rxnd,label:'入学年份'},
+                                cardId:{type:'input',value:data.cardId,label:'身份证'},
+                                phone:{type:'input',value:data.phone,label:'电话'},
+                                majorName:{type:'input',value:data.majorName,label:'专业'},
+                                enrollNum:{type:'input',value:data.enrollNum,label:'报名号'},
+                                createTime:{type:'input',value:data.createTime,label:'报名时间'}
+                            }
+                            var customData = JSON.parse(data.customAttKey);
+                            for(var i = 0; i < ret.components.length; i ++){
+                                var idKey = ret.components[i].attr.idKey;
+                                var value = customData[ret.components[i].id];
+                                if (value) {
+                                    if (value.indexOf(',')>-1) {
+                                        value = value.replace(/,/g,'，');
+                                    };
+                                };
+                                if(idKey) {
+                                    components['custom-' + idKey] = ret.components[i];
+                                    components['custom-' + idKey].value = value;
+                                }
+                            }
+                            for(var key in components){
+                                ret.tzs = ret.tzs.replace(new RegExp('{' + key + '(_[^}]*)*}','g'),function($0,$1){
+                                    switch(components[key].type){
+                                        case 'radio':
+                                            var rc = '';
+                                            for(i = 0; i < components[key].attr.actions.length; i ++){
+                                                /*if(components[key].value == components[key].attr.actions[i].value){
+                                                    rc += '✔';
+                                                }else{
+                                                    rc += '□';
+                                                }
+                                                rc += '  ' + components[key].attr.actions[i].name + '       ';*/
+                                                if(components[key].value == components[key].attr.actions[i].value){
+                                                    rc = components[key].attr.actions[i].name;
+                                                }
+                                            }
+                                            return rc;
+                                        case 'image':
+                                            $1 = $1 ? $1.split('_') : [];
+                                            var src = components[key].value || 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAATABMDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AKpgAAAAAAA//9k=';
+                                            return '<img style="width:' + ($1[1] || 100) + 'px;height:' + ($1[2] || 140) + 'px;" src="' + src + '" data-ke-src="' + src + '" />';
+                                        default:
+                                            return components[key].value;
+                                    }
+                                })
+                            }
+                            var richEdit = '';
+                            Y.qiNiouKey(function(upladArgs){
+                                Y.confirmx('<div id="prevContent" style="width:980px;height:510px;"></div>',function(){
+                                    $('#print').html(richEdit.val());
+                                    window.print();
+                                    Y.ajax(ucIP + '/api/uc/v0.1/enroll/student/' + data.id + '/updatePrint',function(ret){
+                                        if(ret.result) list.load();
+                                    },{meth:'PUT'});
+                                },{
+                                    _w:1000,
+                                    _h:600,
+                                    title:'打印预览',
+                                    initFn:function(){
+                                        richEdit = new Y.RichEdit($("#prevContent"),true,upladArgs);
+                                        richEdit.val(ret.tzs);
+                                    }
+                                });
+                            })
+                        })
+                    })
+                }
+            })
+        });
+        $("#downLoadDetailExcel").click(function() {
+            if (enrollId.val() == '') {
+                Y.alertx("请先选择一个招录信息");
+                return false;
+            }
+            var url = ucIP + "/api/uc/v0.1/enroll/student/export?" + "schoolId=" + schoolId + "&enrollId=" + enrollId.val() + "&majorId=" + majorId.val() + "&keyword=" + $('#keyword').val() + "&exportType=3";
+            Y.download(url);
+        })
+        var enrollId = new Y.OnlySelectBox($("#enrollId"),{
+            vKey:"id",
+            sKey:"title",
+            SelectBox:{
+                showNum:false,
+                paramet:{},
+                url:ucIP + "/api/uc/v0.1/enroll/template",
+                dataString:"<div class='autoList' vaule='{id}'><span>{title}</span></div>"
+            }
+        });
+        var majorId = new Y.OnlySelectBox($("#majorId"),Y.getSelectBox('major'));
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$('#keyword'),
+            enrollId:enrollId,
+            majorId:majorId
+        });
+    })()
+</script>

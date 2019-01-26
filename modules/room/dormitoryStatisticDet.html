@@ -1,0 +1,55 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <input type="button" value="返回" id="cancel" class="bg_eeeeee"/>
+        <input id="printBtn" type="button" class="bg_eeeeee" value = "打印" />
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    #print{
+        display: none;
+    }
+</style>
+<style type="text/css" media=print>
+    body{
+        background:#fff;
+    }
+    .header,.left,.footer,.right,#nav,#printBtn,.formBtns,.list_header{
+        display: none;
+    }
+    #print{
+        display: block;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "dormitory", pageNum: 1};
+        var dormId = Y.getUrlParam("dormId");
+        var date = Y.getUrlParam("date");
+        var config = [
+            {CH: "班级", EN: "className"},
+            {CH: "姓名", EN: "name"},
+            {CH: "学号", EN: "studNo"},
+        ];
+        var list = new Y.List(eschoolIP + "/api/dormitory/v0.1/patrol/result/dorm/" + dormId + "/date/" + date, option, config);
+        list.listNumTitle = "序号";
+        list.load();
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+        //打印
+        $("#printBtn").click(function(){
+            var table = "<div id='print' class='table'>"+$(".table").html()+"</div>";
+            $('body').append(table);
+            window.print();
+            $("#print").remove();
+        })
+    })()
+</script>

@@ -1,0 +1,154 @@
+﻿<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="s_title" type="text" placeholder="标题"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<div id="print"></div>
+<style type="text/css">
+    .ewmBtn{
+        padding:2px 10px;
+        cursor: pointer;
+        margin-right: 16px;
+    }
+    .ewmShowBtn{
+        font-size:12px;
+        cursor: default;
+        text-decoration: underline;
+        color: #75cd1f;
+    }
+    #print{
+        display: none;
+        background: #fff;
+    }
+    #printQrCode{
+        width: 500px;
+        height: 500px;
+        position: absolute;
+        left: 50%;
+        margin-left: -250px;
+        top:50%;
+        margin-top: -250px;
+    }
+</style>
+<style type="text/css" media=print>
+    .header,.left,.footer,#nav,#printBtn,.formBtns,.mouseOverShow{
+        display: none;
+    }
+    #print{
+        display: block;
+        position:fixed;
+        z-index: 99999999;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        border: none;
+        margin:0px;
+        padding: 10px 0px;
+        background: #fff;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "enrollTemplateList", pageNum: 1};
+        var config = [
+            {CH: "标题", EN: "title"},
+            {CH: "开始时间", EN: "beginDate"},
+            {CH: "结束时间", EN: "endDate"},
+            {CH: "报名入口", EN: "id",htmlFormat:'<span class="ewmShowBtn">二维码</span><a class="enrollClick" style="margin-left:8px;color:#75cd1f;cursor:pointer;">打开</a>'},
+            {CH: "是否启用", EN: "enable",htmlFormat:function(k,v,o){
+                return v ? '<input type="checkbox" class="enable" checked name="enable" />' : '<input name="enable" type="checkbox" class="enable" />';
+            }}
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/enroll/template", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/enroll/template.html",title:"招生填报信息",data:{type:"reviewEdit",id:data.id}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],ucIP + "/api/uc/v0.1/enroll/template/","id","招生填报信息",{vKey:"title",obj:$(this)});
+                    })
+                    //点击打开
+                    $(this).find(".enrollClick").click(function(){
+                        data.schoolId=='3'?window.open("http://s.veducloud.com/shop/#/enroll?home=enroll&enrollId=" + data.id ):window.open("enrollPC.html?enrollId=" + data.id )
+                    })
+                    //启用
+                    $(this).find(".enable").click(function(){
+                        var _this = this;
+                        var checked = _this.checked;
+                        _this.checked = !checked;
+                        Y.confirmx("确定修改?",function(){
+                            _this.checked = checked;
+                            Y.ajax(ucIP + "/api/uc/v0.1/enroll/template/" + data.id + "/enable",function(res){
+                                if(res){
+                                    var msg = res && res.result ? "操作成功!" : ("操作失败," + res.errorMsg);
+                                    list.reLoad();
+                                    Y.alertx(msg,'',{toast:true,height:70});
+                                }else{
+                                    Y.alertx("操作失败",'',{toast:true,height:70});
+                                }
+                            },{meth:'POST'})
+                        },{titleHeight:0,styles:{
+                            bottom:'border-top:none;',
+                            center:'border-top:none;',
+                            box:'left:' + ($(this).offset().left - 150) + 'px;top:' + ($(this).offset().top - 110) + 'px;'
+                        },_h:110,_w:200})
+                    })
+                    new Y.MouseOverShow($(this).find(".ewmShowBtn"),'',{
+                        string:'<div id="_ewm' + i + '" style="width:200px;height:200px;color:#333;position:relative"></div><div style="text-align:center;margin-top:5px;background:#fff;"><span id="print' + i + '" class="bg_default ewmBtn">打印</span></div>',
+                        style:';width:220px;height:230px;background:#fff;border:1px solid #ccc;margin-left:20px;margin-top:-8px',
+                        init:function(){
+                            $('#_ewm' + i).qrcode({
+                                render: "canvas", //table方式
+                                width: 200, //宽度
+                                height:200, //高度
+                                text: 'http://s.veducloud.com/shop/#/enroll?home=enroll&enrollId=' + data.id //任意内容
+                            })
+                            $('#print' + i).click(function(){
+                                $('#print').html('<div id="printQrCode"></div>');
+                                $('#printQrCode').qrcode({
+                                    render: "canvas", //table方式
+                                    width: 500, //宽度
+                                    height:500, //高度
+                                    text: 'http://s.veducloud.com/shop/#/enroll?home=enroll&enrollId=' + data.id //任意内容
+                                })
+                                window.print();
+                            })
+                        }
+                    });
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),ucIP + "/api/uc/v0.1/enroll/template/","id","招生填报信息",{vKey:"title"});
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/enroll/template.html",title:"新增招生填报信息"});
+        });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            title:$('#s_title')
+        });
+    })()
+</script>

@@ -1,0 +1,283 @@
+<div class="form">
+    <div class="info-head">
+        <h1>评课详情</h1>
+        <span class="info-btn align-right font-bold" id="cancel">返回列表</span>
+    </div>
+
+    <div class="info-body">
+        <div class="teacher-wrap">
+            <div class="teacher-list">
+                <div class="teacher-list-img"><img id="studentPhoto" src="images/headPortrait.png" /></div><div class="teacher-list-info">
+                    <div class="teacher-name" id="studentName"></div>
+                    <span class="type-i pk-i">评教学生</span>
+                </div>
+            </div>
+            <div class="teacher-list-type teacher-list-type-normal"></div>
+            <div class="teacher-list">
+                <div class="teacher-list-img">
+                    <img id="bpTeacherPhoto" src="images/headPortrait.png" />
+                </div><div class="teacher-list-info">
+                    <div class="teacher-name" id="bpTeacherName">张三</div>
+                    <span class="type-i rk-i">被评老师</span>
+                </div>
+            </div>
+            <div class="teacher-total">
+                评教总分：<span id="scoreTotal">22分</span>
+            </div>
+        </div>
+
+        <div class="info-body-list">
+            <h2 class="list-title">评教基本信息</h2>
+            <ul class="info-body-list-main">
+                <li>
+                    <span>评教学期</span>
+                    <div class="main-text" id="semester"></div>
+                </li>
+                <li>
+                    <span>评教顺序</span>
+                    <div class="main-text" id="num"></div>
+                </li>
+                <li>
+                    <span>班级</span>
+                    <div class="main-text" id="className"></div>
+                </li>
+                <li>
+                    <span>班主任</span>
+                    <div class="main-text" id="headTeacherName"></div>
+                </li>
+                <li>
+                    <span>评教学生</span>
+                    <div class="main-text" id="_studentName"></div>
+                </li>
+                <li>
+                    <span>被评老师</span>
+                    <div class="main-text" id="_bpTeacherName"></div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="info-body-list">
+            <h2 class="list-title">学生评教细则</h2>
+            <ul class="info-body-list-detailed-wrap" id="questionsList">
+                <li>
+                    <div class="info-body-list-num font-bold">选项1</div>
+                    <div class="info-body-list-describe">
+                        <span>描述：</span>该教师是否有上课迟到、早退、拖堂或无故缺课，随意改上自习课的现象？
+                    </div>
+                    <div class="info-body-list-score-wrap">
+                        <div class="info-body-list-classify-wrap">
+                            <span>较好</span><span>一般</span><span class="active">教差</span>
+                        </div>
+                        <span>得分：10</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="info-body-list-num font-bold">选项2</div>
+                    <div class="info-body-list-describe">
+                        <span>描述：</span>该教师是否有上课迟到、早退、拖堂或无故缺课，随意改上自习课的现象？
+                    </div>
+                    <div class="info-body-list-score-wrap">
+                        <div class="info-body-list-classify-wrap">
+                            <span>较好</span><span>一般</span><span class="active">教差</span>
+                        </div>
+                        <span>得分：10</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="info-body-list proposal-wrap">
+            <h2 class="list-title">对老师的建议</h2>
+            <p id="suggestion"></p>
+        </div>
+    </div>
+</div>
+<style type="text/css">
+#right{
+    overflow:hidden;
+}
+
+.info-head-vice{
+    background:#F7FCFF;
+    font-weight:bold;
+    color:#59A9E1;
+    height:40px;
+    line-height:40px;
+    margin: 0 0 0 -10px;
+    width:calc( 100% + 20px );
+    padding-left:40px;
+}
+.info-body{
+    padding:40px 25px;
+}
+.teacher-list-img,.teacher-list-info,.teacher-list-type,.teacher-list,.teacher-total{
+    display: inline-block;
+    vertical-align: middle;
+}
+.teacher-total{
+    width:186px;
+    height:56px;
+    text-align:center;
+    line-height:56px;
+    background:#FFF9F7;
+    margin-left:56px;
+    color:#FC4210;
+}
+.teacher-total span{
+    font-size:22px;
+}
+.teacher-list-img{
+    width:56px;
+    height:56px;
+    border-radius:56px;
+    overflow:hidden;
+}
+.teacher-list-img img{
+    width:100%;
+    height:100%;
+}
+.teacher-name{
+    font-size:16px;
+    margin-bottom:2px;
+}
+.teacher-list-info{
+    margin-left:15px;
+    height:44px;
+}
+.teacher-list-info span{
+    font-size:12px;
+}
+.teacher-list-info .job{
+    color:#999;
+}
+.type-i{
+    height:16px;
+    width:56px;
+    line-height:16px;
+    color:#fff;
+    border-radius:4px;
+    display: inline-block;
+    text-align:center;
+}
+.pk-i{
+    background:#00B7EE;
+}
+.rk-i{
+    background:#75CD1F;
+}
+
+.teacher-list-type{
+    width:208px;
+    height:37px;
+    display:inline-block;
+    background:url('images/each_arrow.png') no-repeat;
+    margin: 0 56px;
+}
+.teacher-list-type-normal{
+    background-position: 0 0;
+}
+.teacher-list-type-refuse{
+    color:#FC4210;
+    background-position: 0 -40px;
+    line-height:5px;
+    text-align:center;
+}
+.reason-wrap{
+    margin-top:48px;
+    display:none;
+}
+.reason-wrap span{
+    color:#999;
+}
+.reason-wrap p,.proposal-wrap p{
+    font-size:16px;
+    border:1px solid #eee;
+    text-indent:0;
+    padding:18px 16px;
+    margin:8px 0 0 0;
+    max-width:880px;
+}
+
+.base-meg{
+    margin-top:64px;
+}
+.list-title{
+    font-size:18px;
+    margin-bottom:32px;
+}
+.info-body-list{
+    margin-top:64px;
+}
+.info-body-list-main{
+    clear:both;
+    overflow:hidden;
+}
+.info-body-list-main span{
+    color:#999;
+}
+.info-body-list-main li{
+    width:33.3%;
+    float:left;
+}
+.info-body-list-main li:nth-child(1),.info-body-list-main li:nth-child(2),.info-body-list-main li:nth-child(3){
+    margin-bottom:40px;
+}
+.main-text{
+    font-size:16px;
+    border-bottom:1px solid #eee;
+    margin:12px 80px 0 0;
+    padding-bottom:6px;
+}
+.proposal-wrap p{
+    margin-bottom:40px;
+}
+
+</style>
+<script>
+    (function() {
+        var recordId = Y.getUrlParam("recordId");
+
+        Y.ajax(eschoolIP + "/api/teachingEvaluation/v0.1/student/record/{recordId}/detail",function(ret){
+            var anHtml = "",
+            questions = ret.questions;
+            for(var k in ret){
+                if (ret[k] != 'object') {
+                    $("#"+k).html(ret[k])
+                    $("#_"+k).html(ret[k])
+                }
+            }
+            $("#bpTeacherName").attr('src',ret.bpTeacherName);
+            $("#studentName").attr('src',ret.studentName);
+            for (var i = 0; i < questions.length; i++) {
+                var scoreHtml = "",
+                optionsHtml = "";
+                for (var j = 0; j < questions[i].options.length; j++) {
+                    var options = questions[i].options[j],
+                    active = "";
+                    if (options.check) {
+                        scoreHtml = '<span>得分：' + options.score + '</span>'
+                        active = 'class="active"'
+                    };
+                    optionsHtml += '<span ' + active + '>' + options.option + '</span>'
+                };
+                anHtml += '<li>'
+                        +     '<div class="info-body-list-num font-bold">选项' + (i+1) + '</div>'
+                        +     '<div class="info-body-list-describe">'
+                        +          '<span>描述：</span>' + questions[i].questionTitle
+                        +     '</div>'
+                        +      '<div class="info-body-list-score-wrap">'
+                        +           '<div class="info-body-list-classify-wrap">'
+                        +               optionsHtml
+                        +           '</div>'
+                        +           scoreHtml
+                        +      '</div>'
+                        +  '</li>'
+            };
+            $("#questionsList").html(anHtml);
+        },{data:{recordId:recordId}})
+
+        //返回
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

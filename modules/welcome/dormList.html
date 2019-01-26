@@ -1,0 +1,63 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="dormNo" class="input" type="text" placeholder="宿舍号"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="upLoadList" type="button" value="Excel导入" class="bg_eeeeee"/>
+        <input type="button" id="downLoadImportModle" value="下载导入模板" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var config = [
+            {CH: "宿舍号", EN: "no"},
+            {CH: "宿舍类型", EN: "dormType", Option: {"0": "女生宿舍", "1": "男生宿舍"},OptionExcel:{"0":"女生宿舍","1":"男生宿舍"}},
+            {CH: "责任老师", EN: "dutyTeacherName"},
+            {CH: "人数限制", EN: "numLimit"},
+            {CH: "已分配人数", EN: "assigned"}
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/welcome/dorm", {pageSize:"welcome_dorm",pageNum:1}, config);
+        list.btns = "<span class=\"listAddPerson\">添加</span>";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listAddPerson").click(function(){
+                        Y.open({url:"modules/welcome/dormEdit.html",title:"新生分宿舍",data:{id:data.id,dormType:data.dormType}});
+                    })
+                }
+            })
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("新生分宿舍管理");
+        });
+        //下载模板
+        $("#downLoadImportModle").click(function(){
+            var selectBox = new Y.SelectBox({showNum:false,paramet:{key:"keyword"},url:ucIP + "/api/uc/v0.1/classes?type=2&welcome=true",dataString:"<div class='autoList' vaule='{classId}'>{has_classId}<span>{className}</span><span style='color:#ccc;display:block;'>班主任:{headTeacherName}</span></div>",action:function(res){
+                if(res.length > 0){
+                    var classId = [];
+                    for(var i = 0; i < res.length; i ++) classId.push(res[i].classId);
+                    Y.download(ucIP + "/api/uc/v0.1/dorms/dataImportTemplateWithStudent?" + "accessToken=" + accessToken + '&classIds=' + classId.join(',') + '&schoolId=' + schoolId);
+                }else{
+                    Y.alertx('请先选择班级');
+                }
+            }})
+            selectBox.open();
+        });
+        //Excel信息批量导入
+        Y.excelImport(ucIP + "/api/uc/v0.1/progressbar/dormStudentImport/0",ucIP + "/api/uc/v0.1/dorms/dataImportWithStudent?schoolId=" + schoolId,ucIP + "/api/uc/v0.1/dorms/dataImportTemplateWithStudent?schoolId=" + schoolId + "&accessToken=" + accessToken);
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            dormNo:$("#dormNo")
+        });
+    })()
+</script>

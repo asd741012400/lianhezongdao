@@ -1,0 +1,123 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="keyword" class="input" type="text" placeholder="班级名称/班主任"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="addBtn" type="button" value="新增分班" class="bg_eeeeee"/>
+        <input id="downLoadTemplate" type="button" value="下载导入模板" class="bg_eeeeee"/>
+        <input id="importData" type="button" value="导入数据" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+
+    </div>
+</div>
+<div style="line-height: 40px;padding:0px 10px;border-top: 1px solid #e4e4e4;">
+    未分班学生人数为
+    <span id="unAssigned" style="color: #f87941;margin:10px;">--</span>
+    人
+    <input id="goDivisionStuMsg" type="button" value="查看" class="bg_eeeeee" style="cursor:pointer;margin-left: 10px;" />
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+
+        var config = [
+            {CH: "班级名称", EN: "className"},
+            {CH: "班级代码", EN: "classCode"},
+            {CH: "班主任", EN: "headTeacherName"},
+            {CH: "已分配人数", EN: "assigned"},
+            {CH: "男生人数", EN: "boy"},
+            {CH: "女生人数", EN: "girl"},
+            {CH: "未分配正式学号人数", EN: "unsignedStuNo"},
+            {CH: "生成学号", EN: "",htmlFormat: "<span title='生成学号' class=\"listSchoolNumber\">生成学号</span>"},
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/welcome/class", {pageSize:"welcome_class",pageNum:1}, config);
+        list.btns = "<span class=\"listAddPersonWel\">添加</span><span class=\"listOfficial\">班级归档</span>";
+        list.load(function () {
+            $("#unAssigned").html(list.data.unAssigned);
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listAddPersonWel").click(function(){
+                        Y.open({url:"modules/welcome/classEdit.html",title:"新生分班",data:{id:data.classId,type:'manu'}});
+                    })
+                    //生成学号
+                    $(this).find(".listSchoolNumber").click(function(){
+                        Y.ajax(ucIP + "/api/uc/v0.1/numberRules/createAndSave/"+data.classId,function(res){
+                            if(res && res.result){
+                                Y.alertx("生成成功");
+                                list.reLoad();
+                            }else{
+                                Y.alertx("生成失败," + res.errorMsg);
+                            }
+                        },{meth:"PUT",data:{classId:data.classId},dataJson:false})
+                    })
+                    //班级归档
+                    $(this).find(".listOfficial").click(function(){
+                        Y.confirmx("<div>归档后班级将进入校园数据管理</div>",function(){
+                            Y.ajax(ucIP + "/api/uc/v0.1/classes/official/"+data.classId,function(res){
+                                if(res && res.result){
+                                    Y.alertx("操作成功");
+                                    list.reLoad();
+                                }else{
+                                    Y.alertx("操作成功," + res.errorMsg);
+                                }
+                            },{meth:"PUT",data:{classId:data.classId},dataJson:false})
+                        })
+                    })
+                }
+            })
+        });
+        var downloadList=new Y.AnySelectBox($("#downLoadTemplate"),$("#downLoadTemplate"),Y.getSelectBox('majors',{maxSize:20,valArr:true}));
+        //点击确定事件
+        downloadList.appendFn=function(){
+            //下载模板
+            var val=downloadList.val();
+            if(val==null||val.length==0){
+                Y.alertx("请至少选择一个专业");
+            }
+            var downloadUrl=ucIP+"/api/uc/v0.1/welcome/class/export/dataImportTemplate?schoolId="+schoolId+"&majorId="+val.join(",");
+            window.location.href=downloadUrl;
+            downloadList.value = [];
+        }
+        $('#importData').click(function(){
+            Y.upload(ucIP + '/api/uc/v0.1/welcome/class/export/dataImport',function(res){
+                if(res && res.result){
+                    Y.alertx("导入成功," + res.msg,function(){
+                        list.reLoad();
+                    });
+                }else{
+                    if(res && res.url){
+                        Y.confirmx("<div style='color: #ff0000;font-weight:bold;'>导入失败!</div>" + res.msg + "<div style='color: #ff0000;'>点击确定下载失败的数据?</div>",function(){
+                            Y.download(res.url);
+                            list.reLoad();
+                        });
+                    }else{
+                        Y.alertx("导入失败，" + res.errorMsg);
+                    }
+                }
+            })
+        })
+        $("#downLoadExcel").click(function(){
+            list.toExcel("新生分班管理");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword")
+        });
+        //新增班级
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/classes/classesEdit.html",title:"新增班级",data:{type:'welcome'}});
+        })
+        //分班查询
+        $("#goDivisionStuMsg").click(function(){
+            Y.open({url:"modules/welcome/divisionStuMsg.html",title:"新生分班查询",data:{type:'manu'}});
+        })
+    })()
+</script>

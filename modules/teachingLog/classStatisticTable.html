@@ -1,0 +1,124 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="bg_eeeeee" id="goBack" type="button" value="返回"/>
+        </div>
+        <input id="printBtn" type="button" value="打印" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div class="table-head">
+        <div class="head-l">
+            班级教学日志统计表
+        </div>
+        <div class="head-r">
+        </div>
+    </div>
+    <div class="table-total"></div>
+    <div class="table-list">
+        <div class="table-list-head"><span>1</span>【考勤统计】（单位：次）</div>
+        <div class="table-kqtj-table"></div>
+    </div>
+    <div class="table-list">
+        <div class="table-list-head"><span>2</span>【纪律班风】（单位：次）</div>
+        <div class="table-lvbf-table"></div>
+    </div>
+</div>
+<div id="print"></div>
+<style>
+    #print{
+        display: none;
+    }
+    .table{
+        border:1px solid #ccc;
+        padding:35px;
+    }
+    .table-head{
+        padding-bottom:10px;
+        border-bottom:2px solid #ccc;
+        clear:both;
+        overflow:hidden;
+    }
+    .table-total{
+        margin-top:20px;
+    }
+    .head-l{
+        float:left;
+        font-size:18px;
+    }
+    .head-l span{
+        font-size:12px;
+    }
+    .head-r{
+        float:right;
+    }
+    .table-list,.summary{
+        margin-top:20px;
+    }
+    .table-list-head{
+        margin-bottom:8px;
+    }
+    .table-list-head span{
+        display:inline-block;
+        font-size:12px;
+        color:#fff;
+        background:#999;
+        width: 20px;
+        height: 20px;
+        line-height:20px;
+        border-radius:10px;
+        text-align:center;
+    }
+</style>
+<style type="text/css" media=print>
+    body{
+        background:#fff;
+    }
+    .header,.left,.footer,#nav,#printBtn,.formBtns,.list_header{
+        display: none;
+    }
+    #print{
+        display: block;
+        position:fixed;
+        z-index: 99999999;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        margin:0px;
+        background: #fff;
+    }
+    #right > .table{
+        display:none;
+    }
+</style>
+<script type="text/javascript">
+    $(function(){
+        var classId = Y.getUrlParam("enrollI"),
+        begDate = Y.getUrlParam("begDate"),
+        endDate = Y.getUrlParam("endDate"),
+        configTotal = {xyText:'科目',xyText2:'教师',listTit:'日志提交次数',count:'course',count2:'teacherName',list:'count',yTotalCol:true}
+        configJlbf = {xTotal:true,yTotal:true,counts: 'jlbfAndCounts',countsKey: 'name',},
+        configKq ={xTotalHtml: {text:'异常考勤合计',del:'正常'},yTotal:true,counts: 'courseAndAttendance',countsKey: 'attendance',};
+
+        Y.ajax(eschoolIP + "/api/teachingLog/v0.1/singleStatistic/class/{classId}",function(res){
+            $('.head-l').append(res.date == "~" ? "" : "<span>" + res.date + "</span>");
+            $('.head-r').html("班级：" + res.className);
+            var tableTotal = new Y.Table(".table-total",res.teacherAndCourseCounts,configTotal);
+            tableTotal.load();
+            var tableJlbf = new Y.Table(".table-lvbf-table",res.courseAndjlbfList,configJlbf);
+            tableJlbf.load();
+            var tableKq = new Y.Table(".table-kqtj-table",res.couseAndAttendanceLis,configKq);
+            tableKq.load();
+        },{data:{'classId':classId,'begDate':begDate,'endDate':endDate}})
+
+        $("#printBtn").click(function(){
+            $('#print').html($('#right').html());
+            window.print();
+        })
+        //返回
+        $("#goBack").click(function(){
+            Y.back(-1);
+        });
+    })
+</script>

@@ -1,0 +1,210 @@
+<form class="form">
+    <div class="form_title"><img class="form_title_img" src="images/headPortrait.png"/><font>设备信息编辑</font><span class="red">(*为必填项)</span></div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>设备名称</div>
+            <span class="data_error">设备名称不能为空</span><input class="input" id="data-name" type="text" placeholder="请填写设备名称"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>单位</div>
+            <span class="data_error">单位不能为空</span><input class="input" id="data-unit" type="text" placeholder="请填写单位"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>单价(元)</div>
+            <span class="data_error">单价不能为空</span><input class="input" id="data-price" type="text" placeholder="请填写单价"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>设备编码</div>
+            <span class="data_error">设备编码不能为空</span><input class="input" id="data-code" type="text" placeholder="请填写设备编码"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>建成时间</div>
+            <span class="data_error">建成时间不能为空</span><input class="input" id="data-buildingDate" type="text" placeholder="请选择建成时间"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>所属实训室</div>
+            <span class="data_error">所属实训室不能为空</span><input class="input" id="data-roomInfo" type="text" placeholder="请选择所属实训室"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>责任人</div>
+            <span class="data_error">责任人不能为空</span><input class="input" id="data-response" type="text" placeholder="请选择责任人"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>地点</div>
+            <span class="data_error">地点不能为空</span><input class="input" id="data-location" type="text" placeholder="请填写地点"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b class="red">*</b>适用实训工种</div>
+            <span class="data_error">适用实训工种不能为空</span><input class="input" id="data-job" type="text" placeholder="请填写适用实训工种"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b class="red">*</b>使用功能</div>
+            <span class="data_error">使用功能不能为空</span><input class="input" id="data-function" type="text" placeholder="请填写使用功能"/>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            id : Y.getUrlParam("id"),
+            name : {
+                o:$("#data-name"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"设备名称不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            unit : {
+                o:$("#data-unit"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"单位不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            price : {
+                o:$("#data-price"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"单价不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            code : {
+                o:$("#data-code"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"设备编码不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            buildingDate : {
+                o:$("#data-buildingDate"),
+                i:function(v){
+                    var buildingDateCalendar = new Y.Calendar($("#data-buildingDate"));
+                    buildingDateCalendar.maxDate = new Date();
+                    $("#data-buildingDate").focus(function () {
+                        var _this = $(this);
+                        _this.prev().hide();
+                        buildingDateCalendar.open(function (d) {
+                            _this.val(d);
+                            buildingDateCalendar.close();
+                        });
+                    });
+                },
+                f:function(v){
+                    if (v == "") {
+                        return [false,"建成时间不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            roomInfo:{
+                o:new Y.OnlySelectBox($("#data-roomInfo"),{
+                    vKey:"id",
+                    sKey:"name",
+                    SelectBox:{
+                        paramet:{key:"keyword",pageNum:1,pageSize:10},
+                        url:ucIP + "/api/uc/v0.1/tr",
+                        dataString:"<div class='autoList' vaule='{id}'><b class='listStyle_cicle icon_img'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>责任人:{responseName}</span></div>"
+                    }}
+                ),
+                _o:$("#data-roomInfo"),
+                s:function(res){
+                    return [res.roomInfo.roomId,res.roomInfo.name];
+                },
+                f:function(v){
+                    if (v == "") {
+                        return [false,"请选择所属实验室"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            response:{
+                o:new Y.OnlySelectBox($("#data-response"),{
+                    vKey:"accountId",
+                    sKey:"name",
+                    SelectBox:{
+                        paramet:{key:"keyword",pageNum:1,pageSize:10},
+                        url:ucIP + "/api/uc/v0.1/teachers",
+                        dataString:"<div class='autoList' vaule='{accountId}'><b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"
+                    }}
+                ),
+                _o:$("#data-response"),
+                s:function(res){
+                    return [res.response.accountId,res.response.name];
+                },
+                f:function(v){
+                    if (v == "") {
+                        return [false,"请选择责任人"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            location : {
+                o:$("#data-location"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"地点不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            job : {
+                o:$("#data-job"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"适用实训工种不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            function : {
+                o:$("#data-function"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"使用功能不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            }
+        }
+        var from = new Y.From(fromConfig,"id",{getURL:ucIP + "/api/uc/v0.1/td/{id}",postURL:ucIP + "/api/uc/v0.1/td",putURL:ucIP + "/api/uc/v0.1/td",title:"编辑设备信息",dataJson:false});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

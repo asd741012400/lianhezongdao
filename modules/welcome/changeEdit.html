@@ -1,0 +1,380 @@
+<form class="form">
+    <div class="form_title"><img class="form_title_img" src="images/headPortrait.png"/><font>学籍异动</font>
+    <span class="red">(*为必填项)</span>
+    </div>
+    <div class="formBox">
+        <div class="data width50">
+            <div class="data_title">头像</div>
+            <div style="margin-left: 50px;">
+                <div id="data-portrait" type="img"></div>
+            </div>
+        </div>
+        <div class="data width50">
+            <div class="data_title">姓名</div>
+            <span class="data_error">姓名不能为空</span>
+            <input class="input" id="data-name" type="text" placeholder="请填写姓名"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">性别</div>
+            <span id="data-sex" type="radio"></span>
+        </div>
+        <div class="data width50">
+            <div class="data_title">入学年度</div>
+            <span class="data_error">入学年度不能为空</span>
+            <input class="input" id="data-rxnd" type="text" placeholder="请输入入学年度"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">专业</div>
+            <span class="data_error">专业不能为空</span>
+            <input class="input" id="data-major" type="text" placeholder="请选择专业"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">所在班级</div>
+            <span class="data_error">班级不能为空</span>
+            <input class="input" id="data-classNum" type="text" placeholder="请填写班号"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">手机号码</div>
+            <span class="data_error">手机号码不能为空</span>
+            <input class="input" id="data-phone" type="text" maxlength="11" placeholder="请填写手机号码"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">身份证号码</div>
+            <span class="data_error">身份证号码不能为空</span>
+            <input class="input" id="data-cardId" type="text" placeholder="请填写身份证号码"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">出生日期</div>
+            <span class="data_error">出生日期不能为空</span>
+            <input class="input" id="data-birthday" type="text" placeholder="请输入出生日期" /><span style="position: relative;margin-left: -40px;margin-top: 2px;padding:7px;color: #ccc;" id="age"></span>
+        </div>
+        <div class="clear"></div>
+        <div class="data width100">
+            <div class="data_title"><b>异动记录</b></div>
+            <span class="data_error"></span>
+            <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>异动时间</th>
+                        <th>异动类型</th>
+                        <th>原年级</th>
+                        <th>原专业</th>
+                        <th>原班级</th>
+                        <th>现年级</th>
+                        <th>现专业</th>
+                        <th>现班级</th>
+                        <th>去向</th>
+                        <th>异动原因</th>
+                        <th>异动说明</th>
+                    </tr>
+                </thead>
+                <tbody id="data-changes"></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="goChange" value="学籍异动" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="返回" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    #data-portrait{
+        height:100px;
+        width: 100px;
+        margin-right:10px;
+        border-radius: 100px;
+        overflow: hidden;
+    }
+    #data-portrait img{
+        width: 100px;
+    }
+    .input{
+        border:none;
+    }
+    .input1{
+        border-bottom: 1px solid #e4e4e4;
+        margin-bottom: 16px;
+        width: 240px;
+    }
+    table{
+        border: 1px solid #f0efef;
+        border-right: none;
+        border-bottom: none;
+    }
+
+    tr{
+        line-height: 40px;
+    }
+
+    th{
+        border-bottom: 1px solid #f0efef;
+        border-right: 1px solid #f0efef;
+        background: #f8f8f8;
+    }
+
+    td{
+        border-bottom: 1px solid #f0efef;
+        border-right: 1px solid #f0efef;
+    }
+</style>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段必须提供val()方法来设置值和获取值,
+        var accountId = Y.getUrlParam("id"),readOnly = Y.getUrlParam("readOnly"),primaryClass;
+        Y.ajax(ucIP + '/api/uc/v0.1/studentRegisterChange/' + accountId + '/detail',function(ret){
+            if(ret && !ret.errorMsg){
+                if(ret.portrait) $('#data-portrait').html('<img src="' + ret.portrait + '" />');
+                if(ret.name) $('#data-name').val(ret.name);
+                $('#data-sex').html(ret.sex ? '男' : '女');
+                if(ret.rxnd) $('#data-rxnd').val(ret.rxnd);
+                if(ret.phone) $('#data-phone').val(ret.phone);
+                if(ret.birthday) $('#data-birthday').val(ret.birthday);
+                if(ret.cardId) $('#data-cardId').val(ret.cardId);
+                if(ret.className) $('#data-classNum').val(ret.className);
+                if(ret.majorName) $('#data-major').val(ret.majorName);
+                if(ret.changes && ret.changes.length > 0) {
+                    var last = ret.changes[ret.changes.length-1].changeType;
+                    var changes = '';
+                    if (last=='死亡') {
+                        $('#goChange').remove();
+                    };
+                    for(var i = 0; i < ret.changes.length; i ++){
+                        var type = ret.changes[i].changeType;
+                        if (type == '参军' || type =='休学' || type =='转学' || type =='退学' || type =='开除' || type =='死亡' || type =='出国') {
+                            ret.changes[i].currentGrade = ret.changes[i].currentClass = ret.changes[i].currentMajor = '';
+                        };
+                        changes += '<tr align="center">\
+                            <td>{date}</td>\
+                            <td>{changeType}{_typeTag}</td>\
+                            <td>{primaryGrade}</td>\
+                            <td>{primaryMajor}</td>\
+                            <td>{primaryClass}</td>\
+                            <td>{currentGrade}</td>\
+                            <td>{currentMajor}</td>\
+                            <td>{currentClass}</td>\
+                            <td>{changeTogo}</td>\
+                            <td>{changeReason}</td>\
+                            <td>{changeExplain}</td>\
+                        </tr>'._eval(ret.changes[i],'',function(s,o){
+                            return s.replace('{_typeTag}',o.currentMajor && o.primaryMajor && o.currentMajor != o.primaryMajor ? '<span style="color:#ff0000;">(跨专业)</span>' : '');
+                        });
+                    }
+                    $('#data-changes').html(changes);
+                }
+                primaryClass = ret.classId;
+
+                if(readOnly) Y.disabled();
+            }
+        })
+        //提交
+        $("#goChange").click(function(){
+            changeFn();
+        })
+        function changeFn(){
+            var changeType = 1;
+            var data = {
+                currentMajor:'',
+                currentClass:'',
+                changeReason:'',
+                changeExplain:'',
+                currentGrade:'',
+                changeGoto:''
+            }
+            var inputType = {
+                currentMajor:{
+                    html:'<div><div>{name}</div><input class="input input1" id="currentMajor" type="text" placeholder="请输入{name}"/></div>',
+                    init:function(){
+                        data.currentMajor = $('#currentMajor')
+                    }
+                },
+                currentClass:{
+                    html:'<div><div><b class="red">*</b>{name}</div><input class="input input1" id="currentClass" type="text" placeholder="请选择{name}"/></div>',
+                    init:function(){
+                        data.currentClass = new Y.OnlySelectBox($("#currentClass"),{
+                            vKey:"classId",
+                            sKey:"className",
+                            SelectBox:{showNum:false,paramet:{key:"keyword"},url:ucIP + "/api/uc/v0.1/classes",dataString:"<div class='autoList' vaule='{classId}'><span>{className}</span><span style='color:#ccc;display:block;'>{period}级 班主任:{headTeacherName}</span></div>"},
+                            prevClickFn:function(o){
+                                o.paramet.keyword = $('#currentMajor').val() || '';
+                                o.paramet.period = $('#currentGrade').val() || '';
+                            }
+                        })
+                    }
+                },
+                changeGoto:{
+                    html:'<div><div><b class="red">*</b>{name}</div><input class="input input1" id="changeGoto" type="text" placeholder="请填写{name}"/></div>',
+                    init:function(){
+                        data.changeGoto = $("#changeGoto");
+                    }
+                },
+                changeReason:{
+                    html:'<div><div><b class="red">*</b>{name}</div><input class="input input1" id="changeReason" type="text" placeholder="请填写{name}"/></div>',
+                    init:function(){
+                        data.changeReason = $('#changeReason');
+                    }
+                },
+                changeExplain:{
+                    html:'<div><div><b class="red">*</b>{name}</div><input class="input input1" id="changeExplain" type="text" placeholder="请填写{name}"/></div>',
+                    init:function(){
+                        data.changeExplain = $('#changeExplain');
+                    }
+                },
+                currentGrade:{
+                    html:'<div><div><b class="red">*</b>{name}</div><input class="input input1" id="currentGrade" type="text" placeholder="请选择{name}"/></div>',
+                    init:function(){
+                        data.currentGrade = $('#currentGrade');
+                        var calendar = new Y.Calendar($("#currentGrade"),{date:'',type:'year'});
+                        calendar.maxDate = new Date();
+                        $("#currentGrade").focus(function(){
+                            var _this = $(this);
+                            calendar.open(function(d){
+                                _this.val(d);
+                                calendar.close();
+                            });
+                        })
+                    }
+                }
+            }
+            var types = {
+                '1':{
+                    name:'转班',
+                    currentClass:'转后班级',
+                    changeReason:'转班原因',
+                    changeExplain:'转班说明'
+                },
+                '2':{
+                    name:'留级',
+                    currentGrade:'转入年级',
+                    currentClass:'转入班级',
+                    changeReason:'留级原因',
+                    changeExplain:'留级说明'
+                },
+                '3':{
+                    name:'转专业',
+                    currentMajor:'转入专业',
+                    currentClass:'转后班级',
+                    changeReason:'转专业原因',
+                    changeExplain:'转专业说明'
+                },
+                '4':{
+                    name:'跳级',
+                    currentGrade:'转入年级',
+                    currentClass:'转入班级',
+                    changeReason:'跳级原因',
+                    changeExplain:'跳级说明'
+                },
+                '6':{
+                    name:'参军',
+                    changeGoto:'参军去向',
+                    changeReason:'参军原因',
+                    changeExplain:'参军说明'
+                },
+                '7':{
+                    name:'休学',
+                    changeReason:'休学原因',
+                    changeExplain:'休学说明'
+                },
+                '8':{
+                    name:'转学',
+                    changeGoto:'转学去向',
+                    changeReason:'转学原因',
+                    changeExplain:'转学说明'
+                },
+                '9':{
+                    name:'退学',
+                    changeReason:'退学原因',
+                    changeExplain:'退学说明'
+                },
+                '10':{
+                    name:'开除',
+                    changeReason:'开除原因',
+                    changeExplain:'开除说明'
+                },
+                '11':{
+                    name:'死亡',
+                    changeReason:'死亡原因',
+                    changeExplain:'死亡说明'
+                },
+                '12':{
+                    name:'出国',
+                    changeGoto:'出国去向',
+                    changeReason:'出国原因',
+                    changeExplain:'出国说明'
+                },
+                '100':{
+                    name:'复学',
+                    currentGrade:'转入年级',
+                    currentClass:'转入班级',
+                    changeReason:'复学原因',
+                    changeExplain:'复学说明'
+                }
+            }
+            var html = '<div style="text-align:left;margin-left:32px;">';
+            html += '<div><div><b class="red">*</b>异动类型</div><input class="input input1" id="changeType" type="text" placeholder="请选择异动类型"/></div>';
+            html += '<div id="changeBox"></div></div>';
+            Y.confirmx(html,function(){
+                Y.ajax(ucIP + '/api/uc/v0.1/studentRegisterChange',function(ret){
+                    var msg = types[changeType.val()].name + '操作';
+                    if(ret && ret.result){
+                        Y.alertx(msg + '成功!',function(){
+                            Y.refresh();
+                        });
+                    }else{
+                        Y.alertx(msg + '不成功,' + ret.errorMsg);
+                    }
+                },{meth:'POST',data:{
+                    changeType:changeType.val(),
+                    accountId:accountId,
+                    primaryClass:primaryClass,
+                    currentClass:data.currentClass && data.currentClass.val(),
+                    changeGoto:data.changeGoto && data.changeGoto.val(),
+                    changeReason:data.changeReason && data.changeReason.val(),
+                    changeExplain:data.changeExplain && data.changeExplain.val(),
+                    currentGrade:data.currentGrade && data.currentGrade.val()
+                },dataJson:false})
+            },{
+                _h:400,
+                title:'学籍异动',
+                initFn:function(){
+                    function doChange(key){
+                        var html = '';
+                        data = {};
+                        $('#changeBox').html('');
+                        for(var k in types[key]){
+                            if(k != 'name'){
+                                $('#changeBox').append(inputType[k].html._eval({name:types[key][k]}));
+                                inputType[k].init();
+                            }
+                        }
+                    }
+                    var actions = {};
+                    for(var key in types) actions[key] = types[key].name;
+                    changeType = new Y.Select($('#changeType'),actions,{delFn:false,selectedFn:function(ret){
+                        doChange(ret.k);
+                    }});
+                    changeType.val('1','转班');
+                    doChange('1');
+                },
+                verifyFn:function(){
+                    var err = [],typeVal = changeType.val();
+                    for(var key in types[typeVal]){
+                        if(key != 'name'&&key != 'currentMajor'){
+                            var v = data[key].val();
+                            if(!v) err.push(types[typeVal][key] + '不能为空');
+                        }
+                    }
+                    if(err.length == 0){
+                        return true;
+                    }else{
+                        Y.alertx(err.join(','));
+                    }
+                }
+            })
+        }
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

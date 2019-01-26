@@ -1,0 +1,119 @@
+<form class="form">
+    <div class="form_title"><b>帮助编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>标题</div>
+        <span class="data_error">标题不能为空</span><input class="input" id="data-title" type="text" placeholder="请填写标题" maxlength="20" />
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>类型</div>
+        <span id="data-type" type="radio"><input type="radio" value="1" checked/>功能介绍<input type="radio" value="2"/>使用说明 </span>
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>发布端</div>
+        <span id="data-clientSupport" type="checkbox"><input type="checkbox" value="1" checked/>学生端<input type="checkbox" value="2"/>教师端 </span>
+    </div>
+    <div class="data width50" style="width: 660px;">
+        <div class="data_title"><b class="red">*</b>内容<span style="color: #ccc; margin-left: 10px;">编辑时请进行预览查看实际效果</span></div>
+        <div id="contentBox">
+            <div type="richEdit" class="richEdit" style="width: 650px;height: 800px" id="data-content"></div>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="preview" value="预览" class="bg_34a1e0"/>
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    #data-photoUrl{
+        width: 288px;
+        height: 130px;
+        overflow: hidden;
+    }
+    #data-photoUrl img{
+        width: 288px;
+    }
+    #data-carouselPhotoUrl{
+        width: 288px;
+        height: 130px;
+        overflow: hidden;
+    }
+    #data-carouselPhotoUrl img{
+        width: 288px;
+    }
+</style>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            helpId : Y.getUrlParam("id"),
+            title : {
+                o:$("#data-title"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"标题不能为空", true];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            type : {o:new Y.Radio($("#data-type input"))},
+            clientSupport: {
+                o:new Y.Checkbox($("#data-clientSupport input")),
+                f:function(v){
+                    if(v =="") {
+                        return [false,"发布端不能为空", true]
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            content : {
+                o:new Y.RichEdit($("#data-content")),
+                f:function(v){
+                        if(v == ""){
+                            return [false,"内容不能为空！",true];
+                        }else{
+                            return [true];
+                        }
+                }
+            }
+        }
+
+        var from = new Y.From(fromConfig,"helpId",{getURL:eschoolIP + "/api/helpCenter/v0.1/{helpId}/detail",postURL:eschoolIP + "/api/helpCenter/v0.1/{helpId}",putURL:eschoolIP + "/api/helpCenter/v0.1/{helpId}",title:"提交帮助信息",dataJson:false});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+        //预览
+        $("#preview").click(function(){
+            var href = "modules/news/news.html";
+            Y.creatCover({id:"preview_cover",obj:window,zIndex:99998,opacity:0.8,background:"#000",position:"fixed"});
+            $("body").append("<img id='preview_close' src='images/preview_close.png' style='position:absolute; z-index:99999; left:50%;margin-left:230px; top:100px;' />");
+            $("body").append("<div id='preview_box' style='width:459px;height:884px; background:url(\"images/iphone6.png\") no-repeat;position:absolute;left:50%;margin-left:-229px;top:10px;z-index:99999'><iframe id='preview_iframe' src='" + href + "' width='377' height='664' style='margin-left:43px; margin-top:105px;border-radius:2px;' frameborder='no' border='0' marginwidth='0' marginheight='0'></iframe></div>");
+
+            (function(){
+                if($("#preview_iframe")[0].contentWindow.document.getElementById("title")){
+                    $("#preview_iframe")[0].contentWindow.document.getElementById("title").innerHTML = $("#data-title").val();
+                    var time = new Date();
+                    $("#preview_iframe")[0].contentWindow.document.getElementById("time").innerHTML = time.getFullYear() + "-" + (time.getMonth() + 1) + "-" + time.getDate() + " " + time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
+                    $("#preview_iframe")[0].contentWindow.document.getElementById("content").innerHTML = fromConfig.content.o.val();
+                    $("#preview_iframe")[0].contentWindow.showDownLoad(true);
+                }else{
+                    setTimeout(arguments.callee,200);
+                }
+            })()
+
+            $("#preview_cover").click(function(){
+                $(this).remove();
+                $("#preview_box,#preview_close").remove();
+            })
+        })
+    })()
+</script>

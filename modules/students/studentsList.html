@@ -1,0 +1,251 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="classId" type="text" placeholder="选择班级"/>
+            <input id="keyword" class="input" type="text" placeholder="手机/姓名/学号"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/><span id="advancedSearch_btn">高级查询<img src="images/gjcx.png" /></span>
+        </div>
+        <div id="diyBtn">
+            <input id="printBtn" type="button" class="bg_eeeeee" value = "打印" />
+            <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+            <input id="addBtn" type="button" value="+ 新增" class="bg_eeeeee"/>
+            <input id="upLoadList" type="button" value="Excel导入" class="bg_eeeeee"/>
+            <input id="downLoadListModle" type="button" value="下载导入模板" class="bg_eeeeee"/>
+            <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        </div>
+        <div class="clear"></div>
+        <div id="advancedSearch_box">
+            <div class="advancedSearch_data"><input id="name" class="input" type="text" placeholder="姓名"/></div>
+            <div class="advancedSearch_data"><input id="phone" class="input" type="text" placeholder="手机号"/></div>
+            <div class="advancedSearch_data"><input id="cardNo" class="input" type="text" placeholder="身份证号"/></div>
+            <div class="advancedSearch_data"><input id="dormNo" class="input" type="text" placeholder="宿舍号"/></div>
+            <div class="advancedSearch_data"><input id="className" class="input" type="text" placeholder="班级名称"/></div>
+            <div class="advancedSearch_data"><input id="stuNo" class="input" type="text" placeholder="学号"/></div>
+            <div class="advancedSearch_data"><input id="majorName" class="input" type="text" placeholder="专业名称"/></div>
+            <div class="advancedSearch_data"><input id="rxnd" class="input" type="text" placeholder="入学年份"/></div>
+            <div class="advancedSearch_data"><select id="poor" class="input"><option value="">选择是否扶贫</option><option value="1">是</option><option value="0">否</option></select></div>
+            <div class="advancedSearch_data"><select id="hang" class="input"><option value="">选择是否挂读</option><option value="1">是</option><option value="0">否</option></select></div>
+            <div class="clear"></div>
+            <div class="advancedSearch_btn"><input type="button" value="搜索" id="advancedSearchBtn" class="bg_00b7ee"/><input type="button" value="取消" id="advancedSearchCancle" class="bg_ffffff"/></div>
+        </div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<div id="planBox" class="boxShadow">
+    <div class="planBoxTitle">当前正在导入</div>
+    <div class="planBoxContent">
+        <div class="planPercent"><font id="percent">0</font>%</div>
+        <div class="planNum">导入<font id="allNum">--</font>/<font id="sumNum">--</font>条，失败<font id="falseNum">--</font>条</div>
+    </div>
+    <div class="planBoxBtns"><span id="cancelPlan"  class="bg_00b7ee">中断导入</span></div>
+</div>
+<style>
+    #print{
+        display: none;
+    }
+</style>
+<style type="text/css" media=print>
+    body{
+        background:#fff;
+    }
+    .header,.left,.footer,.right,#nav,#printBtn,.formBtns,.list_header{
+        display: none;
+    }
+    #print{
+        display: block;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var Btns = JSON.parse(Y.Cookie.Get('btns')),
+        roleId = Y.User.Get('groupId'),
+        editDel = false,
+        btnDel = false,
+        listShow = false,
+        buttonId = "",
+        rxnd = "";
+        var accountType = Y.User.Get('accountType')
+        if (accountType != '6') {
+            $("#diyBtn").children().remove();
+            $("#diyBtn").append('<input id="printBtn" type="button" class="bg_eeeeee" value = "打印" />');
+            var yearArray = [];
+            if (Btns.buttons.length > 0) {
+                for (var i = 0; i < Btns.buttons.length; i++) {
+                    var item = Btns.buttons[i];
+                    switch(item.buttonType)
+                    {
+                    case 1:
+                        $("#diyBtn").append('<input id="addBtn" type="button" value="+ 新增" class="bg_eeeeee"/>')
+                        break;
+                    case 2:
+                        editDel = true;
+                        break;
+                    case 3:
+                        btnDel = true;
+                        $("#diyBtn").append('<input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />')
+                        break;
+                    case 5:
+                        listShow = true;
+                        buttonId = item.buttonId;
+                        for (var j = 0; j < item.typeAndValue.length; j++) {
+                            var items = item.typeAndValue[j];
+                            if (items.type == '2') {
+                                yearArray.push(items.value)
+                            };
+                        };
+                        break;
+                    case 6:
+                        $("#diyBtn").append('<input id="upLoadList" type="button" value="Excel导入" class="bg_eeeeee"/>')
+                        break;
+                    case 7:
+                        $("#diyBtn").append('<input id="downLoadListModle" type="button" value="下载导入模板" class="bg_eeeeee"/>')
+                        break;
+                    case 8:
+                        $("#diyBtn").append('<input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>')
+                        break;
+                    }
+                };
+            }
+            if (yearArray.length===0) {
+                rxnd = new Y.OnlySelectBox($("#rxnd"),{
+                    vKey:"enteryear",
+                    sKey:"enteryear",
+                    SelectBox:{
+                        showNum:false,
+                        paramet:{key:"keyword",rangeLimit:true,roleId:roleId,buttonId:buttonId},
+                        url:ucIP + "/api/uc/v0.1/welcome/financeQuery/enteryear",
+                        dataString:"<div class='autoList' vaule='{enteryear}'><span>{enteryear}</span></div>"
+                    }
+                });
+            }else{
+                rxnd = new Y.Select($('#rxnd'),yearArray);
+            };
+        }else{
+            editDel = true;
+            btnDel = true;
+            listShow = true;
+
+            rxnd = new Y.Calendar($("#rxnd"),{date:"",type:"year"});
+            rxnd.maxDate = new Date();
+            $("#rxnd").focus(function () {
+                var _this = $(this);
+                rxnd.open(function (d) {
+                    _this.val(d);
+                    rxnd.close();
+                });
+            });
+        };
+
+        var option = {pageSize: "students", pageNum: 1,rangeLimit:true,roleId:roleId,buttonId:buttonId};
+        var config = [
+            {CH: "姓名", EN: "name"},
+            {CH: "性别", EN: "sex", Option: {"0": "女", "1": "男"},OptionExcel:{"0":"女","1":"男"}},
+            {CH: "手机号码", EN: 'phone'},
+            {CH: "身份证号", EN: 'cardId'},
+            /*{CH: "扶贫银行卡号", EN: 'poorCard'},*/
+            /*{CH: "是否挂读", EN: 'hang', Option: {"0": "否", "1": "是"},OptionExcel:{"0":"否","1":"是"}},*/
+            {CH: "院系", EN: "groupName"},
+            {CH: "专业", EN: "majorName"},
+            {CH: "班级名称", EN: "className"},
+            {CH: "班主任", EN: "headTeacherName"},
+            {CH: "入学年份", EN: "rxnd"},
+            {CH: "学号", EN: "studNo"},
+            {CH: "宿舍", EN: "dormNo"}
+        ];
+
+        var listEdit = editDel ? "<span class=\"listEdit bg_dfba49\">修改</span>" : '',
+        listDelete = btnDel ? "<span class=\"listDelete bg_f11c1c\">删除</span>" : '';
+
+        var list = new Y.List(ucIP + "/api/uc/v0.1/students", option, config);
+        list.btns = listEdit + listDelete;
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            //新生隐藏编辑按钮
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    if(data.studentType == 0) $(this).find(".listEdit").hide();
+                    if(data.source == 2) $(this).find(".listDelete").hide();
+                    //修改学生信息
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/students/studentsEdit.html",title:"编辑学生信息",data:{id:data.accountId,classButtonId:buttonId}});
+                    })
+                    //删除学生信息
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],ucIP + "/api/uc/v0.1/students/","accountId","学生",{vKey:"name",obj:$(this),errHeight:80});
+                    })
+                }
+            })
+        });
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/students/studentsEdit.html",title:"新增学生",data:{classButtonId:buttonId}});
+        })
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),ucIP + "/api/uc/v0.1/students/","accountId","学生",{vKey:"name",errHeight:80});
+        })
+        $("#downLoadExcel").click(function(){
+            list.toExcel("学生信息");
+        })
+        //班级列表限制
+        var classId = new Y.OnlySelectBox($("#classId"),{
+                vKey:"classId",
+                sKey:"className",
+                SelectBox:{
+                    showNum:false,
+                    paramet:{key:"keyword",keyword:"",rangeLimit:true,roleId:roleId,buttonId:buttonId},
+                    url:ucIP + "/api/uc/v0.1/classes",
+                    dataString:"<div class='autoList' vaule='{classId}'><span>{className}</span></div>"
+                }
+            });
+        //专业列表限制
+        var majorId = new Y.OnlySelectBox($("#majorName"),{
+                vKey:"id",
+                sKey:"name",
+                SelectBox:{
+                    showNum:false,
+                    paramet:{key:"majorName",rangeLimit:true,roleId:roleId,buttonId:buttonId},
+                    url:ucIP + "/api/uc/v0.1/majors",
+                    dataString:"<div class='autoList' vaule='{id}'><span>{name}</span><span style='color:#ccc;display:block;'>专业代码:{code}</span></div>"
+                }
+            });
+
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword"),
+            classIds:classId,
+            ril:"L"
+        },ucIP + "/api/uc/v0.1/students/preciseresult",{
+            name:$("#name"),
+            phone:$("#phone"),
+            cardNo:$("#cardNo"),
+            dormNo:$("#dormNo"),
+            className:$("#className"),
+            rxnd:$("#rxnd"),
+            stuNo:$("#stuNo"),
+            majorName:$("#majorName"),
+            poor:$("#poor"),
+            hang:$("#hang"),
+            ril:"L"
+        });
+        //Excel信息批量导入
+        Y.excelImport(ucIP + "/api/uc/v0.1/progressbar/studentImport/0",ucIP + "/api/uc/v0.2/students/dataImport?schoolId=" + schoolId,ucIP + "/api/uc/v0.2/students/dataImportTemplate?schoolId=" + schoolId + "&accessToken=" + accessToken);
+        //无列表权限
+        if (!listShow) {
+            $("#right").html('<div style="color:#ccc;text-align:center;margin-top:20%;font-size:24px;">你没有权限查看该列表</div>')
+        };
+        //打印
+        $("#printBtn").click(function(){
+            var table = "<div id='print' class='table'>"+$(".table").html()+"</div>";
+            $('body').append(table);
+            window.print();
+            $("#print").remove();
+        })
+    })()
+</script>

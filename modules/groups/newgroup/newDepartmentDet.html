@@ -1,0 +1,253 @@
+﻿<div class="table-box">
+    <div class="title">
+        部门介绍
+        <div class="title-inp">
+            <input id="addDepBtn" type="button" value="新增子部门"/>
+            <input id="editDepBtn" type="button" value="修改本部门"/>
+            <input id="deleteDepBtn" type="button" value="删除本部门"/>
+        </div>
+    </div>
+    <ul class="table-main">
+        <li>部门名称：<span id="data-name-main"></span></li>
+        <li>部门描述：<span id="data-description-main"></span></li>
+        <li>联系电话：<span id="data-telephone-main"></span></li>
+        <li>是否为常设部门：<span id="data-org-main"></span></li>
+    </ul>
+</div>
+<div class="table-box">
+    <div class="title">
+        人员列表
+        <div class="title-inp">
+            <input id="pzPeoBtn" type="button" value="配置人员"/>
+            <input id="addPeoBtn" type="button" value="新增人员"/>
+            <input id="deleteBtn" type="button" value="删除选中"/>
+        </div>
+    </div>
+</div>
+<style type="text/css">
+.table-box{
+    border:1px solid #e4e4e4;
+}
+.table-box:first-child{
+    margin-bottom:10px;
+}
+.table table{
+    border-top:none;
+}
+.table-box .title{
+    background:#EFEFEF;
+    height:40px;
+    line-height:40px;
+    padding-left:18px;
+}
+.table-box:first-child .title{
+    border-bottom: 1px solid #e4e4e4;
+}
+.title-inp{
+    float:right;
+    margin-right:12px;
+}
+.title-inp input{
+    border:1px solid #498CBB;
+    background:#59A9E1;
+    color:#fff;
+    border-radius:2px;
+    cursor:pointer;
+    height: 22px;
+    line-height:20px;
+}
+.table-main{
+    padding:10px 20px;
+}
+.table-main li{
+    margin:5px 0;
+}
+</style>
+<script>
+    (function() {
+        //console.log(groupId)
+        groupId0 = groupId;
+        Y.ajax(ucIP + "/api/uc/v0.1/groups/" + groupId + "/details",function(res){
+            $("#data-name-main").html(res.name);
+            $("#data-description-main").html(res.description);
+            $("#data-org-main").html(res.org?"是":"否");
+            $("#data-telephone-main").html(res.telephone)
+        },{meth:"GET",dataJson:false})
+        var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+        //$(".list_header").hide();
+        var option = {pageSize: "groups", pageNum: 1};
+        var config = [
+            {CH: "姓名", EN: "name"},
+            {CH: "手机号",EN: "phone"},
+            {CH: "工号",EN: "jobNum"},
+            {CH: "性别",EN: "sex",htmlFormat:function(k,v){
+                return v=='1' ? "男" : "女";
+            }},
+            {CH: "角色",EN: "role"},
+            {CH: "职务",EN: "duty"},
+            {CH: "是否部门负责人", EN: "leader",htmlFormat:function(k,v){
+                return v ? "是" : "否";
+            }}
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/groups/" + groupId + "/groupUsers", option, config);
+        list.btns = "<span class=\"listEdit\">修改</span><span class=\"listDelete\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        if (thisNode === '未分组') {
+            $(".title-inp").remove();
+            $(".table-main").children().eq(2).remove();
+            $(".table-main").children().eq(2).remove();
+            list.checkBtn = false;
+            list.btns = "";
+        };
+        list.load(function(){
+            $(".list_footer,.list_header").show();
+            $("#table-header").hide();
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    if(data.isDefault) $(this).find(".tdBtns").remove();
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.ajaxHtml('modules/groups/newgroup/newDepartmentEdit.html',function(res){
+                            accountId = data.accountId;
+                            $("#table").html(res);
+                            $("#table-header").html(thisNode + " > 编辑人员");
+                        })
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],ucIP + "/api/uc/v0.1/groupUsers/","accountId","人员",{vKey:"name",obj:$(this),data:groupId,fn:function(){
+                                var pNode = treeObj.getSelectedNodes();
+                                var delNode = treeObj.getNodeByParam("id", data.accountId, pNode[0]);
+                                treeObj.removeNode(delNode);
+                            }
+                        });
+                    })
+                }
+            })
+        })
+        $("#table-title").show();
+        //新增子部门
+        $("#addDepBtn").click(function(){
+            Y.ajaxHtml('modules/groups/newgroup/newGroupsEdit.html',function(res){
+                pargroup = true;
+                $("#table").html(res);
+                $("#table-header").html(thisNode + " > 新增子部门");
+            })
+        })
+        //修改本部门
+        $("#editDepBtn").click(function(){
+            Y.ajaxHtml('modules/groups/newgroup/newGroupsEdit.html',function(res){
+                pargroup = false;
+                $("#table").html(res);
+                $("#table-header").html("修改部门");
+            })
+        })
+        //删除本部门
+        $("#deleteDepBtn").click(function(){
+            Y.confirmx('确定删除本部门吗？',function(){
+                Y.ajax(ucIP + "/api/uc/v0.1/groups/" + groupId,function(ret){
+                    if (ret.result) {
+                        Y.alertx("删除成功", function () {
+                            var selectNode = treeObj.getSelectedNodes();
+                            treeObj.removeNode(selectNode[0]);
+
+                            Y.ajaxHtml('modules/groups/newgroup/newDepartmentDet.html',function(res){
+                                var nodes = treeObj.getNodes();
+                                if (nodes.length>0) {
+                                    treeObj.selectNode(nodes[0]);
+                                    groupId = nodes[0].id;
+                                };
+                                $("#table-title").html(res)
+                            });
+                        },{toast:true,height:70});
+                    }else{
+                        Y.alertx("删除失败 "+ret.errorMsg, function () {
+                            },{toast:true,height:70});
+                    };
+                },{meth:'DELETE'})
+            })
+        })
+        //新增人员
+        $("#addPeoBtn").click(function(){
+            Y.ajaxHtml('modules/groups/newgroup/newDepartmentEdit.html',function(res){
+                accountId = "";
+                $("#table").html(res);
+                $("#table-header").html(thisNode + " > 新增人员");
+            })
+        })
+        var select = new Y.SelectBox({paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},
+                    url:ucIP + "/api/uc/v0.1/teachers",
+                    action:function(rc,_this){
+                        var rcList=[];
+                        for (var i = 0; i < rc.length; i++) {
+                            rcList.push(rc[i].accountId)
+                        };
+                        Y.ajax(ucIP + "/api/uc/v0.1/groupUsers/" + groupId,function(res){
+                            if(res.result){
+                                Y.alertx("添加成功", function () {
+                                    list.reLoad();
+                                    //树状图实时添加
+                                    var oldList = getIdList(list.data.rows);
+                                    var newList = getIdList(rc);
+                                    var addIdList = getArrDifference(oldList,newList);
+                                    for (var i = 0; i < rc.length; i++) {
+                                        var item = rc[i];
+                                        for (var j = 0; j < addIdList.length; j++) {
+                                            if (addIdList[j] == item.accountId) {
+                                                var pidNode = treeObj.getNodeByParam("id", groupId);
+                                                treeObj.addNodes(pidNode,0, {id:item.accountId,pId:groupId, name:item.name});
+                                            };
+                                        };
+                                    };
+                                },{toast:true,height:70});
+                            }else{
+                                Y.alertx("添加失败", function () {},{toast:true,height:70});
+                            }
+                        },{meth:"PUT",data:{userIds:rcList.join(',')}})
+                    },
+                    dataString:"<div title='{name}' class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><div style='display:inline-block;vertical-align:middle;width:calc(100% - 65px)'><span>{name}<font style='color:#3ec0ef;margin-left:5px;'>{birthday}</font></span><span style='color:#ccc;display:block;'>组织:{groupName}</span></div></div>"})
+        //配置人员
+        $("#pzPeoBtn").click(function(){
+            if (list.data.rows.length>0) {
+                var hasValue = []
+                for (var i = 0; i < list.data.rows.length; i++) {
+                    var item = list.data.rows[i];
+                    hasValue.push(item.accountId)
+                };
+                select.hasValue = hasValue.join(',')
+            };
+            select.open();
+        })
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),ucIP + "/api/uc/v0.1/groupUsers/","accountId","人员",{vKey:"name",errHeight:80,data:groupId,fn:function(){
+                    var delNodes = list.getChecked();
+                    for (var i = 0; i < delNodes.length; i++) {
+                        var delNode = treeObj.getNodeByParam("id", delNodes[i].accountId, null);
+                        treeObj.removeNode(delNode);
+                    };
+                }
+            });
+        })
+        //提取数组id
+        function getIdList(list){
+            var _list = [];
+            for (var i = 0; i < list.length; i++) {
+                _list.push(list[i].accountId)
+            };
+            return _list;
+        }
+        //数组不一样的元素
+        function getArrDifference(arr1, arr2) {
+            return arr1.concat(arr2).filter(function(v, i, arr) {
+                return arr.indexOf(v) === arr.lastIndexOf(v);
+            });
+        }
+         //搜索
+          var listSearch = new Y.ListSearch(list,{
+              userName:$("#keyword"),
+          });
+    })()
+</script>

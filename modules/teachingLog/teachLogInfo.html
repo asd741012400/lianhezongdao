@@ -1,0 +1,103 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="bg_eeeeee" id="goBack" type="button" value="返回"/>
+        </div>
+        <input id="printBtn" type="button" value="打印" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table">
+
+    </div>
+</div>
+<div id="print"></div>
+<style>
+    #print{
+        display: none;
+    }
+    .table table{
+        border-top:none;
+    }
+    .table table:first-child{
+        border-top: 1px solid #e4e4e4;
+    }
+</style>
+<style type="text/css" media=print>
+    body{
+        background:#fff;
+    }
+    .header,.left,.footer,#nav,#printBtn,.formBtns,.list_header{
+        display: none;
+    }
+    #print{
+        display: block;
+        position:fixed;
+        z-index: 99999999;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        margin:0px;
+        background: #fff;
+    }
+</style>
+<script type="text/javascript">
+    $(function(){
+        var id = Y.getUrlParam("id"),
+        html = '',
+        head = '',
+        listHtmla = [];
+        Y.ajax(eschoolIP + "/api/teachingLog/v0.1/{id}/detail/web",function(res){
+            var data = [
+                {
+                    CH:'基础信息',
+                    list:[{CH:'提交日期',EN:res.date},{CH:'班级',EN:res.className},{CH:'节次',EN:res.sectionName},{CH:'科目',EN:res.course},{CH:'任课老师',EN:res.teacherName}]
+                },
+                {
+                    CH:'学生考勤',
+                    list:[{CH:'迟到',EN:res.late},{CH:'早退',EN:res.leaveEarly},{CH:'旷课',EN:res.absence},{CH:'请假',EN:res.leave},{CH:'罚',EN:res.punish},{CH:'正常',EN:res.normal}]
+                },
+                {
+                    CH:'纪律班风',
+                    list:list(res.jlbf)
+                },
+                {
+                    CH:'教学效果自评',
+                    list:list(res.jxxgzp)
+                },
+                {
+                    CH:'教学反思',
+                    list:[{CH:'',EN:res.selfExamination}]
+                }
+            ];
+            for (var i = 0; i <= data.length - 1; i++) {
+                head = i == 0 ? '内容' : '';
+                listHtmla[i] = [];
+                for (var y = 0; y <= data[i].list.length - 1; y++) {
+                    var tr = '<tr><td align="center">' + data[i].list[y].CH + '</td><td align="center">';
+                    listHtmla[i][y] = data[i].list[y].htmlFormat ? tr + data[i].list[y].htmlFormat + '</td></tr>' : tr + data[i].list[y].EN + '</td></tr>';
+                };
+                html += '<table width="100%" cellpadding="0" cellspacing="0"><tr><th width="30%">' + data[i].CH + '</th><th width="70%">' + head + '</th></tr>' + listHtmla[i].join('') + '</table>'
+            };
+            $('#table').html(html);
+        },{data:{'id':id}})
+
+        $("#printBtn").click(function(){
+            $('#print').html($('#right').html());
+            window.print();
+        })
+        //返回
+        $("#goBack").click(function(){
+            Y.back(-1);
+        });
+
+        function list(li){
+            var list = [];
+            li.forEach(function(item){
+                list.push({CH:item.title,EN:item.checked,htmlFormat:item.checked==1?"<span><img src='images/check.png' alt=''/></span>":" "})
+            })
+            return list;
+        }
+    })
+</script>

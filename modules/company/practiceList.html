@@ -1,0 +1,47 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="studentId" class="input" type="text" placeholder="选择学生"/>
+            <input id="companyId" class="input" type="text" placeholder="选择企业"/>
+            <input id="postId" class="input" type="text" placeholder="选择岗位"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "practice", pageNum: 1};
+        var config = [
+            {CH: "学生名称", EN: "studentName"},
+            {CH: "学生电话", EN: "studentPhone"},
+            {CH: "性别", EN: "sex", Option: {"0": "女", "1": "男"},OptionExcel:{"0":"女","1":"男"}},
+            {CH: "班级", EN: "className"},
+            {CH: "企业名称", EN: "companyName"},
+            {CH: "岗位", EN: "companyPostName"},
+            {CH: "指导老师", EN: 'teacherName'},
+            {CH: "指导老师电话", EN: "teacherPhone"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/company/v0.1/practice", option, config);
+        list.listNumTitle = "序号";
+        list.load();
+        $("#downLoadExcel").click(function(){
+            list.toExcel("实习分配信息");
+        })
+        var studentId = new Y.OnlySelectBox($("#studentId"),{vKey:"accountId",sKey:"name",SelectBox:{showNum:false,paramet:{key:"keyword"},url:ucIP + "/api/uc/v0.1/students",dataString:"<div title='{name}' class='autoList' vaule='{accountId}'><b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{majorName} {className}</span></div>"}})
+        var companyId = new Y.OnlySelectBox($("#companyId"),{vKey:"id",sKey:"name",SelectBox:{showNum:false,paramet:{key:"name"},url:eschoolIP + "/api/company/v0.1/list",dataString:"<div class='autoList' vaule='{id}'><span>{name}</span></div>"}})
+        var postId = new Y.OnlySelectBox($("#postId"),{vKey:"id",sKey:"postName",SelectBox:{showNum:false,paramet:{key:"companyName"},url:eschoolIP + "/api/company/v0.1/post",dataString:"<div title='{postName}' class='autoList' vaule='{id}'><b class='listStyle_cicle icon_img'>{listStyle_postName}</b><span>{postName}</span><span style='color:#ccc;display:block;'>{companyName}</span></div>"}})
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            studentId:studentId,
+            companyId:companyId,
+            postId:postId
+        });
+    })()
+</script>

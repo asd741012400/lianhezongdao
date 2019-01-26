@@ -1,0 +1,339 @@
+<form class="form">
+    <div class="form_title"><b>商品编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>商品图</div>
+        <div>
+            <div id="data-images" type="img">
+                <div id="addImage" class="imagesBox"><div>添加<br />商品图</div></div>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>名称</div>
+        <span class="data_error"></span><input class="input" id="data-title" type="text" maxlength="50" placeholder="请填写名称"/>
+    </div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>副标题</div>
+        <span class="data_error"></span><input class="input" id="data-subtitle" type="text" maxlength="100" placeholder="请填写副标题"/>
+    </div>
+    <div class="data width50 type1">
+        <div class="data_title"><b class="red">*</b>原价</div>
+        <span class="data_error"></span><input class="input" id="data-originalPrice" type="number" placeholder="单位:元"/>
+    </div>
+    <div class="data width50 type1">
+        <div class="data_title"><b class="red">*</b>团购价</div>
+        <span class="data_error"></span><input class="input" id="data-discountPrice" type="number" placeholder="单位:元"/>
+    </div>
+    <div class="data width50 type2">
+        <div class="data_title"><b class="red">*</b>日租金</div>
+        <span class="data_error"></span><input class="input" id="data-rent" type="number" placeholder="单位:元"/>
+    </div>
+    <div class="data width50 type2">
+        <div class="data_title"><b class="red">*</b>预付押金</div>
+        <span class="data_error"></span><input class="input" id="data-deposit" type="number" placeholder="单位:元"/>
+    </div>
+    <div class="data width50 type1">
+        <div class="data_title">开始时间</div>
+        <span class="data_error"></span><input class="input" id="data-begTime" type="text" placeholder="请选择开始时间"/>
+    </div>
+    <div class="data width50 type1">
+        <div class="data_title">结束时间</div>
+        <span class="data_error"></span><input class="input" id="data-endTime" type="text" placeholder="请选择结束时间"/>
+    </div>
+    <div class="form_title"><b>首页设置</b></div>
+    <div class="data width50">
+        <div class="data_title">是否上首页</div>
+        <span class="data_error"></span>
+        <span id="data-indexFlag" type="radio"><input type="radio" value="1" checked />是<input type="radio" value="0" />否</span>
+    </div>
+    <div class="data width100">
+        <div class="data_title">首页图(上首页必填)</div>
+        <div><div id="data-indexImage"></div></div>
+    </div>
+    <div class="form_title"><b class="red">*</b><b>规格</b></div>
+    <div class="data width100">
+        <span class="data_error"></span>
+        <div id="data-properties"></div>
+    </div>
+    <div class="form_title"><b>详情</b></div>
+    <div class="data width100">
+        <div id="data-content" class="richEdit"></div>
+    </div>
+    <div class="data width50">
+        <span id="data-status" type="radio"><input type="radio" value="1" checked />上架<input type="radio" value="2" />下架</span>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    .imagesBox{
+        width: 100px;
+        height: 100px;
+        text-align: center;
+        float: left;
+        overflow: hidden;
+        margin-right: 16px;
+        background: #f5f5f5;
+    }
+    .imagesBox img{
+        width: 100px;
+        height: 100px;
+    }
+    .imagesBox .deleteDiv{
+        position: relative;
+        height: 0px;
+        text-align: right;
+        top: -1px;
+    }
+    .imagesBox .delete{
+        padding: 0px 6px 4px 6px;
+        background: #ff0000;
+        color: #ffffff;
+        cursor: pointer;
+    }
+    #addImage{
+        cursor: pointer;
+        border: 1px solid #e4e4e4;
+    }
+    #addImage div{
+        padding-top: 25px;
+        color: #ccc;
+    }
+    #data-indexImage{
+        width: 375px;
+        height: 185px;
+    }
+    #data-indexImage img{
+        max-width: 375px;
+        max-height: 185px;
+    }
+    .propertyDelete{
+        color: #ff0000;
+        font-size: 12px;
+        cursor: pointer;
+        text-decoration: underline;
+        margin-left: 16px;
+    }
+    #propertyAdd{
+        cursor: pointer;
+        padding-top: 8px;
+        color: #00b7ee;
+        font-weight: bold;
+    }
+    .type0,.type1,.type2{
+        display: none;
+    }
+</style>
+<script>
+    (function() {
+        var id = Y.getUrlParam("id"),type = Y.getUrlParam("type"),sort = Y.getUrlParam("sort");
+        $('.type' + type).show();
+        function Property(obj){
+            var _this = this;
+            this.data = [];
+            this.add = function(){
+                this.data.push('');
+                this.show();
+            }
+            this.remove = function(i){
+                this.data.splice(i,1);
+                this.show();
+            }
+            this.show = function(){
+                var html = '',add = type == 2 && this.data.length >= 1 ? '' : '<div id="propertyAdd">+ 添加</div>';
+                for(var i = 0; i < this.data.length; i ++) html += '<div class="propertyItem"><input type="text" style="width:300px;" class="input" placeholder="请输入规格名称" maxlength="20" value="' + this.data[i] + '" /><span class="propertyDelete">删除此条</span></div>';
+                obj.html(html + add);
+                $('.propertyItem').each(function(i){
+                    var inputs = $(this).find('input');
+                    inputs.eq(0).change(function(){
+                        _this.data[i] = this.value;
+                    })
+                    $(this).find('.propertyDelete').click(function(){
+                        Y.confirmx("确定要删除吗?",function(n){
+                            _this.remove(i);
+                        },Y.getRemoveArgs($(this)))
+                    })
+                })
+                $('#propertyAdd').click(function(){
+                    _this.add();
+                })
+            }
+            this.val = function(s){
+                if(!s){
+                    var rc = [];
+                    for(var i = 0; i < this.data.length; i ++) if(this.data[i]) rc.push(this.data[i]);
+                    return rc;
+                }else{
+                    this.data = s;
+                    this.show();
+                }
+            }
+            this.show();
+        }
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var from = '';
+        Y.qiNiouKey(function(upladArgs){
+            upladArgs.template = '<div class="imagesBox imgsBox"><div class="deleteDiv"><span class="delete">x</span></div><img class="img" src="{img}" /></div>';
+            var fromConfig = {
+                id : id,
+                images : {
+                    o:new Y.Imgs($("#data-images"),$('#addImage'),{width:375,height:375,radius:0,scale:[1,1]},upladArgs),
+                    f:function(v){
+                        if(v.length == 0){
+                            return [false,'请选择商品图',false];
+                        }else{
+                            return [true];
+                        }
+                    }
+                },
+                title : {
+                    o:$("#data-title"),
+                    e:"blur",
+                    f:function(v){
+                        if (v == "") {
+                            return [false,"名称不能为空"];
+                        } else {
+                            return [true];
+                        }
+                    }
+                },
+                subtitle : {
+                    o:$("#data-subtitle"),
+                    e:"blur",
+                    f:function(v){
+                        if (v == "") {
+                            return [false,"副标题不能为空"];
+                        } else {
+                            return [true];
+                        }
+                    }
+                },
+                begTime:{
+                    o:$("#data-begTime"),
+                    e:'blur',
+                    i:function(){
+                        var calendar = new Y.Calendar($("#data-begTime"),{timeType:[00,00,00],date:new Date().Format('yyyy-MM-dd hh:mm:ss')});
+                        calendar.minDate = new Date();
+                        $("#data-begTime").focus(function(){
+                            var _this = $(this);
+                            _this.prev().hide();
+                            calendar.open(function(d){
+                                _this.val(d);
+                                calendar.close();
+                            });
+                        })
+                    },
+                    f:function(v){
+                        if(type == 2) return [true];
+                        if (v == "") {
+                            return [false,"开始时间不能为空"];
+                        } else {
+                            return [true];
+                        }
+                    }
+                },
+                endTime:{
+                    o:$("#data-endTime"),
+                    e:'blur',
+                    i:function(){
+                        var calendar = new Y.Calendar($("#data-endTime"),{timeType:[00,00,00],date:new Date().Format('yyyy-MM-dd hh:mm:ss')});
+                        calendar.minDate = new Date();
+                        $("#data-endTime").focus(function(){
+                            var _this = $(this);
+                            _this.prev().hide();
+                            calendar.open(function(d){
+                                _this.val(d);
+                                calendar.close();
+                            });
+                        })
+                    },
+                    f:function(v){
+                        if(type == 2) return [true];
+                        if (v == "") {
+                            return [false,"结束时间不能为空"];
+                        } else {
+                            return [true];
+                        }
+                    }
+                },
+                indexFlag:{o:new Y.Radio($("#data-indexFlag input"))},
+                indexImage : {o:new Y.Img($("#data-indexImage"),"<div style='height:185px;width:375px;text-align:center;line-height:185px;background:#f1f1f1;cursor:pointer;color:#cccccc;'>选择首页图片</div>",{width:375,height:185,radius:0,scale:[375,185]},upladArgs)},
+                properties:{
+                    o:new Property($('#data-properties')),
+                    f:function(v){
+                        if(v.length > 0){
+                            return [true];
+                        }else{
+                            return [false,'规格必填',true];
+                        }
+                    }
+                },
+                content : {o:new Y.RichEdit($("#data-content"),true,upladArgs)},
+                status:{o:new Y.Radio($("#data-status input"))},
+                type:type,
+                originalPrice:{
+                    o:$('#data-originalPrice'),
+                    e:"blur",
+                    f:function(v){
+                        if(type == 2) return [true];
+                        if (v >= 0 && v <= 100000) {
+                            return [true];
+                        } else {
+                            return [false,"价格必须在0~100000之间"];
+                        }
+                    }
+                },
+                discountPrice:{
+                    o:$('#data-discountPrice'),
+                    e:"blur",
+                    f:function(v){
+                        if(type == 2) return [true];
+                        if (v >= 0 && v <= 100000) {
+                            return [true];
+                        } else {
+                            return [false,"价格必须在0~100000之间"];
+                        }
+                    }
+                },
+                rent:{
+                    o:$('#data-rent'),
+                    e:"blur",
+                    f:function(v){
+                        if(type == 1) return [true];
+                        if (v >= 0) {
+                            return [true];
+                        } else {
+                            return [false,"日租价必须大于等于0"];
+                        }
+                    }
+                },
+                deposit:{
+                    o:$('#data-deposit'),
+                    e:"blur",
+                    f:function(v){
+                        if(type == 1) return [true];
+                        if (v >= 0) {
+                            return [true];
+                        } else {
+                            return [false,"押金必须大于等于0"];
+                        }
+                    }
+                },
+                sort:sort
+            }
+            from = new Y.From(fromConfig,"id",{getURL:eschoolIP + "/api/shop/groups/v0.1/products/{id}/detail",postURL:eschoolIP + "/api/shop/groups/v0.1/products",putURL:eschoolIP + "/api/shop/groups/v0.1/products/{id}",title:"提交商品",dataJson:false});
+        })
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        })
+    })()
+</script>

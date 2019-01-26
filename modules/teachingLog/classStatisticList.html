@@ -1,0 +1,96 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="gradeId" type="text" placeholder="选择年级"/>
+            <input class="input" id="majorId" type="text" placeholder="选择专业"/>
+            <input id="startTime" class="input" type="text" placeholder="开始时间"/>
+            <input id="endTime" class="input" type="text" placeholder="结束时间"/>
+            <input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <a target="_blank"><input id="downLoadExcel" type="button" value="导出" class="bg_eeeeee"/></a>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    .tableHeader,.table tr.tableHeader:hover{
+        background:#efefef;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "welcome_reports", pageNum: 1};
+        var config = [
+            {CH: "专业", EN: "majorName"},
+            {CH: "班级名称", EN: "className"},
+            {CH: "日志汇总", EN: "logTotal"},
+            {CH: "班主任", EN: "headTeacherName"},
+            {CH: "学生考勤（次）", PN: 'attendanceStatus',COLS:[{CH: "迟到",EN: "late"},{CH: "早退",EN: "leaveEarly"},{CH: "旷课",EN: "absence"},{CH: "请假",EN: "leave"},{CH: "罚",EN: "punish"},{CH: "正常",EN: "normal"}]},
+            {CH: "纪律班风",EN: 'jlbf',children:true,COLS:{CH: "name",EN: "count"}},
+        ];
+        var list = new Y.List(eschoolIP + "/api/teachingLog/v0.1/statistic/web", option, config);
+        list.load();
+        var startDateCalendar = new Y.Calendar($("#startTime"),{date:""});
+        startDateCalendar.maxDate = new Date();
+        $("#startTime").focus(function(){
+            var _this = $(this);
+            startDateCalendar.open(function(d){
+                _this.val(d);
+                startDateCalendar.close();
+            });
+        })
+        var endDateCalendar = new Y.Calendar($("#endTime"),{date:""});
+        endDateCalendar.maxDate = new Date();
+        $("#endTime").focus(function(){
+            var _this = $(this);
+            endDateCalendar.open(function(d){
+                _this.val(d);
+                endDateCalendar.close();
+            });
+        })
+        var majorId = new Y.OnlySelectBox($("#majorId"),Y.getSelectBox('major'))
+        $("#downLoadExcel").click(function(){
+            var period = $("#gradeId").val(),
+            begDate = $("#startTime").val(),
+            endDate = $("#endTime").val();
+            if (period=='') {
+                Y.alertx("请选择年级");
+                return false;
+            };
+            var url = eschoolIP+"/api/teachingLog/v0.1/statistic/web/export?period="+period+"&majorId="+majorId.val()+"&begDate="+begDate+"&endDate="+endDate+"&accessToken="+accessToken+"&accountId="+accountId+"&accountType="+accountType+"&schoolId="+Y.User.Get("schoolId");
+            Y.download(url);
+        })
+        var rxnd = new Y.Calendar($("#rxnd"),{date:""});
+        rxnd.type = "year"
+        rxnd.maxDate = new Date();
+        $("#rxnd").focus(function () {
+            var _this = $(this);
+            rxnd.open(function (d) {
+                _this.val(d);
+                rxnd.close();
+            });
+        });
+        var periodcalendar = new Y.Calendar($("#gradeId"),{type:"year",date:''});
+        periodcalendar.maxDate = new Date();
+        $("#gradeId").focus(function(){
+            var _this = $(this);
+            periodcalendar.open(function(d){
+                _this.val(d);
+                periodcalendar.close();
+            });
+        })
+
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            period:$("#gradeId"),
+            majorId:majorId,
+            begDate:$("#startTime"),
+            endDate:$("#endTime")
+        });
+    })()
+</script>

@@ -1,0 +1,220 @@
+<div class="wrap">
+    <h2 class="title">自定义设置</h2>
+    <div class="form-wrap">
+        <h3 class="form-tit"><span class="num">1</span>学生纪律和班风 <span class="form-tit-small">最多能增加到6个</span></h3>
+        <ul class="form-list" id="bfList">
+        </ul>
+        <div class="add-box">+</div>
+        <div class="clear"></div>
+        <div class="formBtns">
+            <input id="bfBtn" type="button" value="保存" class="bg_00b7ee" />
+        </div>
+    </div>
+    <div class="form-wrap">
+        <h3 class="form-tit"><span class="num">2</span>教学效果自评 <span class="form-tit-small">最多能增加到6个</span></h3>
+        <ul class="form-list" id="zpList">
+        </ul>
+        <div class="add-box">+</div>
+        <div class="clear"></div>
+        <div class="formBtns">
+            <input id="zpBtn" type="button" value="保存" class="bg_00b7ee" />
+        </div>
+    </div>
+</div>
+<style>
+h2,h3{
+    font-weight:normal;
+}
+.wrap{
+    padding:20px 50px;
+}
+.title{
+    font-size:16px;
+}
+.form-wrap{
+    margin-top:30px;
+}
+.form-list{
+    margin-top:20px;
+}
+.form-list li{
+    margin-bottom:10px;
+}
+.form-list input{
+    height:30px;
+    border:1px solid #e4e4e4;
+    color:#999;
+    padding:0 5px;
+    margin-right:10px;
+}
+.form-list span{
+    display: inline-block;
+    width:16px;
+    height:16px;
+    cursor:pointer;
+}
+.num{
+    display:inline-block;
+    font-size:12px;
+    color:#fff;
+    background:#999;
+    width: 20px;
+    height: 20px;
+    line-height:20px;
+    border-radius:10px;
+    text-align:center;
+    margin-right:10px;
+}
+.form-tit{
+    border-bottom:1px dashed #ccc;
+    padding-bottom:8px;
+}
+.form-tit-small{
+    font-size:12px;
+    margin-left:10px;
+}
+.add-box{
+    width: 40px;
+    height: 40px;
+    line-height: 34px;
+    text-align: center;
+    font-size: 30px;
+    float: left;
+    cursor: pointer;
+    color: #e4e4e4;
+    border: 2px dashed #e4e4e4;
+}
+.formBtns input{
+    margin: 30px 0 10px 0;
+}
+.error{
+    margin-top:5px;
+    color:#f00;
+}
+</style>
+
+<script type="text/javascript">
+    (function() {
+        var bfUrl = "/api/teachingLog/item/v0.1/jlbf",
+        zpUrl = "/api/teachingLog/item/v0.1/jxxgzp",
+        o = {};
+        o.initAjax = function(url,$sel){
+            Y.ajax(eschoolIP + url,function(res){
+                if (res.length>0) {
+                    var str = '';
+                    res.forEach(function(item){
+                        str += '<li><input type="text" data-id=' + item.id + ' value=' + item.title + ' /></li>'
+                    })
+                    $sel.html(str);
+                    $(".form-list").each(function(){
+                        if ($(this).children().length>0) {
+                            $(this).siblings('.add-box').remove()
+                            $(this).siblings('.form-tit').children('.form-tit-small').hide()
+                        };
+                    })
+                };
+            },{data:{clientType:1}})
+        }
+        o.submit = function(_this,url){
+            var items = [];
+            _this.parent().siblings('.form-list').find('input').each(function(){
+                var id = $(this).attr('data-id')||null;
+                items.push({'id':id,'title':$(this).val()})
+            })
+
+            init = _this.parent().siblings('.add-box').length > 0 ? true : false
+
+            if (o.validate(items,_this)) {
+                if (init) {
+                    Y.confirmx("保存后，设置不能增加或删除，只能修改",function(){
+                        Y.ajax(eschoolIP + url,function(res){
+                            if (res.result){
+                                Y.alertx('保存成功');
+                                o.init();
+                            }else{
+                                Y.alertx('保存失败，' + res.errorMsg,'',{toast:true,height:70});
+                            };
+                        },{meth:'POST',data:{'items':items},dataJson:false})
+                    })
+                }else{
+                    Y.ajax(eschoolIP + url,function(res){
+                        if (res.result){
+                            Y.alertx('保存成功');
+                            o.init();
+                        }else{
+                            Y.alertx('保存失败，' + res.errorMsg,'',{toast:true,height:70});
+                        };
+                    },{meth:'POST',data:{'items':items},dataJson:false})
+                };
+            };
+        }
+        o.validate = function(data,_this){
+            var vali = false,
+            n = 0,
+            titarr = [],
+            len = _this.parent().siblings('.form-list').children().length;
+            if (data.length == 0) {
+                Y.alertx('请至少添加一项');
+                return false;
+            };
+            data.forEach(function(item,index){
+                titarr.push(item.title);
+                if (item.title=='') {
+                    _this.parent().siblings('.form-list').find('li').eq(index).find('.error').remove();
+                    _this.parent().siblings('.form-list').find('li').eq(index).append("<div class='error'>不能为空</div>");
+                }else if(item.title.length>10){
+                    _this.parent().siblings('.form-list').find('li').eq(index).find('.error').remove();
+                    _this.parent().siblings('.form-list').find('li').eq(index).append("<div class='error'>字符数不能大于10</div>");
+                }else{
+                    _this.parent().siblings('.form-list').find('li').eq(index).find('.error').remove();
+                    n++;
+                };
+            })
+            if (n == len && !isRepeat(titarr)) {
+                vali = true;
+            };
+            return vali
+        }
+        o.init = function(){
+            //获取 纪律班风 列表
+            o.initAjax(bfUrl,$('#bfList'));
+            //获取 教学效果自评 列表
+            o.initAjax(zpUrl,$('#zpList'));
+        }
+        o.init();
+        //新增
+        $('.add-box').click(function(){
+            var list = '<li><input type="text" data-id="" /><span title="删除" class="listDelete"></span></li>';
+            $(this).siblings('.form-list').append(list);
+            var len = $(this).siblings('.form-list').children().length;
+            if (len >= 6) {
+                $(this).hide();
+            };
+        })
+        //删除
+        $('.form-list').on('click','.listDelete',function(){
+            $(this).parents('.form-list').siblings('.add-box').show();
+            $(this).parent().remove();
+        })
+        //保存 纪律班风
+        $('#bfBtn').click(function(){
+            o.submit($(this),bfUrl);
+        })
+        //保存 效果自评
+        $('#zpBtn').click(function(){
+            o.submit($(this),zpUrl);
+        })
+
+        function isRepeat(arr){
+            var hash = {};
+            for(var i in arr) {
+                if(hash[arr[i]]) {
+                    Y.alertx('请勿添加重复项');
+                    return true;
+        　　     }
+                hash[arr[i]] = true;
+            }
+            return false;
+        }
+    })()
+</script>

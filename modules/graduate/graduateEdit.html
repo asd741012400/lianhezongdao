@@ -1,0 +1,364 @@
+<form class="form">
+    <div class="form_title"><img class="form_title_img" src="images/headPortrait.png"/><font>毕业学生状态管理</font>
+        <span class="red">(*为必填项)</span>
+    </div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width50">
+            <div class="data_title">头像</div>
+            <div style="margin-left: 50px;">
+                <div id="data-photo" type="img"></div>
+                <span style="color: #ccc">建议尺寸300x300</span>
+            </div>
+        </div>
+        <div class="data width50">
+            <div class="data_title">真实头像</div>
+            <div>
+                <div id="data-portrait" type="img"></div>
+                <span style="color: #ccc">建议尺寸300x300</span>
+            </div>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>性别</div>
+            <span id="data-sex" type="radio"><input type="radio" value="1" checked/>男<input type="radio" value="0"/>女</span>
+        </div>
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>
+                姓名
+            </div>
+            <span class="data_error">姓名不能为空</span>
+            <input class="input" id="data-name" type="text" placeholder="请填写姓名"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">
+                出生日期
+            </div>
+            <span class="data_error">出生日期不能为空</span>
+            <input class="input" id="data-birthday" type="text" placeholder="请输入出生日期" /><span style="position: relative;margin-left: -40px;margin-top: 2px;padding:7px;color: #ccc;" id="age"></span>
+        </div>
+        <div class="data width50">
+            <div class="data_title">
+                <b class="red">*</b>
+                入学年度
+            </div>
+            <span class="data_error">入学年度不能为空</span>
+            <input class="input" id="data-rxnd" type="text" placeholder="请输入入学年度"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">
+                <b class="red">*</b>
+                班级
+            </div>
+            <span class="data_error">班级不能为空</span>
+            <input class="input" id="data-classId" type="text" placeholder="请选择班级"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">
+                <b class="red">*</b>
+                学号
+            </div>
+            <span class="data_error">学号不能为空</span>
+            <input class="input" id="data-studNo" type="text" placeholder="请填写学号"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>手机号码</div>
+            <span class="data_error">手机号码不能为空</span>
+            <input class="input" id="data-phone" type="text" placeholder="请填写手机号码"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>身份证号码</div>
+            <span class="data_error">身份证号码不能为空</span>
+            <input class="input" id="data-cardId" type="text" placeholder="请填写身份证号码"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">应往届</div>
+            <span id="data-graduateType" type="radio"><input type="radio" value="0" id="graduateType0"/><label for="graduateType0">往届</label><input type="radio" id="graduateType1" checked value="1"/><label for="graduateType1">应届</label></span>
+        </div>
+        <div class="data width50">
+            <div class="data_title">民族</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-nation" type="text" placeholder="请填写民族"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">是否贫困生</div>
+            <span class="data_error"></span>
+            <span id="data-poor" type="radio"><input type="radio" value="1" checked/>否<input type="radio" value="2"/>是</span>
+        </div>
+        <div class="data width50">
+            <div class="data_title">扶贫银行卡号</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-poorCard" type="text" placeholder="请填写扶贫银行卡号"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title">家庭地址</div>
+            <span class="data_error">输入错误</span>
+            <input class="input" id="data-familyAddress" type="text" placeholder="市-区-街道-小区"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>是否挂读</div>
+            <span id="data-hang" type="radio"><input type="radio" value="0" id="hang0" checked/><label for="hang0">否</label><input type="radio" id="hang1" value="1"/><label for="hang1">是</label></span>
+        </div>
+        <div class="data width50">
+            <div class="data_title">是否签订就业协议</div>
+            <span id="data-agreement" type="radio"><input type="radio" value="0" id="agreement0" checked/><label for="agreement0">否</label><input type="radio" id="agreement1" value="1"/><label for="agreement1">是</label></span>
+        </div>
+        <div class="data width50">
+            <div class="data_title">户口类型</div>
+            <span id="data-rrType" type="radio"><input type="radio" value="0" id="rrType0"/><label for="graduateType0">农村</label><input type="radio" id="graduateType1" checked value="1"/><label for="rrType1">城镇</label></span>
+        </div>
+        <div class="data width50">
+            <div class="data_title">籍贯</div>
+            <input class="input" id="data-origin" type="text" placeholder="请输入籍贯"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">户口地址</div>
+            <input class="input" id="data-rrAddress" type="text" placeholder="请填写户口地址"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">毕业学校</div>
+            <input class="input" id="data-lastSchool" type="text" placeholder="请填写毕业学校"/>
+        </div>
+        <div id="customAtt"></div>
+        <div class="clear"></div>
+    </div>
+    <div class="form_title"><img class="form_title_img" src="images/headPortrait.png"/><font>毕业操作</font>
+        <span class="red">(*为必填项)</span>
+    </div>
+    <div id="Form2" class="formBox borderLeft borderRight borderBottom">
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>状态</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-type" type="text" placeholder="请选择状态" />
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>时间</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-bysj" type="text" placeholder="请选择时间" />
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b class="red">*</b>原因</div>
+            <span class="data_error"></span>
+            <textarea class="input" id="data-byyy" type="text" placeholder="请输入原因"></textarea>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    #data-photo{
+        height:100px;
+        width: 100px;
+        margin-right:10px;
+        border-radius: 100px;
+        overflow: hidden;
+    }
+    #data-photo img{
+        width: 100px;
+    }
+    .guardianInfo input{
+        background-color: #f9f9f9;
+        border-color: #f9f9f9;
+        border-bottom-color: #e4e4e4;
+    }
+    .radioHide{
+        display: none;
+    }
+</style>
+<script>
+    (function() {
+        var readOnly = Y.getUrlParam("readOnly");
+        Y.ajax(ucIP + '/api/uc/students/cusAtt/v0.1/list',function(ret){
+            Y.qiNiouKey(function(upladArgs){
+                var studentId = Y.getUrlParam("id");
+                var fromConfig = {
+                    studentId : studentId,
+                    photo : {o:new Y.Img($("#data-photo"),"<img style='cursor: pointer;' src='images/headPortrait.png' />",{width:300,height:300,radius:150,scale:[1,1]},upladArgs)},
+                    portrait : {o:new Y.Img($("#data-portrait"),"<img style='cursor: pointer;' src='images/headPortrait.png' />",{width:300,height:300,scale:[1,1]},upladArgs)},
+                    name : {
+                        o:$("#data-name"),
+                        e:"blur",
+                        f:function(v){
+                            if (v == "") {
+                                return [false,"姓名不能为空"];
+                            } else {
+                                return [true];
+                            }
+                        }
+                    },
+                    sex : {o:new Y.Radio($("#data-sex input"))},
+                    poor : {o:new Y.Radio($("#data-poor input"))},
+                    birthday : {
+                        o:$("#data-birthday"),
+                        i:function(){
+                            var calendar = new Y.Calendar($("#data-birthday"),{date:''});
+                            calendar.maxDate = new Date();
+                            $("#data-birthday").focus(function(){
+                                var _this = $(this);
+                                _this.prev().hide();
+                                calendar.open(function(d){
+                                    _this.val(d);
+                                    calendar.close();
+                                    if(calendar.finalDate){
+                                        $("#age").show();
+                                        $("#age").html((new Date()).age(calendar.finalDate.getFullYear(),calendar.finalDate.getMonth() + 1,calendar.finalDate.getDate()) + "岁");
+                                    }else{
+                                        $("#age").hide();
+                                    }
+                                });
+                            })
+                        },
+                        v:function(v){
+                            if(v && v.indexOf("-") > -1){
+                                v = v.split("-");
+                                $("#age").show();
+                                $("#age").html((new Date()).age(v[0],v[1],v[2]) + "岁");
+                            }
+                        }
+                    },
+                    rxnd:{
+                        o:$("#data-rxnd"),
+                        i:function(){
+                            var calendar = new Y.Calendar($("#data-rxnd"),{date:new Date().Format('yyyy')});
+                            calendar.maxDate = new Date();
+                            $("#data-rxnd").focus(function(){
+                                var _this = $(this);
+                                _this.prev().hide();
+                                calendar.open(function(d){
+                                    _this.val(d);
+                                    calendar.close();
+                                });
+                            })
+                        }
+                    },
+                    classId : {
+                        o:new Y.OnlySelectBox($("#data-classId"),{readOnly:studentId,vKey:"classId",sKey:"className",SelectBox:{showNum:false,paramet:{key:"keyword"},url:ucIP + "/api/uc/v0.1/classes",dataString:"<div class='autoList' vaule='{classId}'><span>{className}</span><span style='color:#ccc;display:block;'>班主任:{headTeacherName}</span></div>"}}),
+                        s:"className",
+                        _o:$("#data-classId"),
+                        f:function(v){
+                            if (v == "") {
+                                return [false,"班级不能为空"];
+                            } else {
+                                return [true];
+                            }
+                        },
+                    },
+                    poorCard:{o:$("#data-poorCard")},
+                    hang:{o:new Y.Radio($("#data-hang input"))},
+                    studNo : {
+                        o:$("#data-studNo"),
+                        e:"blur",
+                        f:function(v){
+                            if (v == "") {
+                                return [false,"学号不能为空"];
+                            } else {
+                                return [true];
+                            }
+                        }
+                    },
+                    phone : {
+                        o:$("#data-phone"),
+                        e:"blur",
+                        f:function(v){
+                            if (v == "") {
+                                return [false,"手机号码不能为空"];
+                            } else {
+                                return [true];
+                            }
+                        }
+                    },
+                    cardId:{
+                        o:$("#data-cardId"),
+                        e:"blur",
+                        f:function(v){
+                            if(v == ""){
+                                return [false,"身份证号码不能为空"];
+                            }else{
+                                var b = Y.Verify.IDCard(v)[0];
+                                if(b){
+                                    $("#data-birthday").val(b[0]);
+                                    $("#age").html((new Date()).age(b[1],b[2],b[3]) + "岁");
+                                    return [true];
+                                }else{
+                                    return [false,"身份证号码格式错误，请输入正确的身份证号码"];
+                                }
+                            }
+                        }
+                    },
+                    nation : {o:$('#data-nation')},
+                    familyAddress : {o:$("#data-familyAddress")},
+                    web:true,
+                    studentType:1,
+                    origin:{o:$('#data-origin')},
+                    rrType:{o:new Y.Radio($("#data-rrType input"))},
+                    rrAddress:{o:$('#data-rrAddress')},
+                    agreement:{o:new Y.Radio($("#data-agreement input"))},
+                    graduateType:{o:new Y.Radio($("#data-graduateType input"))},
+                    lastSchool:{o:$('#data-lastSchool')}
+
+                }
+                if(ret && !ret.errorMsg){
+                    var components = new Y.ComponentAnalysis(ret);
+                    components.init($('#customAtt'));
+                    fromConfig.customAttKey = {
+                        o:components,
+                        f:function(){
+                            return components.verify();
+                        }
+                    }
+                }
+                if(readOnly) Y.disabled(fromConfig);
+                $('#Form2 input,#Form2 textarea').each(function(){
+                    $(this).removeAttr('disabled');
+                    $(this).css({border:''})
+                })
+                var from = new Y.From(fromConfig, "studentId", {
+                    getURL: ucIP + "/api/uc/v0.1/students/{studentId}/detail",
+                    title: "提交学生信息",
+                    dataJson: false
+                });
+                var from1 = new Y.From({
+                    ids:fromConfig.studentId,
+                    type:{
+                        o:new Y.Select($('#data-type'),{'4':'毕业','5':'结业','6':'肄业','7':'延期毕业'}),
+                        f:{NotNull:'类型不能为空'}
+                    },
+                    bysj : {
+                        o:$("#data-bysj"),
+                        i:function(){
+                            var calendar = new Y.Calendar($("#data-bysj"),{date:''});
+                            calendar.maxDate = new Date();
+                            calendar.alignTop = true;
+                            $("#data-bysj").focus(function(){
+                                var _this = $(this);
+                                _this.prev().hide();
+                                calendar.open(function(d){
+                                    _this.val(d);
+                                    calendar.close();
+                                });
+                            })
+                        },
+                        f:{NotNull:'时间不能为空'}
+                    },
+                    byyy:{
+                        o:$("#data-byyy"),
+                        f:{NotNull:'原因不能为空'}
+                    }
+                },'id',{
+                    postURL: ucIP + "/api/uc/v1.0/graduate/batchSetGraduate",
+                    title:'毕业操作'
+                })
+                //提交
+                $("#submit").click(function(){
+                    from1.submit($(this));
+                })
+            })
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

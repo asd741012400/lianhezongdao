@@ -1,0 +1,64 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="pushType" class="input" type="text" placeholder="选择推送方式"/>
+            <input id="appName" class="input" type="text" placeholder="应用名称"/>
+            <input id="beg" class="input" type="text" placeholder="开始时间"/>
+            <input id="end" class="input" type="text" placeholder="结束时间"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "pusherRecord", pageNum: 1,schoolId:schoolId};
+        var typeEnum = {"reddot":"红点","notice":"通知","sms":"短信",'wechat':'微信'};
+        var config = [
+            {CH: "应用", EN: "appName"},
+            {CH: "推送方式", EN: "pushType"},
+            {CH: "推送时间", EN: 'pushTime'},
+            {CH: "推送内容", EN: "content"}
+        ];
+        var list = new Y.List(pushIP + "/api/pusher/v0.1/mgt/record", option, config);
+        list.btns = "";
+        list.checkBtn = false;
+        list.listNumTitle = "序号";
+        list.load();
+        $("#downLoadExcel").click(function(){
+            list.toExcel("推送信息");
+        })
+        var pushType = new Y.Select($('#pushType'),typeEnum);
+        //开始日期
+        var begDate = new Y.Calendar($("#beg"),{date:""});
+        $("#beg").focus(function () {
+            var _this = $(this);
+            begDate.open(function (d) {
+                _this.val(d);
+                begDate.close();
+            });
+        });
+        //结束日期
+        var endDate = new Y.Calendar($("#end"),{date:""});
+        $("#end").focus(function () {
+            var _this = $(this);
+            endDate.open(function (d) {
+                _this.val(d);
+                endDate.close();
+            });
+        });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            pushType:pushType,
+            appName:$('#appName'),
+            beg:$('#beg'),
+            end:$('#end')
+        });
+    })()
+</script>

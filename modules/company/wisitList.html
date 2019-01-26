@@ -1,0 +1,66 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="companyName" class="input" type="text" placeholder="企业名称"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "visit", pageNum: 1};
+        var config = [
+            {CH: "企业名称", EN: "companyName"},
+            {CH: "走访时间", EN: "visitTime",htmlFormat:function(k,v){
+                return v.replace(/^(.+):00$/,'$1');
+            }},
+            {CH: "走访方式", EN: 'type', Option: {"1": "面谈", "2": "电访"},OptionExcel:{"1":"面谈","2":"电访"}},
+            {CH: "走访人", EN: "visitUserName"},
+            {CH: "走访地址", EN: "visitAddress"},
+            {CH: "标题", EN: "title"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/company/v0.1/visit", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/company/wisitEdit.html",title:"编辑实习走访信息",data:{id:data.id,data:data}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/company/v0.1/visit/","id","实习走访",{vKey:"name",obj:$(this)});
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/company/v0.1/visit/","id","实习走访",{vKey:"name"});
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/company/wisitEdit.html",title:"新增实习走访"});
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("实习走访信息");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            companyName:$("#companyName")
+        });
+    })()
+</script>

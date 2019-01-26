@@ -1,0 +1,162 @@
+﻿<form class="form">
+    <div class="data widthAll">
+        <div class="data_title"><span class="red">*</span>部门名称</div>
+        <span class="data_error">部门名称不能为空</span><input class="input" id="data-name" type="text" placeholder="请填写部门名称"/>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title">部门描述</div>
+        <span class="data_error">部门描述不能为空</span><input class="input" id="data-description" type="text" placeholder="请填写部门描述"/>
+    </div>
+    <div class="data widthAll data-parentId">
+        <div class="data_title">上级部门</div>
+        <input class="input" id="data-parentId" readonly type="text" placeholder="请选择上级部门，不填为顶级部门"/>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title">联系电话</div>
+        <input class="input" id="data-telephone" type="text" placeholder="请填写联系电话"/>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title">排序号</div>
+        <input class="input" id="data-sort" type="text" placeholder="数字越小越靠前"/>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title"><span class="red">*</span>是否常设部门</div>
+        <span id="data-org" type="radio"><input type="radio" value="1" checked/>是<input type="radio" value="0"/>否</span>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="返回" class="bg_ffffff"/>
+    </div>
+</form>
+<style type="text/css">
+    .form{
+        width: calc(100% - 3px);
+        border: 1px solid #e4e4e4;
+        padding: 10px 0;
+    }
+    .data{
+        padding: 0 15px;
+        min-height: 50px;
+        margin:10px 0 0 5px;
+    }
+    .data_title{
+        float: left;
+    }
+    .widthAll .input{
+        height:28px;
+        line-height:28px;
+        margin-left:18px;
+        width:50%;
+    }
+    .data_error{
+        margin-left:18px;
+    }
+    #data-org{
+        float:left;
+        margin:4px 0 0 10px;
+    }
+</style>
+<script>
+    (function() {
+        var parentId = groupId;
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        if (parentId&&pargroup) {
+            groupId = ""
+            $(".data-parentId").hide();
+            var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+            var Nodes = zTree.getSelectedNodes();
+            var node = zTree.getNodeByParam("id", groupId);
+            zTree.selectNode(node);
+            $("#data-parentId").val(groupName).attr("data-id",parentId)
+        };
+        var fromConfig = {
+            groupId : groupId,
+            name : {
+                o:$("#data-name"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"名称不能为空"];
+                    }else if(v.length>40){
+                        return [false,"名称长度不能超过40"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            description : {
+                o:$("#data-description"),
+                e:"blur",
+                f:function(v){
+                    if (v.length>100) {
+                        return [false,"描述长度不能超过100"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            telephone :{
+                o:$("#data-telephone"),
+            },
+            parentId:{
+                o:new Y.ZtreeSelectCheckBox($("#data-parentId"),{}),
+            },
+            sort:{
+                o:$("#data-sort"),
+            },
+            org : {o:new Y.Radio($("#data-org input"))},
+        }
+        var from = new Y.From(fromConfig,"groupId",{getURL:ucIP + "/api/uc/v0.1/groups/{groupId}/details",postURL:ucIP + "/api/uc/v0.1/groups",putURL:ucIP + "/api/uc/v0.1/groups/{groupId}",title:"提交部门信息"});
+        $("#table-header").show();
+        $(".list_footer,.list_header,#table-title").hide();
+        //提交
+        $("#submit").click(function(){
+            if(fromConfig.parentId.o.val() == fromConfig.groupId){
+                Y.alertx("上级部门不能为自己");
+            }else{
+                if ($("#data-parentId").val()=="") {
+                    $("#data-parentId").attr("data-id","0")
+                };
+                var newName = $("#data-name").val();
+                var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+                var pid = fromConfig.parentId.o.val() == '0' ? 0 : fromConfig.parentId.o.val();
+                var pidNode = null;
+                var thisNode = treeObj.getNodeByParam("id", groupId);
+                if (pid) {
+                    pidNode = treeObj.getNodeByParam("id", pid);
+                };
+
+                from.submit($(this),function(res){
+
+                    if (!groupId) {  //新增
+                        treeObj.addNodes(pidNode, {id:res.dataId,pId:pid, name:newName,icon:'css/metroStyle/img/parent.png'});
+                        Y.alertx("新增成功",'',{toast:true,height:70});
+                        //选中新增节点
+                        var selectNode = treeObj.getNodeByParam("id", res.dataId);
+                        treeObj.selectNode(selectNode);
+                        groupId0 = res.dataId;
+                    }else{  //修改
+                        thisNode.pId = thisNode.pId||0;
+                        if (thisNode.pId!=pid) { //修改上级部门
+                            treeObj.removeNode(thisNode);
+                            treeObj.addNodes(pidNode, {id:groupId,pId:pid, name:newName,children:thisNode.children,icon:'css/metroStyle/img/parent.png'});
+                        }else{ //不修改上级部门
+                            thisNode.name = newName;
+                            treeObj.updateNode(thisNode);
+                        };
+                    };
+                    $("#cancel").click();
+                });
+            }
+        })
+        //取消
+        $("#cancel").click(function(){
+            groupId=groupId0;
+            Y.ajaxHtml('modules/groups/newgroup/newDepartmentDet.html',function(res){
+                $("#table-title").html(res)
+                $("#table-header,.list_footer").hide();
+            })
+        });
+    })()
+</script>

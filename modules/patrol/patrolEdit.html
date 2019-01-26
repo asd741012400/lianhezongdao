@@ -1,0 +1,73 @@
+<form class="form">
+    <div class="form_title"><b>巡课信息</b></div>
+    <div class="formBox">
+        <div class="data width100">
+            <div class="data_title"></div>
+            <div>
+                <div id="data-courseTeacherPhoto" type="img"></div>
+            </div>
+        </div>
+        <div class="data width50">
+            <div class="data_title">被巡课老师</div>
+            <span class="data_error"></span><input class="input" id="data-courseTeacherName" type="text" readonly/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">被巡课班级</div>
+            <span class="data_error"></span><input class="input" id="data-className" type="text" readonly />
+        </div>
+        <div class="data width100">
+            <div class="data_title">巡课老师</div>
+            <span class="data_error"></span><input class="input" id="data-patrolTeacherName" type="text" readonly />
+        </div>
+        <div class="data width50">
+            <div class="data_title">巡课日期</div>
+            <span class="data_error"></span><input class="input" id="data-patrolDate" type="text" readonly />
+        </div>
+        <div class="data width50">
+            <div class="data_title">巡课时间</div>
+            <span class="data_error"></span><input class="input" id="data-patrolTime" type="text" readonly />
+        </div>
+        <div class="data width100">
+            <div class="data_title">节次</div>
+            <span class="data_error"></span><input class="input" id="data-section" type="text" readonly />
+        </div>
+        <div class="clear"></div>
+        <div class="form_title"><b>巡课内容</b></div>
+        <div id="formExt"></div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    #data-courseTeacherPhoto{
+        height:100px;
+        width: 100px;
+        border-radius: 100px;
+        overflow: hidden;
+    }
+    #data-courseTeacherPhoto img{
+        width: 100px;
+    }
+</style>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var data = Y.getUrlParam("data"),
+        readOnly = Y.getUrlParam("readOnly");
+        if(data){
+            $('#data-courseTeacherPhoto').html('<img src="' + data.courseTeacherPhoto + '" />');
+            for(var key in data) $('#data-' + key).val(data[key]);
+            var components = new Y.ComponentAnalysis(JSON.parse(data.formExt),true);
+            components.config.input.template = '<div class="data width50"><div class="data_title">{label}</div><span id="err-{id}" class="data_error"></span><input class="input" id="data-{id}" type="text" /></div>';
+            components.config.textarea.template = '<div class="data width100"><div class="data_title">{label}</div><span id="err-{id}" class="data_error"></span><textarea id="data-{id}" class="input" style="height: 90px;"></textarea></div>';
+            components.init($('#formExt'));
+            components.val(JSON.parse(data.formData));
+        }
+        if(readOnly) Y.disabled();
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

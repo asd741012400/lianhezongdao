@@ -1,0 +1,124 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="keyword" class="input" type="text" placeholder="班级/姓名/学号"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/><span id="advancedSearch_btn">高级查询<img src="images/gjcx.png" /></span>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+        <div id="advancedSearch_box">
+            <div class="advancedSearch_data"><input id="stuName" class="input" type="text" placeholder="学生姓名"/></div>
+            <div class="advancedSearch_data"><input id="stuNo" class="input" type="text" placeholder="学生学号"/></div>
+            <div class="advancedSearch_data"><input id="className" class="input" type="text" placeholder="班级名称"/></div>
+            <div class="advancedSearch_data"><select id="type" class="input">
+                <option value="0">选择事由</option>
+                <option value="1">病假</option>
+                <option value="2">事假</option>
+            </select></div>
+            <div class="advancedSearch_data">
+                <select id="leaveLocation" class="input">
+                    <option value="0">选择类型</option>
+                    <option value="1">校内</option>
+                    <option value="2">校外</option>
+                </select>
+            </div>
+            <div class="advancedSearch_data"><input id="begDate" class="input" type="text" placeholder="开始日期"/></div>
+            <div class="advancedSearch_data"><input id="endDate" class="input" type="text" placeholder="结束日期"/></div>
+            <div class="advancedSearch_data"><select id="status" class="input">
+                <option value="0">选择状态</option>
+                <option value="1">正在处理</option>
+                <option value="2">审核完成</option>
+                <option value="3">驳回</option>
+                <option value="4">撤回</option>
+                <option value="5">过期</option>
+                <option value="6">学生出校</option>
+                <option value="7">超时未出校</option>
+                <option value="8">超时未返校</option>
+                <option value="9">学生返校</option>
+                <option value="10">返校超时</option>
+                <option value="11">学生归寝</option>
+                <option value="12">超时归寝</option>
+            </select></div>
+            <div class="clear"></div>
+            <div class="advancedSearch_btn"><input type="button" value="搜索" id="advancedSearchBtn" class="bg_00b7ee"/><input type="button" value="取消" id="advancedSearchCancle" class="bg_ffffff"/></div>
+        </div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "leave", pageNum: 1};
+        var config = [
+            {CH: "班级", EN: "className"},
+            {CH: "姓名", EN: "name"},
+            {CH: "学号", EN: "studentNo"},
+            {CH: "申请时间", EN: "applyDate"},
+            {CH: "开始时间", EN: "startTime"},
+            {CH: "结束时间", EN: "endTime"},
+            {CH: "类型", EN: "leaveLocation",Option:{"1":"<font class='fontStyle bg_ef8f7f'>校内</font>","2":"<font class='fontStyle bg_32bef8'>校外</font>"},OptionExcel:{"1":"校内","2":"校外"}},
+            {CH: "事由",EN: "type",Option:{"1":"<font class='fontStyle bg_ef8f7f'>病假</font>","2":"<font class='fontStyle bg_32bef8'>事假</font>"},OptionExcel:{"1":"病假","2":"事假"}},
+            {CH: "状态", EN: "finalResult",Option:{"1":"正在处理","2":"审核完成","3":"驳回","4":"撤回","5":"过期","6":"学生出校","7":"超时未出校","8":"超时未返校","9":"学生返校","10":"返校超时","11":"学生归寝","12":"超时归寝"},OptionExcel:{"1":"正在处理","2":"审核完成","3":"驳回","4":"撤回","5":"过期","6":"学生出校","7":"超时未出校","8":"超时未返校","9":"学生返校","10":"返校超时","11":"学生归寝","12":"超时归寝"}},
+            {CH:"请假时长",EN:"duration"}
+        ];
+        var list = new Y.List(bpmIP + "/api/leave/v0.1/leaves/fuzzyresult", option, config);
+        list.btns = "<span class=\"listLook bg_f11c1c\">查看</span>";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/leave/leaveInfo.html",title:"查看请假详情",data:{id:data.id}});
+                    })
+                }
+            })
+        });
+        var classId = new Y.OnlySelectBox($("#data-classId"),{
+            vKey:"classId",
+            sKey:"className",
+            SelectBox:{
+                paramet:{key:"className",pageNum:1,pageSize:10},
+                url:ucIP + "/api/uc/v0.1/classes",
+                dataString:"<div class='autoList' value='{classId}'>{className}</div>"
+            }
+        })
+        //开始日期
+        var begDate = new Y.Calendar($("#begDate"),{date:""});
+        $("#begDate").focus(function () {
+            var _this = $(this);
+            begDate.open(function (d) {
+                _this.val(d);
+                begDate.close();
+            });
+        });
+        //结束日期
+        var endDate = new Y.Calendar($("#endDate"),{date:""});
+        $("#endDate").focus(function () {
+            var _this = $(this);
+            endDate.open(function (d) {
+                _this.val(d);
+                endDate.close();
+            });
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("学生请假统计");
+        })
+        //搜索
+        var advancedSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword")
+        },bpmIP + "/api/leave/v0.1/leaves/preciseresult",{
+            className:$("#className"),
+            stuName:$("#stuName"),
+            stuNo:$("#stuNo"),
+            type:$("#type"),
+            status:$("#status"),
+            begDate:$("#begDate"),
+            endDate:$("#endDate"),
+            leaveLocation:$("#leaveLocation")
+        });
+    })()
+</script>

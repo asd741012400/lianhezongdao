@@ -1,0 +1,332 @@
+<form class="form">
+    <div class="form_title"><b>内容编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>标题</div>
+        <span class="data_error">标题不能为空</span><input readonly="readonly" class="input" id="data-title" type="text" />
+    </div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>所属菜单</div>
+        <span class="data_error"></span>
+        <div id="data-relations"></div>
+    </div>
+    <div class="data width50">
+        <div class="data_title">所属专题</div>
+        <span class="data_error"></span><input class="input" readonly="readonly" id="data-topicId" type="text"  />
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>发布组织</div>
+        <span class="data_error"></span><input readonly="readonly" class="input" id="data-creator" type="text" />
+    </div>
+    <div class="data width100">
+        <div class="data_title">内容标示图</div>
+        <div id="data-photoUrl" type="img"></div>
+    </div>
+    <div class="data width50">
+        <div class="data_title">是否置顶</div>
+        <span id="data-top" type="radio"><input type="radio" value="1" checked/>否<input type="radio" value="2"/>是 </span>
+    </div>
+    <div class="data width50">
+        <div class="data_title">发布时间</div>
+        <span class="data_error"></span><input readonly="readonly" class="input" id="data-createTime" type="text" />
+    </div>
+    <div class="clear"></div>
+    <div class="data width50">
+        <div class="data_title">是否推荐</div>
+        <span id="data-recommend" type="radio"><input type="radio" value="0" checked/>否<input type="radio" value="1"/>是 </span>
+    </div>
+    <div class="data width50">
+        <div class="data_title">推荐权重<span style="color: #ccc; margin-left: 10px;">(权重值越大显示越靠前)</span></div>
+        <span class="data_error"></span><input readonly="readonly" class="input" id="data-recommendOrder" type="text" />
+    </div>
+    <div class="data width100">
+        <div class="data_title">关键词</div>
+        <span class="data_error"></span><input class="input" readonly="readonly" id="data-keyword" type="text" />
+    </div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>内容<input id="useExtUrl" type="checkbox" />使用超链接</div>
+        <div id="exturlBox" style="display: none;">
+            <div class="data_title">超链接</div>
+            <span class="data_error">超链接不能为空</span><input readonly="readonly" class="input" id="data-extUrl" type="text" />
+        </div>
+        <div id="contentBox">
+            <div class="data_title">正文</div>
+            <div type="richEdit" class="richEdit" id="data-content"></div>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div class="data width50">
+        <div class="data_title">标题样式</div>
+        <span class="data_error"></span><input class="input" readonly="readonly" id="data-titleStyle" type="text" />
+    </div>
+    <div class="data width50">
+        <div class="data_title">同步到eschool新闻</div>
+        <span id="data-synchronize" type="radio"><input type="radio" value="0" checked/>否<input type="radio" value="1"/>是 </span>
+    </div>
+    <div class="data width50">
+        <div class="data_title">同步到微信</div>
+        <span id="data-synchronizeWx" type="radio"><input type="radio" value="0" checked/>否<input type="radio" value="1"/>是 </span>
+    </div>
+    <div class="data width100" id="operationLog" style="display: none;">
+        <div class="data_title">操作记录</div>
+        <div class="table">
+            <div id="table"></div>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns">
+        <input type="button" id="checkTrue" value="通过" class="bg_00b7ee"/>
+        <input type="button" id="checkFalse" style="background-color: #fb8160;border-color: #fb8160;" value="驳回" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        Y.config(function(){
+            Y.qiNiouKey(function(upladArgs){
+                upladArgs.beforeUpload = function(imgEdit,args){
+                    var _imgEdit = Y.configs.imgEditConfig['channel'] || {};
+                    if(fromConfig.relations.o.val() && fromConfig.relations.o.val()[0]) {
+                        var _imgEdit_id = Y.configs.imgEditConfig['channel' + fromConfig.relations.o.val()[0].id];
+                        if(_imgEdit_id) _imgEdit = _imgEdit_id;
+                    }
+                    imgEdit.width = _imgEdit.width;
+                    imgEdit.height = _imgEdit.height;
+                }
+                var fromConfig = {
+                    id : Y.getUrlParam("id"),
+                    title : {
+                        o:$("#data-title"),
+                        e:"blur",
+                        f:function(v){
+                            if (v == "") {
+                                return [false,"标题不能为空"];
+                            } else {
+                                return [true];
+                            }
+                        }
+                    },
+                    photoUrl : {
+                        o:new Y.Img($("#data-photoUrl"), "<div style='cursor:pointer; width:480px;min-height:320px; line-height:320px;text-align:center; color:#ccc; background:#F9F9F9;'>本地上传</div>",{},upladArgs)
+                    },
+                    channelId:0,
+                    relations : {
+                        o:new Y.Linkage($("#data-relations")),
+                        i:function(o){
+                            o.idKey = "id";
+                            o.pidKey = "parentId";
+                            o.sKey = "name";
+                            o.inputStyle = "<input value='请选择' type='text' class='input' style='width:150px;margin-right:10px;' id='num{n}' />";
+                            o.SelectBox = {url:eschoolIP + "/api/cms/mgt/channel/v0.1/list",paramet:{parentId:0,pageSize: 10000, pageNum: 1},dataString:"<div class='autoList' vaule='{id}'>{has_id}<b class='listStyle_cicle icon_img'>{listStyle_name}</b><span style='margin-top:10px;float:left;'>{name}{status_}</span></div>",dataStringEval:function(s,k,v){
+                                return s.replace(new RegExp('{' + k + '_}'),function(){
+                                    return !v ? '<font style="color:#ff0000;font-size:12px;margin-left:5px;">(未启用)</font>' : '';
+                                })
+                            }};
+                            o.load(0);
+                        },
+                        f:function(v){
+                            if (v.length == 0) {
+                                return [false,"所属菜单不能为空"];
+                            } else {
+                                return [true];
+                            }
+                        }
+                    },
+                    topicId:{
+                        o:new Y.OnlySelectBox($("#data-topicId"),{
+                            vKey:"id",
+                            sKey:"name",
+                            SelectBox:{
+                                paramet:{pageNum:1,pageSize:10},
+                                url:eschoolIP + "/api/cms/mgt/topic/v0.1/list",
+                                dataString:"<div class='autoList' value='{id}'>{name}</div>"
+                            }}
+                        ),
+                        _o:$("#data-topicId"),
+                        s:"topicName"
+                    },
+                    creator : {
+                        o:new Y.OnlySelectBox($("#data-creator"),{
+                            vKey:"groupId",
+                            sKey:"name",
+                            SelectBox:{
+                                paramet:{pageNum:1,pageSize:10},
+                                url:ucIP + "/api/uc/v0.1/groups/org",
+                                dataString:"<div class='autoList' value='{groupId}'>{name}</div>"
+                            }}
+                        ),
+                        _o:$("#data-creator"),
+                        s:"creatorName",
+                        f:function(v){
+                            if (v == "") {
+                                return [false,"发布组织不能为空",true];
+                            } else {
+                                return [true];
+                            }
+                        }
+                    },
+                    top : {o:new Y.Radio($("#data-top input"))},
+                    recommend : {o:new Y.Radio($("#data-recommend input"))},
+                    recommendOrder : {
+                        o:$('#data-recommendOrder'),
+                        f:function(v){
+                            if(v == ''){
+                                if(fromConfig.recommend.o.val() == '1'){
+                                    return [false,'推荐内容必须填写权重'];
+                                }else{
+                                    return [true];
+                                }
+                            }else{
+                                if(!Y.Verify.PositiveInt(v)[0]){
+                                    return [false,'权重必须为正整数'];
+                                }else{
+                                    return [true];
+                                }
+                            }
+                        }
+                    },
+                    createTime:{
+                        o:$('#data-createTime'),
+                        i:function(){
+                            var da = new Date();
+                            var calendar = new Y.Calendar($("#data-createTime"),{timeType:[da.Format('hh'),da.Format('mm'),da.Format('ss')],date:da.Format('yyyy-MM-dd hh:mm:ss')});
+                            calendar.maxDate = da;
+                            $("#data-createTime").focus(function(){
+                                var _this = $(this);
+                                _this.prev().hide();
+                                calendar.open(function(d){
+                                    _this.val(d);
+                                    calendar.close();
+                                });
+                            })
+                        },
+                    },
+                    titleStyle:{
+                        o:new Y.Select($('#data-titleStyle'),{'none':'无','red':'红色','black':'黑色','blue':'蓝色','#F90':'橙色'})
+                    },
+                    synchronize : {o:new Y.Radio($("#data-synchronize input"))},
+                    synchronizeWx:{o:new Y.Radio($("#data-synchronizeWx input"))},
+                    content : {
+                        o:new Y.RichEdit($("#data-content"),true,upladArgs),
+                        f:function(v){
+                            if($("#useExtUrl")[0].checked){
+                                if($("#data-extUrl").val() == ""){
+                                    return [false,"超链接不能为空",true];
+                                }else{
+                                    return [true];
+                                }
+                            }else{
+                                if(v == ""){
+                                    return [false,"内容不能为空！",true];
+                                }else{
+                                    return [true];
+                                }
+                            }
+                        }
+                    },
+                    keyword:{o:$("#data-keyword")},
+                    extUrl : {
+                        o:$("#data-extUrl"),
+                        v:function(v){
+                            if(v){
+                                $("#exturlBox").show();
+                                $("#contentBox").hide();
+                                $("#useExtUrl")[0].checked = true;
+                            }else{
+                                $("#contentBox").show();
+                                $("#exturlBox").hide();
+                                $("#useExtUrl")[0].checked = false;
+                            }
+                        }
+                    },
+                    publisher:'',
+                    checkStatus:{
+                        o:{val : function(s){
+                            if(s == undefined){
+                                return this.value;
+                            }else{
+                                this.value = s;
+                            }
+                        },value:1},
+                        v:function(v,data){
+                            if(v == 2) {
+                                $('#checkTrue').remove();
+                                $('#checkFalse').remove();
+                            }else if(v == 3){
+                                $('#checkFalse').remove();
+                            }
+                            if(!Y.getUrlParam('check')){
+                                $('#checkTrue').remove();
+                                $('#checkFalse').remove();
+                            }
+                            if(data.operationLogs && data.operationLogs.length > 0){
+                                data.operationLogs.reverse();
+                                $('#operationLog').show();
+                                var list = new Y.List('', {pageNum:1,pageSize:10000}, [
+                                    {CH: "操作人", EN: "userName"},
+                                    {CH: "时间", EN: "operationTime"},
+                                    {CH: "理由", EN: "rejectReason",Align:'left'},
+                                    {CH: "操作", EN: "operation"}
+                                ]);
+                                list.SQLite = new Y.SQLite(data.operationLogs);
+                                list.checkBtn = false;
+                                list.listNumTitle = '次数';
+                                list.load();
+                            }
+                        }
+                    }
+                }
+                $("#useExtUrl").click(function(){
+                    var checked = $(this)[0].checked;
+                    if(!checked){
+                        $("#contentBox").show();
+                        $("#exturlBox").hide();
+                    }else{
+                        $("#exturlBox").show();
+                        $("#contentBox").hide();
+                    }
+                })
+                var from = new Y.From(fromConfig,"id",{getURL:eschoolIP + "/api/cms/content/v0.1/{id}/detail",postURL:eschoolIP + "/api/cms/mgt/content/v0.1/save",putURL:eschoolIP + "/api/cms/mgt/content/v0.1/{id}",title:"提交内容",dataJson:false,submitFn:function(data){
+                        data.channelId = data.relations[data.relations.length - 1].id;
+                        data.relations = '';
+                    }
+                });
+                function checkFn(checkStatus,checkReason){
+                    Y.ajax(eschoolIP + "/api/cms/content/v0.1/check/{id}",function(ret){
+                        if(ret && ret.result){
+                            Y.alertx('操作成功',function(){
+                                Y.back(-1);
+                            })
+                        }else{
+                            Y.alertx('操作失败,' + ret.errorMsg);
+                        }
+                    },{data:{id:fromConfig.id,checkStatus:checkStatus,checkReason:checkReason},meth:'POST',dataJson:false})
+                }
+                //通过
+                $("#checkTrue").click(function(){
+                    checkFn(2,'');
+                })
+                //驳回
+                $("#checkFalse").click(function(){
+                    var $this = $(this);
+                    Y.confirmx('<div><textarea style="border:1px solid #e4e4e4;width:250px;height:100px;text-align:left;" placeholder="请输入理由，不能为空" id="checkReason"></textarea></div>',function(){
+                        checkFn(3,$('#checkReason').val());
+                    },{
+                        verifyFn:function(){
+                            if(!$('#checkReason').val().replace(/(^\s*)|(\s*$)/g, '')){
+                                Y.alertx('驳回理由不能为空!');
+                                return false;
+                            }else{
+                                return true;
+                            }
+                        },title:'请输入驳回理由',_w:300,_h:200
+                    })
+                })
+                //取消
+                $("#cancel").click(function(){
+                    Y.back(-1);
+                });
+            })
+        })
+    })()
+</script>

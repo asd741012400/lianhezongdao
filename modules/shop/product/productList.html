@@ -1,0 +1,269 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="statusBtns"><!-- <span class="statusBtn active" id="status_0">活动</span> --><span class="statusBtn" id="status_1">e职购</span><span class="statusBtn" id="status_2">e职享</span></div>
+        <div class="search" id="searchBox"></div>
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <!-- <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/> -->
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<div id="print"></div>
+<style type="text/css">
+    .searchBox{
+        display: none;
+    }
+    .statusBtns{
+        margin-bottom: 10px;
+        border-bottom: 1px solid #eeeeee;
+        padding: 20px 0px;
+        text-align: left;
+    }
+    .statusBtn{
+        padding:10px 30px;
+        border: 1px solid #e4e4e4;
+        background: #f8f8f8;
+        color:#666666;
+        cursor: pointer;
+    }
+    .statusBtn.active{
+        border: 1px solid #00b7ee;
+        background: #00b7ee;
+        color:#ffffff;
+    }
+    #status_1{
+        border-right: none;
+        border-radius: 5px 0px 0px 5px;
+    }
+    #status_2{
+        border-left: none;
+        border-radius: 0px 5px 5px 0px;
+    }
+    .sortInput{
+        cursor: pointer;
+        padding:3px 10px;
+    }
+    .ewmBtn{
+        padding:2px 10px;
+        cursor: pointer;
+        margin-right: 16px;
+    }
+    .ewmShowBtn{
+        font-size:12px;
+        cursor: default;
+        text-decoration: underline;
+        color: #75cd1f;
+    }
+    #print{
+        display: none;
+        background: #fff;
+    }
+    #printQrCode{
+        width: 500px;
+        height: 500px;
+        position: absolute;
+        left: 50%;
+        margin-left: -250px;
+        top:50%;
+        margin-top: -250px;
+    }
+    .changeStatus{
+        cursor: pointer;
+        text-decoration: underline;
+    }
+</style>
+<style type="text/css" media=print>  
+    .header,.left,.footer,#nav,#printBtn,.formBtns,.mouseOverShow{
+        display: none;
+    }
+    #print{
+        display: block;
+        position:fixed;
+        z-index: 99999999;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        border: none;
+        margin:0px;
+        padding: 10px 0px;
+        background: #fff;
+    }
+</style>
+<script type="text/javascript">
+    (function(){
+        change(Y.Storage.get('shopProductActive') || 1);
+        $('#status_1').click(function(){
+            change(1);
+        })
+        $('#status_2').click(function(){
+            change(2);
+        })
+        var list,config,status,args = {};
+        function change(i){
+            $('.statusBtn.active').removeClass('active');
+            $('#searchBox').html('<input id="status" class="input" type="text" placeholder="选择状态"/>\r<input id="title" class="input" type="text" placeholder="标题"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>');
+            $('#status_' + i).addClass('active');
+            Y.Storage.set('shopProductActive',i);
+            switch(i){
+                case 2:
+                    config = [
+                        {CH: "商品", EN: "title"},
+                        {CH: "商品图", EN: "image",htmlFormat:'<img src="{image}" width="100" height="100" />'},
+                        {CH: "日租价(元)", EN: "rent"},
+                        {CH: "预付押金(元)", EN: "deposit"},
+                        {CH: "规格", EN: "item",htmlFormat:function(k,v){
+                            return getItem(v,'property');
+                        }},
+                        {CH: "销量", EN: "item",htmlFormat:function(k,v){
+                            return getItem(v,'count');
+                        }},
+                        {CH: "二维码", EN: "id",htmlFormat:'<span class="ewmShowBtn">查看</span>'},
+                        {CH: "权重", EN: "sort",htmlFormat:'<span title="点击设置排序" class="sortInput">{sort}<div style="color:#ccc;font-size:12px;">(点击修改)</div></span>'},
+                        {CH: "当前状态", EN: "status",OptionExcel:{'1':'已上架','2':'已下架','4':'正在租用'},htmlFormat:function(k,v){
+                            var rc = '<input type="checkbox" class="statusInput" /><span style="color:#00b7ee;">已下架</span>';
+                            if(v == '1') rc = '<input type="checkbox" class="statusInput" checked /><span style="color:#00b7ee;">已上架</span>';
+                            if(v == '4') rc = '<span style="color:#00b7ee;">正在租用</span>';
+                            return rc;
+                        }}
+                    ];
+                    args = {type:i,pageSize:"shopProduct",pageNum:1,client:0,status:0};
+                    status = new Y.Select($('#status'),{
+                        '0':'全部',
+                        '3':'已下架',
+                        '4':'已上架'
+                    });
+                    status.val(0);
+                    break;
+                default:
+                    config = [
+                        {CH: "商品", EN: "title"},
+                        {CH: "商品图", EN: "image",htmlFormat:'<img src="{image}" width="100" height="100" />'},
+                        {CH: "指导价(元)", EN: "originalPrice"},
+                        {CH: "折扣价(元)", EN: "discountPrice"},
+                        {CH: "开团时间", EN: "begTime"},
+                        {CH: "结束时间", EN: "endTime"},
+                        {CH: "规格", EN: "item",htmlFormat:function(k,v){
+                            return getItem(v,'property');
+                        }},
+                        {CH: "销量", EN: "item",htmlFormat:function(k,v){
+                            return getItem(v,'count');
+                        }},
+                        {CH: "权重", EN: "sort",htmlFormat:'<span title="点击设置排序" class="sortInput">{sort}<div style="color:#ccc;font-size:12px;">(点击修改)</div></span>'},
+                        {CH: "当前状态", EN: "status",OptionExcel:{'1':'已上架','2':'已下架'},htmlFormat:function(k,v){
+                            var rc = '<input type="checkbox" class="statusInput" /><span style="color:#00b7ee;">已下架</span>';
+                            if(v == '1') rc = '<input type="checkbox" class="statusInput" checked /><span style="color:#00b7ee;">已上架</span>';
+                            return rc;
+                        }}
+                    ];
+                    args = {type:i,pageSize:"shopProduct",pageNum:1,client:0,status:0};
+                    status = new Y.Select($('#status'),['全部','团购中','即将开团','已下架','已上架']);
+                    status.val(0);
+                    break;
+            }
+            list = new Y.List(eschoolIP + "/api/shop/groups/v0.1/products", args, config);
+            list.btns = '<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>';
+            list.load(function () {
+                //查看
+                $("tr").each(function(i){
+                    if(i > 0 && list.data.rows.length > 0){
+                        var data = list.data.rows[i - 1];
+                        //二维码
+                        $(this).find('.qrcode').qrcode({ 
+                            render: "canvas", //table方式 
+                            width: 100, //宽度 
+                            height:100, //高度 
+                            text: JSON.stringify({pId:data.id}) //任意内容 
+                        });
+                        new Y.MouseOverShow($(this).find(".ewmShowBtn"),'',{
+                            string:'<div id="_ewm' + i + '"></div><div style="text-align:center;margin-top:5px;"><span id="print' + i + '" class="bg_default ewmBtn">打印</span><span id="downEwm' + i + '" class="bg_default ewmBtn">下载</span></div>',
+                            style:';width:220px;height:230px;background:#fff;border:1px solid #ccc;margin-left:20px;margin-top:-8px;',
+                            init:function(){
+                                $('#_ewm' + i).qrcode({
+                                    render: "canvas", //table方式 
+                                    width: 200, //宽度 
+                                    height:200, //高度 
+                                    text: JSON.stringify({pId:data.id}) //任意内容
+                                })
+                                $('#downEwm' + i).click(function(){
+                                    Y.download(bpmIP + '/api/leave/v0.1/leave/qr?qrVal=' + data.qrCode +
+                                            '&width=300&height=300&accessToken=' + accessToken + '&name=' + data.title + '.png');
+                                })
+                                $('#print' + i).click(function(){
+                                    $('#print').html('<div id="printQrCode"></div>');
+                                    $('#printQrCode').qrcode({
+                                        render: "canvas", //table方式 
+                                        width: 500, //宽度 
+                                        height:500, //高度 
+                                        text: JSON.stringify({pId:data.id}) //任意内容
+                                    })
+                                    window.print();
+                                })
+                            }
+                        });
+                        //修改
+                        $(this).find(".listEdit").click(function(){
+                            Y.open({url:"modules/shop/product/productEdit.html",title:"商品编辑",data:{id:data.id,sort:data.sort,type:Y.Storage.get('shopProductActive')}});
+                        })
+                        //删除
+                        if(data.status == 4) $(this).find(".tdBtns").remove();
+                        $(this).find(".listDelete").click(function(){
+                            Y.confirmx("确定要删除吗?",function(n){
+                                changeStatus(data,3);
+                            },Y.getRemoveArgs($(this)))
+                        })
+                        //上下架
+                        $(this).find('.statusInput').click(function(){
+                            changeStatus(data,data.status == 1 ? 2 : 1);
+                        })
+                        $(this).find('.sortInput').click(function(){
+                            var html = '<div><div><input class="input" type="text" id="changeSort" placeholder="0~100000" value="' + data.sort + '" /></div><div id="sortErr"></div></div>';
+                            Y.confirmx(html,function(ret){
+                                Y.ajax(eschoolIP + '/api/shop/groups/v0.1/products/{id}/sort',function(ret){
+                                    var msg = ret && ret.result ? '操作成功' : ('操作失败,' + ret.errorMsg);
+                                    list.load();
+                                    Y.alertx(msg, '',{toast:true,height:70});
+                                },{data:{sort:$('#changeSort').val(),id:data.id},meth:'PUT'})
+                            },{
+                                verifyFn:function(){
+                                    var sort = $('#changeSort').val();
+                                    if(sort >= 0 && sort <= 100000){
+                                        return true;
+                                    }else{
+                                        $('#sortErr').html("必须在0~100000之间");
+                                    }
+                                },
+                                title:'修改权重<span style="color:#ccc;font-size:12px;">(权重越大排序越靠前)</span>'
+                            })
+                        })
+                    }
+                })
+            });
+            new Y.ListSearch(list,{status:status,title:$('#title')});
+            function getItem(items,key,join){
+                var rc = [];
+                for(var i = 0; i < items.length; i ++) rc.push(items[i][key]);
+                return rc.join(join || '<br />');
+            }
+            function changeStatus(data,n){
+                var _data = {id:data.id,status:n};
+                Y.ajax(eschoolIP + '/api/shop/groups/v0.1/products/{id}/control',function(ret){
+                    var msg = ret && ret.result ? '操作成功' : ('操作失败,' + ret.errorMsg);
+                    list.load();
+                    Y.alertx(msg, '',{toast:true,height:70});
+                },{data:_data,meth:'PUT'})
+            }
+        }
+        $("#downLoadExcel").click(function(){
+            list.toExcel("商品信息");
+        })
+        $('#addBtn').click(function(){
+            Y.open({url:"modules/shop/product/productEdit.html",title:"商品新增",data:{sort:list.data && list.data.rows && list.data.rows[0] ? (list.data.rows[0].sort + 1) : 0,type:Y.Storage.get('shopProductActive')}});
+        })
+    })()
+</script>

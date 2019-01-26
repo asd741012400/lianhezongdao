@@ -1,0 +1,331 @@
+<form class="form">
+    <div class="teacher">
+        <div class="teacherInfo">
+            <img id="teacherphoto" src="images/headPortrait.png" />
+            <div class="teacherName">姓名<span id="teachername">--</span></div>
+            <div class="teacherJobNumber">工号<span id="teacherjobNumber">--</span></div>
+            <div class="teacherDeptName">部门<span id="teacherdeptName">--</span></div>
+        </div>
+        <input type="button" id="cancel" value="返回" class="bg_00b7ee"/>
+        <div class="clear"></div>
+    </div>
+    <div class="attnCfg"><b>考勤日期</b><span id="attnCfgdate">--</span><span id="attnCfgweekday">--</span></div>
+    <div class="attnRecord">
+        <table width="100%" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td rowspan="6" width="195" align="center"><span id="attnCfgamTime">--</span>~<span id="attnCfgpmTime">--</span></td>
+                <td>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">上班打卡时间</div><span id="attnRecordtime_1">--</span><b id="attnRecordstatusName_1">--</b><b id="changeRecord_1"></b><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">上班打卡地点</div><span id="attnRecordaddress_1">--</span><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">备注</div><span id="attnRecordremark_1">--</span><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">图片</div><span id="attnRecordimages_1">--</span><div class="clear"></div></div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">下班打卡时间</div><span id="attnRecordtime_2">--</span><b id="attnRecordstatusName_2">--</b><b id="changeRecord_2"><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">下班打卡地点</div><span id="attnRecordaddress_2">--</span><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">备注</div><span id="attnRecordremark_2">--</span><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">图片</div><span id="attnRecordimages_2">--</span><div class="clear"></div></div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">下班打卡时间</div><span id="attnRecordtime_3">--</span><b id="attnRecordstatusName_3">--</b><b id="changeRecord_3"><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">下班打卡地点</div><span id="attnRecordaddress_3">--</span><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">备注</div><span id="attnRecordremark_3">--</span><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">图片</div><span id="attnRecordimages_3">--</span><div class="clear"></div></div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">下班打卡时间</div><span id="attnRecordtime_4">--</span><b id="attnRecordstatusName_4">--</b><b id="changeRecord_4"><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">下班打卡地点</div><span id="attnRecordaddress_4">--</span><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">备注</div><span id="attnRecordremark_4">--</span><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">图片</div><span id="attnRecordimages_4">--</span><div class="clear"></div></div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">下班打卡时间</div><span id="attnRecordtime_5">--</span><b id="attnRecordstatusName_5">--</b><b id="changeRecord_5"><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">下班打卡地点</div><span id="attnRecordaddress_5">--</span><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">备注</div><span id="attnRecordremark_5">--</span><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">图片</div><span id="attnRecordimages_5">--</span><div class="clear"></div></div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">下班打卡时间</div><span id="attnRecordtime_6">--</span><b id="attnRecordstatusName_6">--</b><b id="changeRecord_6"><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">下班打卡地点</div><span id="attnRecordaddress_6">--</span><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">备注</div><span id="attnRecordremark_6">--</span><div class="clear"></div></div>
+                    <div class="attnRecordDiv"><div class="attnRecordTitle">图片</div><span id="attnRecordimages_6">--</span><div class="clear"></div></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+<style>
+    .teacher{
+        margin:10px 30px;
+        margin-top: 50px;
+    }
+
+    .teacherInfo{
+        float: left;
+        width: 200px;
+    }
+
+    .teacherInfo span{
+        margin-left: 10px;
+    }
+
+    #teacherphoto{
+        float: left;
+        margin-right: 10px;
+        width: 80px;
+        height: 80px;
+        border-radius: 80px;
+    }
+
+    .teacherName{
+        margin-top: 5px;
+    }
+
+    #cancel{
+        float: right;
+        padding: 15px 40px;
+        cursor: pointer;
+        border-radius: 3px;
+        font-weight: bold;
+        font-size: 15px;
+        margin-top: 10px;
+    }
+
+    .attnCfg{
+        margin:10px 40px;
+        margin-top: 70px;
+    }
+
+    #attnCfgdate{
+        margin-left: 20px;
+    }
+
+    #attnCfgweekday{
+        margin-left: 10px;
+    }
+
+    .attnRecord{
+        margin:0px 30px;
+    }
+
+    table{
+        border-right: 1px solid #dedede;
+        border-bottom: 1px solid #dedede;
+    }
+
+    td{
+        border-left: 1px solid #dedede;
+        border-top: 1px solid #dedede;
+    }
+
+    .attnRecordDiv{
+        margin: 15px;
+    }
+
+    .attnRecordTitle{
+        width: 100px;
+        text-align: right;
+        float: left;
+        margin-right: 65px;
+    }
+
+    #attnRecordstatusName_1,#attnRecordstatusName_2,#attnRecordstatusName_3,#attnRecordstatusName_4,#attnRecordstatusName_5,#attnRecordstatusName_6{
+        margin-left: 50px;
+    }
+
+    #attnRecordimages_1 img,#attnRecordimages_2 img,#attnRecordimages_3 img,#attnRecordimages_4 img,#attnRecordimages_5 img,#attnRecordimages_6 img{
+        width: 60px;
+        margin-right: 10px;
+    }
+</style>
+<script>
+    (function() {
+        var teacherId = Y.getUrlParam("teacherId");
+        var date = Y.getUrlParam("date");
+        Y.ajax(eschoolIP + "/api/attn/v0.1/uid/" + teacherId + "/date/" + date,function(res){
+            if(res.teacher){
+                if(res.teacher.photo) $("#teacherphoto").attr("src",res.teacher.photo);
+                if(res.teacher.name) $("#teachername").html(res.teacher.name);
+                if(res.teacher.jobNumber) $("#teacherjobNumber").html(res.teacher.jobNumber);
+                if(res.teacher.deptName) $("#teacherdeptName").html(res.teacher.deptName);
+            }
+            if(res.attnCfg){
+                if(res.attnCfg.date) $("#attnCfgdate").html(res.attnCfg.date);
+                if(res.attnCfg.weekday) $("#attnCfgweekday").html(res.attnCfg.weekday);
+                if(res.attnCfg.attnTime.length == 2) {
+                    $("#attnCfgamTime").html(res.attnCfg.attnTime[0].time);
+                    $("#attnCfgpmTime").html(res.attnCfg.attnTime[1].time);
+
+                } else if(res.attnCfg.attnTime.length == 4) {
+                    $("#attnCfgamTime").html(res.attnCfg.attnTime[0].time);
+                    $("#attnCfgpmTime").html(res.attnCfg.attnTime[3].time);
+
+                } else if(res.attnCfg.attnTime.length == 6) {
+                    $("#attnCfgamTime").html(res.attnCfg.attnTime[0].time);
+                    $("#attnCfgpmTime").html(res.attnCfg.attnTime[5].time);
+                }
+            }
+            if(res.attnRecord){
+                // 第一条
+                if(res.attnRecord[0].time) $("#attnRecordtime_1").html(res.attnRecord[0].time);
+                if(res.attnRecord[0].address) $("#attnRecordaddress_1").html(res.attnRecord[0].address);
+                if(res.attnRecord[0].attachStatus == 1) $("#changeRecord_1").html("<font style='color:" + "#38c0e9" + "'>" + "（ 改卡后 正常 ）" + "</font>");
+                if(res.attnRecord[0].statusName) $("#attnRecordstatusName_1").html("<font style='color:" + statusColor(res.attnRecord[0].realStatus) + "'>" + res.attnRecord[0].realStatusName + "</font>");
+                if(res.attnRecord[0].remark) {
+                    $("#attnRecordremark_1").html(res.attnRecord[0].remark);
+                }else{
+                    $("#attnRecordremark_1").parent().remove();
+                }
+                if(res.attnRecord[0].images.length > 0) {
+                    var html = "";
+                    for(var i = 0; i < res.attnRecord[0].images.length; i ++){
+                        html += "<img src='" + res.attnRecord[0].images[i] + "' />";
+                    }
+                    $("#attnRecordimages_1").html(html);
+                }else{
+                    $("#attnRecordimages_1").parent().remove();
+                }
+                // 第二条
+                if(!res.attnRecord[1]) return false;
+                if(res.attnRecord[1].time) $("#attnRecordtime_2").html(res.attnRecord[1].time);
+                if(res.attnRecord[1].address) $("#attnRecordaddress_2").html(res.attnRecord[1].address);
+                if(res.attnRecord[1].attachStatus == 1) $("#changeRecord_2").html("<font style='color:" + "#38c0e9" + "'>" + "（ 改卡后 正常 ）" + "</font>");
+                if(res.attnRecord[1].statusName) $("#attnRecordstatusName_2").html("<font style='color:" + statusColor(res.attnRecord[1].realStatus) + "'>" + res.attnRecord[1].realStatusName + "</font>");
+                if(res.attnRecord[1].remark) {
+                    $("#attnRecordremark_2").html(res.attnRecord[1].remark);
+                }else{
+                    $("#attnRecordremark_2").parent().remove();
+                }
+                if(res.attnRecord[1].images.length > 0) {
+                    var html = "";
+                    for(var i = 0; i < res.attnRecord[1].images.length; i ++){
+                        html += "<img src='" + res.attnRecord[1].images[i] + "' />";
+                    }
+                    $("#attnRecordimages_2").html(html);
+                }else{
+                    $("#attnRecordimages_2").parent().remove();
+                }
+                // 第三条
+                if(res.attnRecord[2].time) $("#attnRecordtime_3").html(res.attnRecord[2].time);
+                if(res.attnRecord[2].address) $("#attnRecordaddress_3").html(res.attnRecord[2].address);
+                if(res.attnRecord[2].attachStatus == 1) $("#changeRecord_3").html("<font style='color:" + "#38c0e9" + "'>" + "（ 改卡后 正常 ）" + "</font>");
+                if(res.attnRecord[2].statusName) $("#attnRecordstatusName_3").html("<font style='color:" + statusColor(res.attnRecord[2].realStatus) + "'>" + res.attnRecord[2].realStatusName + "</font>");
+                if(res.attnRecord[2].remark) {
+                    $("#attnRecordremark_3").html(res.attnRecord[2].remark);
+                }else{
+                    $("#attnRecordremark_3").parent().remove();
+                }
+                if(res.attnRecord[2].images.length > 0) {
+                    var html = "";
+                    for(var i = 0; i < res.attnRecord[2].images.length; i ++){
+                        html += "<img src='" + res.attnRecord[2].images[i] + "' />";
+                    }
+                    $("#attnRecordimages_3").html(html);
+                }else{
+                    $("#attnRecordimages_3").parent().remove();
+                }
+                // 第四条
+                if(res.attnRecord[3].time) $("#attnRecordtime_4").html(res.attnRecord[3].time);
+                if(res.attnRecord[3].address) $("#attnRecordaddress_4").html(res.attnRecord[3].address);
+                if(res.attnRecord[3].attachStatus == 1) $("#changeRecord_4").html("<font style='color:" + "#38c0e9" + "'>" + "（ 改卡后 正常 ）" + "</font>");
+                if(res.attnRecord[3].statusName) $("#attnRecordstatusName_4").html("<font style='color:" + statusColor(res.attnRecord[3].realStatus) + "'>" + res.attnRecord[3].realStatusName + "</font>");
+                if(res.attnRecord[3].remark) {
+                    $("#attnRecordremark_4").html(res.attnRecord[3].remark);
+                }else{
+                    $("#attnRecordremark_4").parent().remove();
+                }
+                if(res.attnRecord[3].images.length > 0) {
+                    var html = "";
+                    for(var i = 0; i < res.attnRecord[3].images.length; i ++){
+                        html += "<img src='" + res.attnRecord[3].images[i] + "' />";
+                    }
+                    $("#attnRecordimages_4").html(html);
+                }else{
+                    $("#attnRecordimages_4").parent().remove();
+                }
+                // 第五条
+                if(res.attnRecord[4].time) $("#attnRecordtime_5").html(res.attnRecord[4].time);
+                if(res.attnRecord[4].address) $("#attnRecordaddress_5").html(res.attnRecord[4].address);
+                if(res.attnRecord[4].attachStatus == 1) $("#changeRecord_5").html("<font style='color:" + "#38c0e9" + "'>" + "（ 改卡后 正常 ）" + "</font>");
+                if(res.attnRecord[4].statusName) $("#attnRecordstatusName_5").html("<font style='color:" + statusColor(res.attnRecord[4].realStatus) + "'>" + res.attnRecord[4].realStatusName + "</font>");
+                if(res.attnRecord[4].remark) {
+                    $("#attnRecordremark_5").html(res.attnRecord[4].remark);
+                }else{
+                    $("#attnRecordremark_5").parent().remove();
+                }
+                if(res.attnRecord[4].images.length > 0) {
+                    var html = "";
+                    for(var i = 0; i < res.attnRecord[4].images.length; i ++){
+                        html += "<img src='" + res.attnRecord[4].images[i] + "' />";
+                    }
+                    $("#attnRecordimages_5").html(html);
+                }else{
+                    $("#attnRecordimages_5").parent().remove();
+                }
+                // 第六条
+                if(res.attnRecord[5].time) $("#attnRecordtime_6").html(res.attnRecord[5].time);
+                if(res.attnRecord[5].address) $("#attnRecordaddress_6").html(res.attnRecord[5].address);
+                if(res.attnRecord[5].attachStatus == 1) $("#changeRecord_6").html("<font style='color:" + "#38c0e9" + "'>" + "（ 改卡后 正常 ）" + "</font>");
+                if(res.attnRecord[5].statusName) $("#attnRecordstatusName_6").html("<font style='color:" + statusColor(res.attnRecord[5].realStatus) + "'>" + res.attnRecord[5].realStatusName + "</font>");
+                if(res.attnRecord[5].remark) {
+                    $("#attnRecordremark_6").html(res.attnRecord[5].remark);
+                }else{
+                    $("#attnRecordremark_6").parent().remove();
+                }
+                if(res.attnRecord[5].images.length > 0) {
+                    var html = "";
+                    for(var i = 0; i < res.attnRecord[5].images.length; i ++){
+                        html += "<img src='" + res.attnRecord[5].images[i] + "' />";
+                    }
+                    $("#attnRecordimages_6").html(html);
+                }else{
+                    $("#attnRecordimages_6").parent().remove();
+                }
+            }
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+        function statusColor(n){
+            var rc = "";
+            switch(n){
+                case "1":
+                    rc = "#00b7ee";
+                    break;
+                case "2":
+                    rc = "#ef6b3c";
+                    break;
+                case "3":
+                    rc = "#ef6b3c";
+                    break;
+                case "4":
+                    rc = "#f74c01";
+                    break;
+                case "5":
+                    rc = "#fc4210";
+                    break;
+                case "6":
+                    rc = "#7bb86e";
+                    break;
+                case "7":
+                    rc = "#38c0e9";
+                    break;
+                default:
+                    rc = "#38c0e9";
+                    break;
+            }
+            return rc;
+        }
+    })()
+</script>

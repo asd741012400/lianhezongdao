@@ -1,0 +1,103 @@
+<form class="form">
+    <div class="form_title"><b>回复</b></div>
+    <div class="attnRecord">
+        <div class="attnRecordDiv">
+            <div class="attnRecordTitle">标题</div>
+            <div class="attnRecordContent" id="title">--</div>
+        </div>
+        <div class="attnRecordDiv">
+            <div class="attnRecordTitle">类型</div>
+            <div class="attnRecordContent" id="typeName">--</div>
+        </div>
+        <div class="attnRecordDiv">
+            <div class="attnRecordTitle">内容</div>
+            <div class="attnRecordContent">
+                <div id="content">--</div>
+                <div style="margin-top: 50px;"><span id="time">--</span><span style="margin-left: 30px;" id="nickname">--</span></div>
+            </div>
+        </div>
+    </div>
+    <div style="margin:10px;">
+        是否通过审核<input id="status" style="margin-left: 20px;" type="checkbox" />是
+    </div>
+    <div class="data width100">
+        <div class="data_title">回复内容</div>
+        <div type="richEdit" class="richEdit" id="data-content"></div>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    .attnRecord{
+        margin:30px 10px;
+        background: #f8f8f8;
+        border-bottom: 1px solid #eeeeee;
+    }
+    .attnRecordDiv{
+        border: 1px solid #eeeeee;
+        border-bottom: none;
+    }
+    .attnRecordTitle{
+        width: 100px;
+        padding: 15px 0px;
+        text-align: center;
+        position: absolute;
+    }
+    .attnRecordContent{
+        padding: 15px;
+        border-left: 1px solid #eeeeee;
+        margin-left: 100px;
+    }
+</style>
+<script>
+    (function() {
+        var id = Y.getUrlParam("id");
+        var content = new Y.RichEdit($("#data-content"));
+        Y.ajax(eschoolIP + "/api/cms/suggestion/v0.1/" + id + "/detail",function(ret){
+            if(ret && !ret.errorMsg){
+                $('#title').html(ret.title);
+                $('#typeName').html(ret.typeName);
+                $('#content').html(ret.content);
+                $('#time').html(ret.time);
+                $('#nickname').html(ret.nickname);
+                $('#status')[0].checked = !!ret.status;
+                $('#status').change(function(){
+                    var self = this;
+                    Y.ajax(eschoolIP + '/api/cms/mgt/suggestion/review/v0.1/' + id,function(ret){
+                        if(ret && ret.result){
+                            Y.alertx('操作成功');
+                        }else{
+                            Y.alertx('操作失败,' + ret.errorMsg);
+                            self.checked = !self.checked;
+                        }
+                    },{meth:'PUT'})
+                })
+                if(ret.replyInfo && ret.replyInfo[0]){
+                    content.val(ret.replyInfo[0].replyContent);
+                }
+            }
+        })
+        //提交
+        $("#submit").click(function(){
+            var v = content.val();
+            if(v){
+                Y.ajax(eschoolIP + '/api/cms/mgt/suggestion/reply/v0.1/{id}',function(ret){
+                    if(ret && ret.dataId){
+                        Y.alertx('回复成功');
+                    }else{
+                        Y.alertx('回复失败,' + ret.errorMsg);
+                    }
+                },{meth:'POST',data:{content:v,id:id},dataJson:false})
+            }else{
+                Y.alertx('请输入回复内容');
+            }
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

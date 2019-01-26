@@ -1,0 +1,703 @@
+<form class="form">
+    <div class="time">
+        <div class="timeTitle"><b class="red">*</b>班次时间设置</div>
+        <div class="timeList">
+            <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>班次名称</th>
+                        <th>第一次上班</th>
+                        <th>第一次下班</th>
+                        <th>第二次上班</th>
+                        <th>第二次下班</th>
+                        <th>第三次上班</th>
+                        <th>第三次下班</th>
+                        <th>是否为默认班次</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="PunchCardDay"></tbody>
+            </table>
+        </div>
+        <div class="timeAdd"><span id="timeAdd">+添加班次</span></div>
+    </div>
+    <div class="week">
+        <div class="weekTitle">工作日设置</div>
+        <div class="weekdays"><span><input type="checkbox" id="skipHoliday" /><label for="skipHoliday">法定节假日自动排休</label></span></div>
+        <div class="weekList">
+            <table width="500" border="0" cellpadding="0" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>选择</th>
+                        <th>工作日</th>
+                        <th>班次</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="weekdays">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="address">
+        <div class="addressTitle">考勤地点设置<span style="color: #ccc;font-size: 12px;margin:0px 10px;">(可设置多个地点)</span><b class="red" style="margin-left: 10px;">*</b>有效范围
+            <select id="radius">
+                <option value="100" selected>100m</option>
+                <option value="200">200m</option>
+                <option value="500">500m</option>
+                <option value="1000">1000m</option>
+                <option value="2000">2000m</option>
+                <option value="3000">3000m</option>
+            </select>
+        </div>
+        <div class="addressList">
+            <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>考勤地址</th>
+                        <th>经度</th>
+                        <th>纬度</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="addresses"></tbody>
+            </table>
+        </div>
+        <div class="addressAdd"><span id="addressAdd">+添加考勤地址</span></div>
+    </div>
+    <div class="wifi">
+        <div class="wifiTitle">wifi设置</div>
+        <div class="wifiList">
+            <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>名称</th>
+                        <th>MAC地址</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="wifies"></tbody>
+            </table>
+        </div>
+        <div class="wifiAdd"><span id="wifiAdd">+添加wifi</span></div>
+    </div>
+    <div class="formBtns">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+    </div>
+</form>
+<style>
+    .timeTitle,.weekTitle,.addressTitle,.wifiTitle{
+        line-height: 40px;
+        margin-top: 20px;
+        margin-left: 20px;
+        font-weight: bold;
+    }
+
+    .timeAm,.timePm{
+        line-height: 40px;
+        margin:10px 20px;
+    }
+
+    #amStartTime,#amEndTime,#pmStartTime,#pmEndTime,#radius{
+        border:1px solid #e5e5e5;
+        height: 40px;
+        line-height: 40px;
+        padding:0px 5px;
+        margin-left: 20px;
+        margin-right: 20px;
+        width: 135px;
+    }
+
+    .weekdays{
+        margin:10px 20px;
+    }
+
+    .weekdays span{
+        margin-right: 20px;
+        cursor: pointer;
+    }
+
+    .addressList,.timeList,.weekList,.wifiList{
+        margin: 20px;
+    }
+
+    table{
+        border: 1px solid #f0efef;
+        border-bottom: none;
+    }
+
+    tr{
+        line-height: 40px;
+    }
+
+    th{
+        border-bottom: 1px solid #f0efef;
+        background: #f8f8f8;
+    }
+
+    td{
+        border-bottom: 1px solid #f0efef;
+    }
+
+    .addressAdd,.timeAdd,.changeTime,.wifiAdd{
+        cursor: pointer;
+        margin-left: 20px;
+        color:#00B7EE;
+    }
+
+    .listEdit,.listDelete{
+        cursor: pointer;
+    }
+
+    .formBtns{
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .addressBox{
+        text-align: left;
+    }
+
+    .addressBoxData{
+        height: 30px;
+        overflow: hidden;
+    }
+
+    .addressBoxData_title{
+        width: 80px;
+        float: left;
+        text-align: right;
+        margin-right: 10px;
+    }
+
+    .addressBoxData input{
+        border:1px solid #f0efef;
+        padding:3px 5px;
+        width: 150px;
+    }
+    .wifi-pop{
+        text-align:left;
+        padding:0 40px;
+    }
+    .wifi-item{
+        margin: 10px 0;
+    }
+    .wifi-item span{
+        width:80px;
+        display:inline-block;
+    }
+    .wifi-item input{
+        border:1px solid #e4e4e4;
+        border-radius:3px;
+        padding: 6px 8px;
+    }
+    .wifi-item p{
+        text-indent:0;
+        font-size:12px;
+    }
+</style>
+<script>
+    (function(){
+        var from = {
+            cfgId:"",
+            radius:$("#radius"),
+            skipHoliday:new SkipHoliday($("#skipHoliday")),
+            addressList: new Addresses($("#addresses")),
+            punchCardDayList:new PunchCardDay(),
+            wifiList: new SettingWifi(),
+        }
+        $("#addressAdd").click(function(){
+            from.addressList.edit();
+        })
+        $("#timeAdd").click(function(){
+            from.punchCardDayList.edit();
+        })
+        $("#wifiAdd").click(function(){
+            from.wifiList.edit();
+        })
+        function SkipHoliday(obj){
+            this.val = function(s){
+                if(s){
+                    if(s == 1) obj[0].checked = true;
+                }else{
+                    return !obj[0].checked ? 2 : 1;
+                }
+            }
+        }
+        function SettingWifi(){
+            var _this = this;
+            this.data = [];
+            this.append = function(){
+                var html = "";
+                for (var i = 0; i < this.data.length; i++) {
+                    html += "<tr align='center'><td>" + this.data[i].name + "</td><td>" + this.data[i].mac + "</td><td><span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span></td></tr>";
+                };
+                $("#wifies").html(html);
+                $("#wifies tr").each(function(i){
+                    $(this).find('.listEdit').click(function(){
+                        _this.edit(i)
+                    })
+                    $(this).find('.listDelete').click(function(){
+                        _this.del(i)
+                    })
+                })
+            }
+            this.edit = function(n){
+                var edit = n == undefined ? false : true;
+                var html = '<div class="wifi-pop">'
+                        + '<div class="wifi-item"><span>名称：</span><input id="wifiName" /></div>'
+                        + '<div class="wifi-item"><span>MAC地址：</span><input id="wifiMAC" /></div>'
+                        + '<div class="wifi-item"><p>名称尽量保持与考勤WiFi名称一致，避免员工产生误解</p></div>'
+                        + '</div>'
+                Y.confirmx(html,function(){
+                    var name = $("#wifiName").val(),
+                    mac = $("#wifiMAC").val();
+                    if (name == "") {
+                        Y.alertx("名称不能为空");
+                        return false;
+                    };
+                    if (mac == "") {
+                        Y.alertx("MAC地址不能为空");
+                        return false;
+                    };
+                    var data = {name:name,mac:mac};
+                    if (edit) {
+                        _this.data[n] = data;
+                    }else{
+                        _this.data.push(data);
+                    };
+                    _this.append();
+                },{_w:400,_h:240,title:!edit ? "新增wifi" : "修改wifi",initFn:function(){
+                    if (edit) {
+                        var initData = _this.data[n];
+                        $("#wifiName").val(initData.name);
+                        $("#wifiMAC").val(initData.mac);
+                    };
+                }})
+            }
+            this.del = function(n){
+                var arr = [];
+                for(var i = 0; i < this.data.length; i++) if(i != n) arr.push(this.data[i]);
+                this.data = arr;
+                this.append();
+            }
+            this.val = function(s){
+                if (s) {
+                    this.data = s;
+                    this.append();
+                };
+            }
+        }
+        function PunchCardDay(){
+            var _this = this;
+            this.data = [];
+            this.weeks = [];
+            this.cfgId = "";
+            this.defaultId = 0;
+            this.append = function(unClearWeeks){
+                if(!unClearWeeks) this.weeks = [];
+                var html = "";
+                for(var i = 0; i < this.data.length; i++){
+                    this.data[i]._id = i;
+                    html += "<tr align='center'><td>" + this.data[i].timeName + "</td><td>" + this.data[i].amStartTime + "</td><td>" + this.data[i].amEndTime + "</td><td>" + this.data[i].pmStartTime + "</td><td>" + this.data[i].pmEndTime + "</td><td>" + this.data[i].emStartTime + "</td><td>" + this.data[i].emEndTime + "</td><td><input class='defaultCheckbox' type='checkbox' " + (this.data[i].defaultOpt ? "checked" : "") + " /></td><td><span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span></td></tr>";
+                    if(this.data[i].weekNo){
+                        var weeks = this.data[i].weekNo.split(",");
+                        for(var j = 0; j < weeks.length; j ++) this.weeks[weeks[j]] = {_id:i,timeName:this.data[i].timeName};
+                    }
+                    if(this.data[i].cfgId) this.cfgId = this.data[i].cfgId;
+                    if(this.data[i].defaultOpt) this.defaultId = i;
+                }
+                $("#PunchCardDay").html(html);
+                $("#PunchCardDay tr").each(function(i){
+                    $(this).find(".listEdit").click(function(){
+                        _this.edit(i);
+                    })
+                    $(this).find(".listDelete").click(function(){
+                        _this.del(i);
+                    })
+                    $(this).find(".defaultCheckbox").change(function(){
+                        if(!_this.data[i].defaultOpt){
+                            _this.data[_this.defaultId].defaultOpt = 0;
+                            _this.data[i].defaultOpt = 1;
+                            _this.defaultId = i;
+                        }else{
+                            _this.data[i].defaultOpt = 0;
+                            _this.defaultId = 0;
+                        }
+                        _this.append(true);
+                    })
+                })
+                this.weekAppend();
+            }
+            this.weekAppend = function(){
+                var html = "";
+                for(var i = 1; i < 8; i++){
+                    var week = i,name = this.weeks[i] ? this.weeks[i].timeName : "";
+                    switch(week){
+                        case 1:
+                            week = "一";
+                            break;
+                        case 2:
+                            week = "二";
+                            break;
+                        case 3:
+                            week = "三";
+                            break;
+                        case 4:
+                            week = "四";
+                            break;
+                        case 5:
+                            week = "五";
+                            break;
+                        case 6:
+                            week = "六";
+                            break;
+                        case 7:
+                            week = "日";
+                            break;
+                    }
+                    html += "<tr align='center'><td><input class='checkWeek' type='checkbox' " + (this.weeks[i] ? "checked" : "") + " /></td><td>周" + week + "</td><td>" + name + "</td><td>" + (this.weeks[i] ? "<span class='changeTime'>更改班次</span>" : "") + "</td></tr>";
+                }
+                for(i = 0; i < this.data.length; i++){
+                    this.data[i].weekNo = "";
+                }
+                $("#weekdays").html(html);
+                $("#weekdays tr").each(function(i){
+                    $(this).find(".checkWeek").change(function(){
+                        _this.checkWeek(i);
+                    })
+                    $(this).find(".changeTime").click(function(){
+                        _this.changeTime(i);
+                    })
+                })
+            }
+            this.edit = function(n){
+                var html = "<div class='addressBox' style='height:240px'>";
+                html += "<div class='addressBoxData'><div class='addressBoxData_title'><b class='red'>*</b>班次名称</div><input id='timeName' type='text' /></div>";
+                html += "<div class='addressBoxData'><div class='addressBoxData_title'><b class='red'>*</b>上班次数</div><select id='workTime'><option value='1'>每日一次</option><option value='2'>每日二次</option><option value='3'>每日三次</option></select></div>";
+                html += "<div class='addressBoxData'><div class='addressBoxData_title'><b class='red'>*</b>第一次上班</div><input id='time_amStartTime' type='text' /></div>";
+                html += "<div class='addressBoxData'><div class='addressBoxData_title'><b class='red'>*</b>第一次下班</div><input id='time_amEndTime' type='text' /></div>";
+                html += "<div class='addressBoxData'><div class='addressBoxData_title'><b class='red'>*</b>第二次上班</div><input id='time_pmStartTime' type='text' /></div>";
+                html += "<div class='addressBoxData'><div class='addressBoxData_title'><b class='red'>*</b>第二次下班</div><input id='time_pmEndTime' type='text' /></div>";
+                html += "<div style='display:" + (n != undefined && _this.data[n].workTime == 3 ? 'block' : 'none') + "' class='addressBoxData'><div class='addressBoxData_title'>第三次上班</div><input id='time_emStartTime' type='text' /></div>";
+                html += "<div style='display:" + (n != undefined && _this.data[n].workTime == 3 ? 'block' : 'none') + "'  class='addressBoxData'><div class='addressBoxData_title'>第三次下班</div><input id='time_emEndTime' type='text' /></div>";
+                html += "</div>";
+                Y.confirmx(html,function(){
+                    var timeName = $("#timeName").val();
+                    if(timeName == "") {
+                        Y.alertx("名称不能为空");
+                        return false;
+                    }
+                    var workTime = $("#workTime").val();
+                    var amStartTime = $("#time_amStartTime").val();
+                    if(amStartTime == "") {
+                        Y.alertx("第一次开始时间不能为空");
+                        return false;
+                    }
+                    var amEndTime = $("#time_amEndTime").val();
+                    if(amEndTime == "") {
+                        Y.alertx("第一次结束时间不能为空");
+                        return false;
+                    }
+                    var pmStartTime = $("#time_pmStartTime").val();
+                    if(pmStartTime == "") {
+                        Y.alertx("第二次开始时间不能为空");
+                        return false;
+                    }
+                    var pmEndTime = $("#time_pmEndTime").val();
+                    if(pmEndTime == "") {
+                        Y.alertx("第二次结束时间不能为空");
+                        return false;
+                    }
+                    var emStartTime = $("#time_emStartTime").val();
+                    if(emStartTime == "" && workTime == 3) {
+                        Y.alertx("第三次开始时间不能为空");
+                        return false;
+                    }
+                    var emEndTime = $("#time_emEndTime").val();
+                    if(emEndTime == "" && workTime == 3) {
+                        Y.alertx("第三次结束时间不能为空");
+                        return false;
+                    }
+                    if(n == undefined){
+                        _this.data.push({cfgId:_this.cfgId,defaultOpt:0,timeName:timeName,workTime:workTime,amStartTime:amStartTime,amEndTime:amEndTime,pmStartTime:pmStartTime,pmEndTime:pmEndTime,emStartTime:emStartTime,emEndTime:emEndTime,_id:_this.data.length});
+                    }else{
+                        _this.data[n].timeName = timeName;
+                        _this.data[n].workTime = workTime;
+                        _this.data[n].amStartTime = amStartTime;
+                        _this.data[n].amEndTime = amEndTime;
+                        _this.data[n].pmStartTime = pmStartTime;
+                        _this.data[n].pmEndTime = pmEndTime;
+                        _this.data[n].emStartTime = emStartTime;
+                        _this.data[n].emEndTime = emEndTime;
+                        for(var i = 1; i < 8; i++) {
+                            if(_this.weeks[i]){
+                                if(_this.weeks[i]._id == n){
+                                    _this.weeks[i].timeName = timeName;
+                                }
+                            }
+                        }
+                    }
+                    _this.append(true);
+                },{_w:300,_h:350,title:n == undefined ? "新增班次" : "修改班次",initFn:function(){
+                    $("#workTime").change(function(){
+                        if(this.value == 3){
+                            $('#time_emEndTime').parent().show();
+                            $('#time_emStartTime').parent().show();
+                        }else{
+                            $('#time_emEndTime').parent().hide();
+                            $('#time_emStartTime').parent().hide();
+                        }
+                    })
+                    $("#timeName").val(n == undefined ? "" : _this.data[n].timeName);
+                    $("#workTime").val(n == undefined ? "2" : _this.data[n].workTime);
+                    var amStartTimeCalendar = new Y.Calendar($("#time_amStartTime"),{date:n == undefined ? "" : _this.data[n].amStartTime,timeType:[9,00],type:"time"});
+                    $("#time_amStartTime").focus(function(){
+                        var _this = $(this);
+                        amStartTimeCalendar.open(function(d){
+                            _this.val(d);
+                            amStartTimeCalendar.close();
+                        });
+                    })
+                    var amEndTimeCalendar = new Y.Calendar($("#time_amEndTime"),{date:n == undefined ? "" : _this.data[n].amEndTime,timeType:[12,00],type:"time"});
+                    $("#time_amEndTime").focus(function(){
+                        var _this = $(this);
+                        amEndTimeCalendar.open(function(d){
+                            _this.val(d);
+                            amEndTimeCalendar.close();
+                        });
+                    })
+                    var pmStartTimeCalendar = new Y.Calendar($("#time_pmStartTime"),{date:n == undefined ? "" : _this.data[n].pmStartTime,timeType:[13,30],type:"time"});
+                    $("#time_pmStartTime").focus(function(){
+                        var _this = $(this);
+                        pmStartTimeCalendar.open(function(d){
+                            _this.val(d);
+                            pmStartTimeCalendar.close();
+                        });
+                    })
+                    var pmEndTimeCalendar = new Y.Calendar($("#time_pmEndTime"),{date:n == undefined ? "" : _this.data[n].pmEndTime,timeType:[18,00],type:"time"});
+                    $("#time_pmEndTime").focus(function(){
+                        var _this = $(this);
+                        pmEndTimeCalendar.open(function(d){
+                            _this.val(d);
+                            pmEndTimeCalendar.close();
+                        });
+                    })
+                    var emStartTimeCalendar = new Y.Calendar($("#time_emStartTime"),{date:n == undefined ? "" : _this.data[n].emStartTime,timeType:[13,30],type:"time"});
+                    $("#time_emStartTime").focus(function(){
+                        var _this = $(this);
+                        emStartTimeCalendar.open(function(d){
+                            _this.val(d);
+                            emStartTimeCalendar.close();
+                        });
+                    })
+                    var emEndTimeCalendar = new Y.Calendar($("#time_emEndTime"),{date:n == undefined ? "" : _this.data[n].emEndTime,timeType:[18,00],type:"time"});
+                    $("#time_emEndTime").focus(function(){
+                        var _this = $(this);
+                        emEndTimeCalendar.open(function(d){
+                            _this.val(d);
+                            emEndTimeCalendar.close();
+                        });
+                    })
+                }})
+            }
+            this.del = function(n){
+                var arr = [];
+                for(var i = 1; i < 8; i++) {
+                    if(this.weeks[i]){
+                        if(this.weeks[i]._id == n){
+                            this.weeks[i] = undefined;
+                        }
+                    }
+                }
+                for(i = 0; i < this.data.length; i++) if(i != n) arr.push(this.data[i]);
+                this.data = arr;
+                this.append(true);
+            }
+            this.checkWeek = function(n){
+                if(this.weeks[n + 1]){
+                    this.weeks[n + 1] = undefined;
+                }else{
+                    this.weeks[n + 1] = {_id:this.defaultId,timeName:this.data[this.defaultId].timeName};
+                }
+                this.weekAppend();
+            }
+            this.changeTime = function(n){
+                var html = "<div style='text-align:left;margin-left:80px;'>",active = "";
+                for(var i = 0; i < this.data.length; i++){
+                    if(this.data[i]._id == this.weeks[n + 1]._id){
+                        active = {_id:this.data[i]._id,timeName:this.data[i].timeName};
+                        html += "<div><input class='changeTimeRadio' type='radio' checked />" + this.data[i].timeName + "</div>";
+                    }else{
+                        html += "<div><input class='changeTimeRadio' type='radio' />" + this.data[i].timeName + "</div>";
+                    }
+                }
+                html += "</div>";
+                Y.confirmx(html,function(){
+                    _this.weeks[n + 1] = active;
+                    _this.weekAppend();
+                },{_w:300,_h:300,title:"更改班次",initFn:function(){
+                    $(".changeTimeRadio").each(function(i){
+                        $(this).click(function(){
+                            $(".changeTimeRadio").removeAttr("checked");
+                            $(this).attr("checked","checked");
+                            active = {_id:_this.data[i]._id,timeName:_this.data[i].timeName};
+                        })
+                    })
+                }})
+            }
+            this.val = function(s){
+                if(s){
+                    this.data = s;
+                    this.append();
+                }else{
+                    for(var i = 1; i < 8; i ++){
+                        if(this.weeks[i]){
+                            var weekNo = this.data[this.weeks[i]._id].weekNo;
+                            if(!weekNo){
+                                weekNo = i.toString();
+                            }else{
+                                weekNo += "," + i;
+                            }
+                            this.data[this.weeks[i]._id].weekNo = weekNo;
+                        }
+                    }
+                    for(i = 0; i < this.data.length; i++){
+                        this.data[i].amStartTime = "2017-01-01 " + this.data[i].amStartTime + ":00";
+                        this.data[i].amEndTime = "2017-01-01 " + this.data[i].amEndTime + ":00";
+                        this.data[i].pmStartTime = "2017-01-01 " + this.data[i].pmStartTime + ":00";
+                        this.data[i].pmEndTime = "2017-01-01 " + this.data[i].pmEndTime + ":00";
+                        this.data[i].emStartTime = this.data[i].emStartTime ? "2017-01-01 " + this.data[i].emStartTime + ":00" : '';
+                        this.data[i].emEndTime = this.data[i].emEndTime ? "2017-01-01 " + this.data[i].emEndTime + ":00" : '';
+                    }
+                    return this.data;
+                }
+            }
+        }
+        function Addresses(obj){
+            var _this = this;
+            this.data = [];
+            this.append = function(){
+                var html = "";
+                for(var i = 0; i < this.data.length; i++){
+                    html += "<tr align='center'><td>" + this.data[i].address + "</td><td align='center'>" + this.data[i].longitude + "</td><td align='center'>" + this.data[i].latitude + "</td><td align='center'><span class='listEdit bg_dfba49'>修改</span><span class='listDelete bg_f11c1c'>删除</span></td></tr>";
+                }
+                html = !html ? "<tr><td colspan='4' align='center'>暂无地址...</td></tr>" : html;
+                obj.html(html);
+                $(".listEdit").click(function(){
+                    var index = $(this).parent().parent().prevAll().size();
+                    _this.edit(index);
+                })
+                $(".listDelete").click(function(){
+                    var index = $(this).parent().parent().prevAll().size();
+                    Y.confirmx("确定要删除本地址？",function(){
+                        _this.del(index);
+                    })
+                })
+            }
+            this.del = function(n){
+                var arr = [];
+                for(var i = 0; i < this.data.length; i++) if(i != n) arr.push(this.data[i]);
+                this.data = arr;
+                this.append();
+            }
+            this.edit = function(n){
+                var data = n == undefined ? {longitude:'',latitude:'',address:''} : this.data[n];
+                Y.confirmx('<input style="position:absolute;z-index:1;left:16px;top:40px;" id="pickerInput" placeholder="输入关键字选取地点" /><div id="positionPicker" style="height:415px;"></div>',function(ret){
+                    if(!data.address) {
+                        Y.alertx("地点不能为空");
+                        return false;
+                    }
+                    if(n == undefined){
+                        _this.data.push(data);
+                    }else{
+                        _this.data[n] = data;
+                    }
+                    _this.append();
+                },{
+                    _w:700,
+                    _h:500,
+                    title:'设置考勤地点',
+                    initFn:function(){
+                        AMapUI.loadUI(['misc/PositionPicker','misc/PoiPicker'], function(PositionPicker,PoiPicker) {
+                            var map = new AMap.Map('positionPicker',{
+                                zoom:16
+                            })
+                            for(var i = 0; i < _this.data.length; i ++){
+                                (function(i){
+                                    if(n != i){i
+                                        var marker = new AMap.Marker({
+                                            position: [_this.data[i].longitude,_this.data[i].latitude],
+                                            map:map,
+                                            title:_this.data[i].address
+                                        });
+                                        marker.on('click',function(e){
+                                            var infoWindow = new AMap.InfoWindow({
+                                                content: _this.data[i].address  //使用默认信息窗体框样式，显示信息内容
+                                            });
+                                            infoWindow.open(map, [_this.data[i].longitude,_this.data[i].latitude]);
+                                        })
+                                    }
+                                })(i)
+                            }
+                            var positionPicker = new PositionPicker({
+                                mode:'dragMap',//设定为拖拽地图模式，可选'dragMap'、'dragMarker'，默认为'dragMap'
+                                map:map//依赖地图对象
+                            });
+                            var poiPicker = new PoiPicker({
+                                input: 'pickerInput' //输入框id
+                            });
+                            //监听poi选中信息
+                            poiPicker.on('poiPicked', function(poiResult) {
+                                //用户选中的poi点信息
+                                $('#pickerInput').val(poiResult.item.name);
+                                positionPicker.start(poiResult.item.location);
+                            });
+                            positionPicker.on('success', function(positionResult) {
+                                data.longitude = positionResult.position.lng;
+                                data.latitude = positionResult.position.lat;
+                                data.address = positionResult.address;
+                            });
+                            positionPicker.on('fail', function(positionResult) {
+                                log(positionResult);
+                            });
+                            positionPicker.start(n != undefined ? new AMap.LngLat(data.longitude,data.latitude) : '');
+                        });
+                    }
+                })
+            }
+            this.val = function(s){
+                if(!s){
+                    return this.data;
+                }else{
+                    this.data = s;
+                    this.append();
+                }
+            }
+        }
+        //获取
+        Y.ajax(eschoolIP + "/api/attn/v0.2/cfg",function(res){
+            if(res.cfgId){
+                for(var key in from){
+                    if(key != "cfgId"){
+                        from[key].val(res[key]);
+                    }else{
+                        from.cfgId = res.cfgId;
+                    }
+                }
+            }
+        })
+        $("#submit").click(function(){
+            var data = {};//上传参数
+            for(var k in from){
+                data[k] = from[k].val ? from[k].val() : from[k];//封装参数
+            }
+            Y.ajax(eschoolIP + "/api/attn/v0.2/cfg",function(res){
+                var msg = res && res.result ? "考勤设置成功!" : ("考勤设置失败," + res.errorMsg);
+                Y.alertx(msg,function(){
+                    Y.refresh();
+                })
+            },{data:data,meth:"POST",dataJson:false})
+        })
+    })()
+</script>

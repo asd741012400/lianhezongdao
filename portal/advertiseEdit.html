@@ -1,0 +1,145 @@
+<form class="form">
+    <div class="form_title"><b>专题编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>标题</div>
+        <span class="data_error">标题不能为空</span><input class="input" id="data-title" type="text" placeholder="请填写标题"/>
+    </div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>编辑内容：<input type="checkbox" id="useExtUrl" />使用超链接（超链接和内容编辑二选一）</div>
+        <div id="boxExtUrl"><div class="data_title">超链接</div><input class="input" id="data-extUrl" type="text"/></div>
+        <div id="boxContent"><div class="data_title">内容<span style="color: #ccc; margin-left: 10px;">编辑时请进行预览查看实际效果</span></div>
+        <div type="richEdit" class="richEdit" id="data-content"></div></div>
+    </div>
+    <div class="data width50">
+        <div class="data_title">状态</div>
+        <span id="data-status" type="radio"><input type="radio" value="1" checked/>启用<input type="radio" value="2"/>停用 </span>
+    </div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>轮播区域图</div>
+        <div id="data-photoUrl" type="img"></div><span style="color: #ccc">尺寸:750x374</span>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="preview" value="预览" class="bg_34a1e0"/>
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    #data-photoUrl{
+        width: 750px;
+        height: 374px;
+        overflow: hidden;
+    }
+    #data-photoUrl img{
+        width: 750px;
+    }
+</style>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        Y.qiNiouKey(function(upladArgs){
+            var fromConfig = {
+                adId : Y.getUrlParam("id"),
+                title : {
+                    o:$("#data-title"),
+                    e:"blur",
+                    f:function(v){
+                        if (v == "") {
+                            return [false,"标题不能为空"];
+                        } else {
+                            return [true];
+                        }
+                    }
+                },
+                status : {o:new Y.Radio($("#data-status input"))},
+                photoUrl : {
+                    o:new Y.Img($("#data-photoUrl"), "<div style='cursor:pointer; height:374px; line-height:374px;text-align:center; color:#ccc; background:#F9F9F9;'>本地上传</div>",{width:750,height:374},upladArgs),
+                    f:function(v){
+                        if (v == "") {
+                            return [false,"轮播区域图不能为空",true];
+                        } else {
+                            return [true];
+                        }
+                    }
+                },
+                content : {
+                    o:new Y.RichEdit($("#data-content"),true,upladArgs),
+                    f:function(v){
+                        if($("#useExtUrl")[0].checked){
+                            if($("#data-extUrl").val() == ""){
+                                return [false,"超链接不能为空",true];
+                            }else{
+                                return [true];
+                            }
+                        }else{
+                            if(v == ""){
+                                return [false,"内容不能为空",true];
+                            }else{
+                                return [true];
+                            }
+                        }
+                    }
+                },
+                extUrl : {
+                    o:$("#data-extUrl"),
+                    v:function(v){
+                        if(v){
+                            $("#boxContent").hide();
+                            $("#boxExtUrl").show();
+                            $("#useExtUrl")[0].checked = true;
+                        }else{
+                            $("#boxContent").show();
+                            $("#boxExtUrl").hide();
+                            $("#useExtUrl")[0].checked = false;
+                        }
+                    }
+                }
+            }
+            $("#useExtUrl").click(function(){
+                if(this.checked){
+                    $("#boxContent").hide();
+                    $("#boxExtUrl").show();
+                }else{
+                    $("#boxContent").show();
+                    $("#boxExtUrl").hide();
+                }
+            })
+            var from = new Y.From(fromConfig,"adId",{getURL:eschoolIP + "/api/ad/v0.1/advertisements/{adId}/detail",postURL:eschoolIP + "/api/ad/v0.1/advertisements",putURL:eschoolIP + "/api/ad/v0.1/advertisements/{adId}",title:"提交专题信息",dataJson:false});
+            //提交
+            $("#submit").click(function(){
+                from.submit($(this));
+            })
+            //取消
+            $("#cancel").click(function(){
+                Y.back(-1);
+            });
+            
+            //预览
+            $("#preview").click(function(){
+                Y.creatCover({id:"preview_cover",obj:window,zIndex:99998,opacity:0.8,background:"#000",position:"fixed"});
+                $("body").append("<img id='preview_close' src='images/preview_close.png' style='position:absolute; z-index:99999; left:50%;margin-left:230px; top:100px;' />");
+                $("body").append("<div id='preview_box' style='width:459px;height:884px; background:url(\"images/iphone6.png\") no-repeat;position:absolute;left:50%;margin-left:-229px;top:10px;z-index:99999'><iframe id='preview_iframe' src='modules/news/news.html' width='377' height='664' style='margin-left:43px; margin-top:105px;border-radius:2px;' frameborder='no' border='0' marginwidth='0' marginheight='0'></iframe></div>");
+                (function(){
+                    if($("#preview_iframe")[0].contentWindow.document.getElementById("title")){
+                        if($("#useExtUrl")[0].checked){
+                            $("#preview_iframe")[0].contentWindow.location = $("#data-extUrl").val();
+                        }else{
+                            $("#preview_iframe")[0].contentWindow.document.getElementById("title").innerHTML = $("#data-title").val();
+                            var time = new Date();
+                            $("#preview_iframe")[0].contentWindow.document.getElementById("time").innerHTML = time.getFullYear() + "-" + (time.getMonth() + 1) + "-" + time.getDate();
+                            $("#preview_iframe")[0].contentWindow.document.getElementById("content").innerHTML = fromConfig.content.o.val();
+                            $("#preview_iframe")[0].contentWindow.showDownLoad(true);
+                        }
+                    }else{
+                        setTimeout(arguments.callee,200);
+                    }
+                })()
+                $("#preview_cover").click(function(){
+                    $(this).remove();
+                    $("#preview_box,#preview_close").remove();
+                })
+            })
+        })
+    })()
+</script>

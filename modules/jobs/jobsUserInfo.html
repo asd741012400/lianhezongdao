@@ -1,0 +1,174 @@
+<div class="form">
+	<div id="print">
+		<div class="form_title" style="text-align: center;line-height: 40px;font-size: 24px;border:none;"><b><font id="_schoolName"></font>个人信息</b></div>
+		<div class="data width50">
+			<div class="data_title">姓名</div>
+			<div class="input" id="data-stuName"></div>
+		</div>
+		<div class="data width50">
+			<div class="data_title">性别</div>
+			<div class="input" id="data-sex"></div>
+		</div>
+		<div class="data width50">
+			<div class="data_title">民族</div>
+			<div class="input" id="data-nation"></div>
+		</div>
+		<div class="data width50">
+			<div class="data_title">出生日期</div>
+			<div class="input" id="data-birthday"></div>
+		</div>
+		<div class="data width50">
+			<div class="data_title">专业</div>
+			<div class="input" id="data-majorName"></div>
+		</div>
+		<div class="data width50">
+			<div class="data_title">联系电话</div>
+			<div class="input" id="data-phone"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">籍贯</div>
+			<div class="input" id="data-familyAddress"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">申请理由</div>
+			<div class="input" id="data-reason"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">个人简介</div>
+			<div class="input" id="data-resume"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">附件</div>
+			<div class="input noborder">
+				<a id="data-accessoryUrl" target="_blank" href=""></a>
+			</div>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<div class="formBtns" style="margin-left: 100px;margin-top: 20px;">
+		<input type="button" id="cancel" value="返回" class="bg_00b7ee"/>
+	</div>
+</div>
+<style type="text/css">
+	.data{
+		min-height: 30px;
+		margin: 10px 0px;
+		padding: 0px;
+	}
+	.data_title{
+		width: 90px;
+		height: 30px;
+		overflow: hidden;
+		position: absolute;
+		font-weight: bold;
+	}
+	.input{
+		min-height: 29px;
+		border:none;
+		border-bottom: 1px solid #d9d4d4;
+		margin-left: 90px;
+		line-height: 30px;
+		height: auto;
+		margin-right: 20px;
+		color: #666;
+	}
+	#approvalNodes .input{
+		border: none;
+	}
+	#avatar{
+		width: 100px;
+		height: 100px;
+		border-radius: 50px;
+		margin-left: 205px;
+	}
+	.form_line{
+		padding-top:10px;
+		margin-bottom:10px;
+	}
+	#printBtn{
+		position: absolute;
+		right: 20px;
+		background: #f2fafd;
+		color: #00b7ee;
+		border: 1px solid #e5e5e5;
+		padding:3px 10px 3px 30px;
+		cursor: pointer;
+		top:20px;
+	}
+	#printBtn img{
+		position: absolute;
+		margin-top: 2px;
+		margin-left: -20px;
+	}
+	#print{
+		background: #f8f8f8;
+		border:1px solid #d9dbdc;
+		margin:10px;
+		padding: 20px;
+	}
+	.noborder{
+		border:none;
+	}
+</style>
+<style type="text/css" media=print>
+	.header,.left,.footer,#nav,#printBtn,.formBtns{
+		display: none;
+	}
+	#print{
+		position:fixed;
+		z-index: 99999999;
+		left: 0px;
+		top: 0px;
+		width: 100%;
+		border: none;
+		margin:0px;
+		padding: 10px 0px;
+		background: #fff;
+	}
+	.accessory_download{
+		display: none;
+	}
+</style>
+<script>
+	(function() {
+		var jobId = Y.getUrlParam("jobId")
+		//绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+		var from = {
+			accountId : Y.getUrlParam("accountId"),
+			stuName: $("#data-stuName"),
+			sex: $("#data-sex"),
+			nation: $("#data-nation"),
+			majorName: $("#data-majorName"),
+			birthday: $("#data-birthday"),
+			phone: $("#data-phone"),
+			familyAddress: $("#data-familyAddress"),
+			reason: $("#data-reason"),
+			resume: $("#data-resume")
+		};
+
+		//修改的时候根据id加载数据
+		if (from.accountId) {
+			Y.ajax(eschoolIP + "/api/jobs/getstudentmessage/" + from.accountId + "?jobId=" + jobId ,function(res){
+				if (res.accessoryUrl) {
+					$("#data-accessoryUrl").html('点击下载简历').attr('href',res.accessoryUrl);
+				};
+				$("#_schoolName").html(res.stuName);
+				for (var key in from) {
+                    if (res[key] != undefined && key != "id") {
+                        var value = res[key];
+                        if(key == "sex") {
+                        	var sexN = value == '0' ? '女' : '男';
+                        	from[key].html(sexN);
+                        }else{
+                        	from[key].html(value);
+                        }
+                    }
+                }
+			},{meth:'GET'})
+		}
+		//取消
+		$("#cancel").click(function(){
+			Y.back(-1);
+		});
+	})()
+</script>

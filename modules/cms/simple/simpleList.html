@@ -1,0 +1,125 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="statusBtns" id="statusBtns"></div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    .searchBox{
+        display: none;
+    }
+    .statusBtns{
+        margin-bottom: 10px;
+        border-bottom: 1px solid #eeeeee;
+        padding: 20px 0px;
+        text-align: left;
+    }
+    .statusBtn{
+        padding:10px 30px;
+        border: 1px solid #e4e4e4;
+        background: #f8f8f8;
+        color:#666666;
+        cursor: pointer;
+        border-left:none;
+    }
+    .statusBtn.active{
+        border: 1px solid #00b7ee;
+        background: #00b7ee;
+        color:#ffffff;
+    }
+    .statusBtn:first-child{
+        border-right: none;
+        border-radius: 5px 0px 0px 5px;
+        border-left: 1px solid #e4e4e4;
+    }
+    .statusBtn:last-child{
+        border-left: none;
+        border-radius: 0px 5px 5px 0px;
+    }
+    .orderBtn{
+        cursor: pointer;
+        margin-right: 10px;
+        padding:2px 10px;
+        border-radius: 2px;
+        display: inline-block;
+        margin-bottom: 8px;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        Y.config(function(){
+            var typeEmun = {
+                '1':'首页轮播',
+                '2':'友情链接',
+                '3':'首页入口'
+            }
+            var linkType = Y.configs.imgEditConfig.linkType || {};
+            if(linkType) Y.equal(typeEmun,linkType);
+            var btns = '',type = Y.Storage.get('simpleLinkActive');
+            for(var key in typeEmun) {
+                if(!type) type = key;
+                if(!typeEmun[key]) continue;
+                btns += '<span key="' + key + '" class="statusBtn">' + typeEmun[key] + '</span>';
+            }
+            $('#statusBtns').html(btns);
+            $('.statusBtn').click(function(){
+                type = $(this).attr('key');
+                changeType();
+            })
+            var option = {pageSize: "cmsLinkList", pageNum: 1};
+            var config = [
+                {CH: "名称", EN: "title"},
+                {CH: "图片", EN: "photoUrl",htmlFormat:'<img src="{photoUrl}" style="max-height:100px;" />'},
+                {CH: "地址", EN: "link"},
+                {CH: "类型", EN: "type",OptionExcel:typeEmun,Option:typeEmun},
+                {CH: "备注", EN: "custom"},
+                {CH: "状态", EN: "status",OptionExcel:{'1':'启用','0':'停用'},Option:{'1':'启用','0':'停用'}},
+                {CH: "权重", EN: "sort"},
+                {CH: "发布时间", EN: "createTime"}
+            ];
+            var list = '';
+            function changeType(){
+                option.type = type;
+                Y.Storage.set('simpleLinkActive',type);
+                $('.statusBtn.active').removeClass('active');
+                $('.statusBtn[key="' + type + '"]').addClass('active');
+                list = new Y.List(eschoolIP + "/api/cms/mgt/link/{type}/v0.1/list", option, config);
+                list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+                list.checkBtn = true;
+                list.listNumTitle = '';
+                list.load(function () {
+                    $("tr").each(function(i){
+                        if(i > 0 && list.data.rows.length > 0){
+                            var data = list.data.rows[i - 1];
+                            //修改
+                            $(this).find(".listEdit").click(function(){
+                                Y.open({url:"modules/cms/simple/simpleEdit.html",title:"编辑",data:{id:data.id,type:data.type}});
+                            })
+                            //删除
+                            $(this).find(".listDelete").click(function(){
+                                list.deleteFn([data],eschoolIP + "/api/cms/mgt/link/2/v0.1/","id","链接",{vKey:"title",obj:$(this)});
+                            })
+                        }
+                    })
+                });
+            }
+            changeType();
+            //批量删除
+            $("#deleteBtn").click(function(){
+                list.deleteFn(list.getChecked(),eschoolIP + "/api/cms/mgt/link/2/v0.1/","id","链接",{vKey:"title"});
+            })
+            //新增
+            $("#addBtn").click(function(){
+                Y.open({url:"modules/cms/simple/simpleEdit.html",title:"新增链接",data:{type:type}});
+            });
+        })
+    })()
+</script>

@@ -1,0 +1,132 @@
+<form class="form">
+    <div class="form_title"> <b>实习岗位信息编辑</b>
+        <span class="red">(*为必填项)</span>
+    </div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>企业</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-companyId" type="text" placeholder="请选择企业" />
+        </div>
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>岗位名称</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-postName" type="text" placeholder="请填写岗位名称"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">招聘人数</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-number" type="text" placeholder="请填写招聘人数"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">工资</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-postPay" type="text" placeholder="请填写工资"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">开始时间</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-internshipStartTime" type="text" placeholder="请填写开始时间"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">结束时间</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-internshipEndTime" type="text" placeholder="请填写结束时间"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title">工作内容</div>
+            <span class="data_error"></span>
+            <textarea class="input" id="data-jobContent" placeholder="请填写工作内容"></textarea>
+        </div>
+        <div class="data width100">
+            <div class="data_title">工作福利</div>
+            <span class="data_error"></span>
+            <textarea class="input" id="data-jobWelfare" placeholder="请填写工作福利"></textarea>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            id : Y.getUrlParam("id"),
+            companyId:{
+                o:new Y.OnlySelectBox($("#data-companyId"),{vKey:"id",sKey:"name",SelectBox:{showNum:false,paramet:{key:"name"},url:eschoolIP + "/api/company/v0.1/list",dataString:"<div class='autoList' vaule='{id}'><span>{name}</span></div>"}}),
+                s:"companyName",
+                _o:$("#data-companyId"),
+                f:{NotNull:'企业不能为空'}
+            },
+            postName : {
+                o:$("#data-postName"),
+                e:"blur",
+                f:{NotNull:'岗位名称不能为空'}
+            },
+            number : {
+                o:$("#data-number"),
+                e:"blur",
+                f:{PositiveInt:'招聘人数必须大于0'}
+            },
+            postPay : {o:$("#data-postPay")},
+            internshipStartTime : {
+                o:$("#data-internshipStartTime"),
+                i:function(){
+                    var calendar = new Y.Calendar($("#data-internshipStartTime"),{timeType:[12,00,00]});
+                    $("#data-internshipStartTime").focus(function(){
+                        var _this = $(this);
+                        _this.prev().hide();
+                        calendar.open(function(d){
+                            _this.val(d);
+                            calendar.close();
+                        });
+                    })
+                },
+                f:{NotNull:'开始时间不能为空'}
+            },
+            internshipEndTime : {
+                o:$("#data-internshipEndTime"),
+                i:function(){
+                    var calendar = new Y.Calendar($("#data-internshipEndTime"),{timeType:[12,00,00]});
+                    $("#data-internshipEndTime").focus(function(){
+                        var _this = $(this);
+                        _this.prev().hide();
+                        calendar.open(function(d){
+                            _this.val(d);
+                            calendar.close();
+                        });
+                    })
+                },
+                f:function(v){
+                    if(!v){
+                        return [false,'结束时间不能为空'];
+                    }else{
+                        var sd = new Date();
+                        sd.parse($("#data-internshipStartTime").val());
+                        var ed = new Date();
+                        ed.parse(v);
+                        if(sd > ed){
+                            return [false,'结束时间必须大于开始时间'];
+                        }else{
+                            return [true];
+                        }
+                    }
+                }
+            },
+            jobContent:{o:$("#data-jobContent")},
+            jobWelfare:{o:$("#data-jobWelfare")}
+        }
+        var from = new Y.From(fromConfig,"id",{data:Y.getUrlParam("data"),getURL:'',postURL:eschoolIP + "/api/company/v0.1/post",putURL:eschoolIP + "/api/company/v0.1/post",title:"提交岗位信息",dataJson:false});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

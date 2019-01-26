@@ -1,0 +1,294 @@
+<div class="form">
+    <h1>床位分配统计</h1>
+    <div class="info-body">
+        <div class="bed-head-wrap">
+            <div class="float-left bed-head-left">
+                <i class="floor-i"></i>
+                <div class="bed-head-left-meg">
+                    <span class="bed-head-floor"></span>
+                    <span class="bed-head-sex"></span>
+                </div>
+            </div>
+            <div class="float-left bed-head-right">
+                <div class="float-left bed-head-right-left">
+                    <div class="head-number">
+                    </div>
+                    <div class="tips">
+                        温馨提示：点击寝室可查看详细信息
+                        <span class="square-75cd1f"></span>表示床位已有人
+                        <span class="square-cfcfcf"></span>为剩余床位
+                    </div>
+                </div>
+                <input class="info-btn info-btn_bg_00B7EE align-right" type="button" value="返回宿舍楼" />
+            </div>
+        </div>
+    </div>
+</div>
+<style type="text/css">
+    .float-left{
+        float:left;
+    }
+    h1{
+        font-size:16px;
+        font-weight:normal;
+        padding:20px 30px;
+    }
+    .info-body{
+        padding:0 20px;
+    }
+    .bed-head-wrap{
+        border:1px solid #e5e5e5;
+        clear:both;
+        overflow:hidden;
+    }
+    .bed-head-left{
+        background:#f8f8f8;
+        padding:15px;
+    }
+    .floor-i{
+        width:70px;
+        height:54px;
+        display:inline-block;
+        vertical-align: middle;
+        background:url("images/floor_sp.png");
+    }
+    .floor-i-g{
+        background-position:0 -58px;
+    }
+    .bed-head-left-meg{
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 9px;
+    }
+    .bed-head-left-meg span{
+        display:block;
+    }
+    .bed-head-floor{
+        font-size:20px;
+        margin-bottom:3px;
+        max-width:190px;
+    }
+    .bed-head-right{
+        width:calc(100% - 306px);
+    }
+    .bed-head-right-left{
+        margin:28px 0 0 40px;
+    }
+    .info-btn{
+        margin:20px 15px 0 0;
+        border:none;
+    }
+    .head-number span{
+        font-size:16px;
+        margin-right:5px;
+    }
+    .tips{
+        font-size:12px;
+        color:#999;
+        margin-top:4px;
+    }
+    .tips span{
+        width:10px;
+        height:10px;
+        display:inline-block;
+        margin-right:5px;
+    }
+    .square-cfcfcf{
+        background:#cfcfcf;
+    }
+    .square-75cd1f{
+        background:#75cd1f;
+    }
+    .floor-list{
+        border:1px solid #e5e5e5;
+        margin-top:30px;
+    }
+    .floor-list-top{
+        border-bottom:1px solid #e5e5e5;
+        height:40px;
+        line-height:40px;
+    }
+    .floor-list-top span{
+        font-size:16px;
+        font-weight:bold;
+        margin-left:40px;
+    }
+    .dorm-list-wrap{
+        padding:8px 15px;
+    }
+    .dorm-list{
+        width:158px;
+        border:1px solid #dcdcdc;
+        float:left;
+        margin:7px 5px;
+    }
+    .dorm-number{
+        text-align:center;
+        height:34px;
+        line-height:34px;
+        border-bottom:1px solid #dcdcdc;
+        font-size:16px;
+    }
+    .dorm-bottom{
+        background:#eee;
+    }
+    .dorm-bottom span{
+        display:inline-block;
+        width:50%;
+        text-align:center;
+        height:32px;
+        line-height:32px;
+        cursor:pointer;
+    }
+    .i-bottom-p{
+        background:url("images/icon_user_d0.png") no-repeat;
+        background-position:7px 9px;
+    }
+    .i-bottom-d{
+        background:url("images/icon_delete.png") no-repeat;
+        background-position:7px 8px;
+    }
+    .dorm-main{
+        padding:8px 13px 5px 13px;
+    }
+    .dorm-main > span{
+        width:33px;
+        height: 21px;
+        display:inline-block;
+        background:url('images/dorm_sp.png');
+        background-position:-34px -3px;
+        margin: 4px;
+    }
+    .dorm-main .bed-yz{
+        background-position:-34px 21px;
+        cursor:pointer;
+        position:relative;
+    }
+    .bed-yz-de{
+        display:none;
+        position:absolute;
+        top:-99px;
+        left:-48px;
+        background:#fff;
+        z-index:9;
+        width:190px;
+        padding:10px;
+        box-shadow:0px 1px 6px #a5a5a5;
+    }
+    .bed-yz-de span{
+        display:block;
+        color:#999;
+    }
+    .bed-yz-de .bed-yz-de-name{
+        font-size:16px;
+        color:#666;
+    }
+    .dialog-bottom{
+        position:absolute;
+        width:22px;
+        height:26px;
+        background:url("images/dialog_bottom.png");
+        bottom:-25px;
+        left:49px;
+    }
+</style>
+<script>
+(function() {
+    var buildingName = Y.getUrlParam("name");
+    getBuild();
+    getFloors();
+    //楼栋信息
+    function getBuild(){
+        Y.ajax(ucIP+"/api/uc/v0.1/dormExtend/building",function(res){
+            var data = res.data;
+            var sex = "男";
+            var spanList = "<span>总楼层："+data.sFloorNum+"层</span><span>总寝室数："+data.sRoomNum+"间</span><span>总床位数："+data.sBedNum+"</span><span>已经住人数："+data.yzNum+"人</span><span>剩余床位："+(data.sBedNum-data.yzNum)+"床</span>"
+            $(".head-number").html(spanList);
+            $(".bed-head-floor").html("学生宿舍"+data.buildingName);
+            if (data.type=='0') {
+                $(".floor-i").addClass('floor-i-g');
+                sex = "女";
+            };
+            $(".bed-head-sex").html("【"+sex+"生宿舍】");
+        },{meth:'POST',data:{buildingName:buildingName}})
+    }
+    //楼层信息
+    function getFloors(){
+        Y.ajax(ucIP+"/api/uc/v0.1/dormExtend/building/floors",function(res){
+            initList(res)
+        },{meth:'POST',data:{buildingName:buildingName}})
+    }
+
+    //返回
+    $(".info-btn").click(function(){
+        Y.open({url:"modules/dormStatistics/dormStatisticsList.html"});
+    })
+    function initList(res){
+        var floorList = "";
+        for (var i = 0; i < res.data.length; i++) {
+            var item = res.data[i];
+            var roomList = "";
+            for (var j = 0; j < item.rooms.length; j++) {
+                var items = item.rooms[j];
+                var bedList = "";
+                for (var z = 0; z < items.beds.length; z++) {
+                    var bedItem = items.beds[z];
+                    if (bedItem.bedNum) {
+                        if (bedItem.noStu) {
+                            bedList += '<span></span>'
+                        }else{
+                            bedList += '<span class="bed-yz"><div class="bed-yz-de"><i class="dialog-bottom"></i><span class="bed-yz-de-name">'+(bedItem.studentName||"")+'</span><span>'+(bedItem.className||"")+'</span><span>'+(bedItem.bedAlias||"")+'</span></div></span>'
+                        };
+                    };
+                };
+                roomList += '<div class="dorm-list">'
+                                +'<div class="dorm-number">'+items.no+'</div>'
+                                +'<div class="dorm-main">'
+                                    + bedList
+                                +'</div>'
+                                +'<div class="dorm-bottom">'
+                                    +'<span class="i-bottom-p" data="'+items.id+'">分配</span><span class="i-bottom-d">清空</span>'
+                                +'</div>'
+                           +'</div>'
+            };
+            floorList += '<div class="floor-list">'
+                            +'<div class="floor-list-top">'
+                                +'<span>'+item.floor+'楼</span><span>总寝室数：'+item.sRoomNum+'</span><span>总床位数：'+item.sBedNum+'</span><span>已住人数：'+item.yzNum+'</span><span>剩余床位：'+(item.sBedNum-item.yzNum)+'床</span>'
+                            +'</div>'
+                            +'<div class="dorm-list-wrap">'
+                                + roomList
+                                + '<div style="clear:both"></div>'
+                            +'</div>'
+                        +'</div>'
+
+        };
+        $(".floor-list").remove();
+        $(".bed-head-wrap").after(floorList);
+        //显示学生
+        $(".bed-yz").hover(function() {
+            $(this).children().stop().fadeIn(200);
+        }, function() {
+            $(this).children().stop().fadeOut(200);
+        });
+        //分配
+        $(".i-bottom-p").click(function(){
+            Y.open({url:"modules/dorm/dormEdit.html",title:"编辑宿舍信息",data:{id:$(this).attr("data")}});
+        })
+        //清空
+        $(".i-bottom-d").click(function(){
+            var roomId = $(this).siblings('.i-bottom-p').attr("data");
+            Y.confirmx("是否确定清空该房间？",function(){
+                Y.ajax(ucIP+"/api/uc/v0.1/dormExtend/room/clear",function(res){
+                    if (res.success) {
+                        Y.alertx(res.msg,"",{toast:true,height:70})
+                        getBuild();
+                        getFloors();
+                    }else{
+                        Y.alertx(res.msg,"",{toast:true,height:70})
+                    };
+                },{meth:'POST',data:{roomId:roomId}})
+            })
+        })
+    }
+})()
+</script>

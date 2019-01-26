@@ -1,0 +1,90 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="checkStatus" class="input" type="text" placeholder="请选择审核状态"/>
+            <input id="keyword" class="input" type="text" placeholder="标题"/>
+            <input id="channelId" class="input" type="text" placeholder="所属菜单"/>
+            <input id="topicId" class="input" type="text" placeholder="所属专题"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <!-- <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/> -->
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "cmsContentCheckList", pageNum: 1,examine:true};
+        var config = [
+            {CH: "标题", EN: "title"},
+            {CH: "所属菜单", EN: "channelName"},
+            {CH: "所属专题", EN: "topicName"},
+            {CH: "发布组织", EN: "creator"},
+            {CH: "发布人", EN: "publisherName"},
+            {CH: "发布时间", EN: "createTime"},
+            {CH: "审核状态", EN: "checkStatus",Option:{'1':'<font style="color:#00b7ee;">待审核</font>','2':'<font style="color:#a5b1a7;">审核通过</font>','3':'<font style="color:#eb4923;">审核驳回</font>'},OptionExcel:{'1':'待审核','2':'审核通过','3':'驳回'}}
+        ];
+        var list = new Y.List(eschoolIP + "/api/cms/mgt/content/v0.1/list", option, config);
+        list.btns = " ";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    if(data.checkStatus != 2 && data.checkStatus != 3){
+                        $(this).find('.tdBtns').html('<span class=\"listCheck bg_dfba49\">审核</span>');
+                    }
+                    //审核
+                    $(this).find(".listCheck").click(function(){
+                        Y.open({url:"modules/cms/channel/contentInfo.html",title:"审核内容",data:{id:data.id,check:true}});
+                    })
+                    //查看
+                    /*$(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/cms/channel/contentInfo.html",title:"查看内容",data:{id:data.id}});
+                    })*/
+                    $(this).find('.tdBtns').append('<span class=\"listEdit bg_dfba49\">修改</span>');
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/cms/channel/contentEdit.html",title:"编辑内容",data:{id:data.id}});
+                    })
+                    //删除
+                    $(this).find('.tdBtns').append('<span class=\"listDelete bg_f11c1c\">删除</span>');
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/cms/mgt/content/v0.1/","id","内容",{vKey:"title",obj:$(this)});
+                    })
+                    data.schoolId = schoolId;
+                    //分享新浪微博
+                    $(this).find('.tdBtns').append(('<span class="listDelete" style="background: url(images/i_13.png) center center no-repeat;background-size:18px;"><a target="_blank" href="http://v.t.sina.com.cn/share/share.php?title={title}&url=' + eschoolIP + '/api/cms/content/v0.1/sina/{schoolId}/{id}/redirect&content=utf-8&sourceUrl=' + eschoolIP + '/api/cms/content/v0.1/sina/{schoolId}/{id}/redirect&pic={photoUrl}" style="opacity:0;">分享</a></span>')._eval(data));
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/cms/mgt/content/v0.1/","id","内容",{vKey:"title"});
+        })
+        //新增
+        /*$("#addBtn").click(function(){
+            Y.open({url:"modules/cms/channel/contentEdit.html",title:"新增内容"});
+        });*/
+        $("#downLoadExcel").click(function(){
+            list.toExcel("内容");
+        })
+        var checkStatus = new Y.Select($('#checkStatus'),['全部','待审核','审核通过','审核驳回']);
+        var channelId = new Y.OnlySelectBox($("#channelId"),{vKey:"id",sKey:"name",SelectBox:{showNum:false,paramet:{pageSize:100,key:'name'},url:eschoolIP + "/api/cms/mgt/channel/v0.1/list",dataString:"<div class='autoList' vaule='{id}'><span>{name}</span></div>"}})
+        var topicId = new Y.OnlySelectBox($("#topicId"),{vKey:"id",sKey:"name",SelectBox:{showNum:false,paramet:{pageSize:100},url:eschoolIP + "/api/cms/mgt/topic/v0.1/list",dataString:"<div class='autoList' vaule='{id}'><span>{name}</span></div>"}})
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            checkStatus:checkStatus,
+            channelId:channelId,
+            topicId:topicId,
+            keyword:$('#keyword')
+        });
+    })()
+</script>

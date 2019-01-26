@@ -1,0 +1,180 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="classId" type="text" placeholder="选择班级"/>
+            <input id="keyword" class="input" type="text" placeholder="班级/姓名/学号"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/><span id="advancedSearch_btn">高级查询<img src="images/gjcx.png" /></span>
+        </div>
+        <div id="diyBtn">
+            <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        </div>
+        <div class="clear"></div>
+        <div id="advancedSearch_box">
+            <div class="advancedSearch_data"><input id="name" class="input" type="text" placeholder="姓名"/></div>
+            <div class="advancedSearch_data"><input id="phone" class="input" type="text" placeholder="手机号"/></div>
+            <div class="advancedSearch_data"><input id="cardNo" class="input" type="text" placeholder="身份证号"/></div>
+            <div class="advancedSearch_data"><input id="dormNo" class="input" type="text" placeholder="宿舍号"/></div>
+            <div class="advancedSearch_data"><input id="className" class="input" type="text" placeholder="班级名称"/></div>
+            <div class="advancedSearch_data"><input id="stuNo" class="input" type="text" placeholder="学号"/></div>
+            <div class="advancedSearch_data"><input id="majorName" class="input" type="text" placeholder="专业名称"/></div>
+            <div class="advancedSearch_data"><input id="rxnd" class="input" type="text" placeholder="入学年份"/></div>
+            <div class="advancedSearch_data"><select id="poor" class="input"><option value="">选择是否扶贫</option><option value="1">是</option><option value="0">否</option></select></div>
+            <div class="advancedSearch_data"><select id="hang" class="input"><option value="">选择是否挂读</option><option value="1">是</option><option value="0">否</option></select></div>
+            <div class="clear"></div>
+            <div class="advancedSearch_btn"><input type="button" value="搜索" id="advancedSearchBtn" class="bg_00b7ee"/><input type="button" value="取消" id="advancedSearchCancle" class="bg_ffffff"/></div>
+        </div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var Btns = JSON.parse(Y.Cookie.Get('btns')),
+        roleId = Y.User.Get('groupId'),
+        listShow = false,
+        listLook = false,
+        rxnd = "",
+        buttonId = "";
+
+        var accountType = Y.User.Get('accountType')
+        if (accountType != '6') {
+            $("#diyBtn").children().remove();
+            var yearArray = [];
+            if (Btns.buttons.length > 0) {
+                for (var i = 0; i < Btns.buttons.length; i++) {
+                    var item = Btns.buttons[i];
+                    switch(item.buttonType)
+                    {
+                    case 5:
+                        listShow = true;
+                        buttonId = item.buttonId;
+                        for (var j = 0; j < item.typeAndValue.length; j++) {
+                            var items = item.typeAndValue[j];
+                            if (items.type == '2') {
+                                yearArray.push(items.value)
+                            };
+                        };
+                        break;
+                    case 8:
+                        $("#diyBtn").append('<input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>')
+                        break;
+                    case 4:
+                        listLook = true;
+                        break;
+                    }
+                };
+            }
+            if (yearArray.length===0) {
+                rxnd = new Y.OnlySelectBox($("#rxnd"),{
+                    vKey:"enteryear",
+                    sKey:"enteryear",
+                    SelectBox:{
+                        showNum:false,
+                        paramet:{key:"keyword",rangeLimit:true,roleId:roleId,buttonId:buttonId},
+                        url:ucIP + "/api/uc/v0.1/welcome/financeQuery/enteryear",
+                        dataString:"<div class='autoList' vaule='{enteryear}'><span>{enteryear}</span></div>"
+                    }
+                });
+            }else{
+                rxnd = new Y.Select($('#rxnd'),yearArray);
+            };
+        }else{
+            listLook = true;
+            listShow = true;
+            rxnd = new Y.Calendar($("#rxnd"),{date:"",type:"year"});
+            rxnd.maxDate = new Date();
+            $("#rxnd").focus(function () {
+                var _this = $(this);
+                rxnd.open(function (d) {
+                    _this.val(d);
+                    rxnd.close();
+                });
+            });
+        };
+
+        var option = {pageSize: "studentsInfo", pageNum: 1,rangeLimit:true,roleId:roleId,buttonId:buttonId};
+        var config = [
+            {CH: "姓名", EN: "name"},
+            {CH: "性别", EN: "sex", Option: {"0": "女", "1": "男"},OptionExcel:{"0":"女","1":"男"}},
+            {CH: "手机号码", EN: 'phone'},
+            {CH: "身份证号", EN: 'cardId'},
+            /*{CH: "扶贫银行卡号", EN: 'poorCard'},*/
+            {CH: "是否挂读", EN: 'hang', Option: {"0": "否", "1": "是"},OptionExcel:{"0":"否","1":"是"}},
+            {CH: "专业", EN: "majorName"},
+            {CH: "班级名称", EN: "className"},
+            {CH: "班主任", EN: "headTeacherName"},
+            {CH: "入学年份", EN: "rxnd"},
+            {CH: "学号", EN: "studNo"},
+            {CH: "宿舍", EN: "dormNo"}
+        ];
+        var listEdit = listLook ? "<span class=\"listLook bg_dfba49\">查看</span>" : '',
+        list = new Y.List(ucIP + "/api/uc/v0.1/students", option, config);
+        list.btns = listEdit;
+        list.load(function () {
+            //新生隐藏编辑按钮
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改学生信息
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/students/studentsEdit.html",title:"查看学生信息",data:{id:data.accountId,readOnly:true}});
+                    })
+                }
+            })
+        });
+        //自动匹配班级信息
+        var classId = new Y.OnlySelectBox($("#classId"),{vKey:"classId",sKey:"className",SelectBox:{showNum:false,paramet:{key:"keyword",keyword:""},url:ucIP + "/api/uc/v0.1/classes",dataString:"<div class='autoList' vaule='{classId}'><span>{className}</span></div>"}});
+
+        $("#downLoadExcel").click(function(){
+            list.toExcel("学生信息");
+        })
+        //班级列表限制
+        var classId = new Y.OnlySelectBox($("#classId"),{
+                vKey:"classId",
+                sKey:"className",
+                SelectBox:{
+                    showNum:false,
+                    paramet:{key:"keyword",keyword:"",rangeLimit:true,roleId:roleId,buttonId:buttonId},
+                    url:ucIP + "/api/uc/v0.1/classes",
+                    dataString:"<div class='autoList' vaule='{classId}'><span>{className}</span></div>"
+                }
+            });
+        //专业列表限制
+        var majorId = new Y.OnlySelectBox($("#majorName"),{
+                vKey:"id",
+                sKey:"name",
+                SelectBox:{
+                    showNum:false,
+                    paramet:{key:"majorName",rangeLimit:true,roleId:roleId,buttonId:buttonId},
+                    url:ucIP + "/api/uc/v0.1/majors",
+                    dataString:"<div class='autoList' vaule='{id}'><span>{name}</span><span style='color:#ccc;display:block;'>专业代码:{code}</span></div>"
+                }
+            });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword"),
+            classIds:classId,
+            ril:"L"
+        },ucIP + "/api/uc/v0.1/students/preciseresult",{
+            name:$("#name"),
+            phone:$("#phone"),
+            cardNo:$("#cardNo"),
+            dormNo:$("#dormNo"),
+            className:$("#className"),
+            stuNo:$("#stuNo"),
+            majorName:$("#majorName"),
+            rxnd:$("#rxnd"),
+            poor:$("#poor"),
+            hang:$("#hang"),
+            ril:"L"
+        });
+
+        //无列表权限
+        if (!listShow) {
+            $("#right").html('<div style="color:#ccc;text-align:center;margin-top:20%;font-size:24px;">你没有权限查看该列表</div>')
+        };
+    })()
+</script>

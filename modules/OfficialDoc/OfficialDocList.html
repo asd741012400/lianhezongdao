@@ -1,0 +1,113 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="keyword" class="input" type="text" placeholder="来文标题/机关"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+        <div class="statusBtns"><span class="statusBtn active" id="status_1">等待</span><span class="statusBtn" id="status_2">完成</span><!-- <span class="statusBtn" id="status_3">已撤销</span> --></div>
+    </div>
+</div>
+<div style="line-height: 40px;padding:0px 10px;border-top: 1px solid #e4e4e4;">
+    公文:
+    <span id="fileCount" style="color: #f87941;margin:10px;">--</span>
+    份，
+    会议通知:
+    <span id="meetingCount" style="color: #f87941;margin:10px;">--</span>
+    份；
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+
+<script type="text/javascript">
+    (function() {
+        var config = [
+            {CH: "来文标题", EN: "inDoctitle"},
+            {CH: "来文机关", EN: "inDocOrg"},
+            {CH: "来文号", EN: "inDocNo"},
+            {CH: "份数", EN: "copies"},
+            {CH: "收文编号", EN: "receiveDocNo"},
+            {CH: "发起人", EN: "initiatorName"},
+            {CH: "签收人", EN: "assigneeName"},
+            {CH: "签收日期", EN: "assigneeDate"}
+        ];
+        var list = new Y.List(bpmIP + "/api/dp/v0.1", {dpType:"officialdoc",status:1,pageSize:"OfficialDoc",pageNum:1}, config);
+        list.btns = "<span class=\"listLook\">查看</span><span class=\"listDelete bg_f11c1c\">删除</span><span class=\"listOfficial\">公文归档</span>";
+        list.load(function () {
+            $("#fileCount").html(list.data.fileCount);
+            $("#meetingCount").html(list.data.meetingCount);
+            Y.ajax(bpmIP + "/api/dp/v0.1/totals",function(res){
+                if(res){
+                    $("#status_1").html("等待(" + res.wait + ")");
+                    $("#status_2").html("完成(" + res.completed + ")");
+                }
+            },{data:{dpType:"officialdoc"}})
+            //查看
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/OfficialDoc/OfficialDocInfo.html",title:"收文详情",data:{id:data.id}});
+                    })
+
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],bpmIP + "/api/dp/v0.1/delWord/","id","公文",{vKey:"title",obj:$(this)});
+                    })
+
+                    //班级归档
+                    $(this).find(".listOfficial").click(function(){
+                        Y.confirmx("是否归档",function(){
+                            Y.ajax(bpmIP + "/api/dp/v0.1/onFile/"+data.id,function(res){
+                                if(res && res.result){
+                                    Y.alertx("操作成功");
+                                    list.reLoad();
+                                }else{
+                                    Y.alertx(res.errorMsg);
+                                }
+                            },{meth:"POST",data:{status:data.status},dataJson:true})
+                        })
+                    })
+                }
+            })
+        });
+        var statusActive = $("#status_1");
+        //等待
+        $("#status_1").click(function(){
+            $("#keyword").val("");
+            statusActive.removeClass("active");
+            statusActive = $(this);
+            statusActive.addClass("active");
+            list.paramet.keyword= "";
+            list.paramet.status = 1;
+            list.reLoad();
+        })
+        //完成
+        $("#status_2").click(function(){
+            $("#keyword").val("");
+            statusActive.removeClass("active");
+            statusActive = $(this);
+            statusActive.addClass("active");
+            list.paramet.keyword= "";
+            list.paramet.status = 2;
+            list.reLoad();
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/OfficialDoc/OfficialDocEdit.html",title:"新增收文"});
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("收文管理");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword")
+        });
+    })()
+</script>

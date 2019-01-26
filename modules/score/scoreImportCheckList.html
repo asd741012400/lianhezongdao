@@ -1,0 +1,81 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="semesterId" class="input" type="text" placeholder="学期"/>
+            <input id="typeId" class="input" type="text" placeholder="成绩标题类型"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="indicators" id="indicators"></div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    #indicators{
+        height: 32px;
+        line-height: 32px;
+        overflow: hidden;
+        background: #effbff;
+        overflow: hidden;
+        color:#8e8e8e;
+        padding: 0px 8px;
+        border: 1px solid #dff6fd;
+    }
+    .indicators{
+        position: relative;
+        top:0px;
+    }
+    .indicator{
+        height: 32px;
+        overflow: hidden;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "scoreImport", pageNum: 1, showAll:1};
+        var config = [
+            {CH: "成绩标题类型", EN: "title"},
+            {CH: "学期", EN: "semesterName"},
+            {CH: "班级", EN: "className"},
+            {CH: "专业", EN: "majorName"},
+            {CH: "年级", EN: "grade"},
+            {CH: "科目", EN: "cjmc"},
+            {CH: "人数", EN: "count"},
+            {CH: "上传人", EN: "uploader"},
+            {CH: "上传时间", EN: "createTime"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/examscore/v0.1", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">编辑</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/score/scoreDetailList.html",title:data.title + " 成绩明细",data:{id:data.id}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/examscore/v0.1/","id","成绩",{vKey:"title",obj:$(this)});
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/examscore/v0.1/","id","成绩",{vKey:"title"});
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            typeId:new Y.OnlySelectBox($("#typeId"),Y.getSelectBox('examscoreType')),
+            semesterId:new Y.OnlySelectBox($("#semesterId"),Y.getSelectBox('semester'))
+        });
+    })()
+</script>

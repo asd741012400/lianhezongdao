@@ -1,0 +1,75 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value = "删除" />
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style type="text/css">
+    
+</style>
+<script type="text/javascript">
+    (function(){
+        var option = {pageSize: "shopIndexList", pageNum: 1,client:0};
+        var config = [
+            {CH: "首页图", EN: "indexImage",htmlFormat:'<img src="{indexImage}" width="100" height="50" />'},
+            {CH: "名称", EN: "title"},
+            {CH: "类型", EN: "type", Option: {"0": "活动", "1": "团购","2": "共享"},OptionExcel:{"0": "活动", "1": "团购","2": "共享"}},
+            {CH: "价格", EN: "rent",htmlFormat:function(k,v,o){
+                if(o.type == 2){
+                    return o.rent + '元/天';
+                }else if(o.type == 1){
+                    return o.discountPrice;
+                }else{
+                    return ''
+                }
+            }},
+            {CH: "权重", EN: "sort",htmlFormat:'<span title="点击设置排序" class="sortInput">{sort}<div style="color:#ccc;font-size:12px;">(点击修改)</div></span>'}
+        ];
+        var list = new Y.List(eschoolIP + "/api/shop/v0.1/indexPages", option, config);
+        list.btns = "<span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                var data = list.data.rows[i - 1];
+                if(data.studentType == 0) $(this).find(".listEdit").hide();
+                //删除
+                $(this).find(".listDelete").click(function(){
+                    list.deleteFn([data],eschoolIP + "/api/shop/v0.1/indexPages/","id","首页产品",{vKey:"title",obj:$(this)});
+                })
+                $(this).find('.sortInput').click(function(){
+                    var html = '<div><div><input class="input" type="text" id="changeSort" value="' + data.sort + '" placeholder="0~100000" /></div><div id="sortErr"></div></div>';
+                    Y.confirmx(html,function(ret){
+                        Y.ajax(eschoolIP + '/api/shop/v0.1/indexPages/{pid}/sort',function(ret){
+                            var msg = ret && ret.result ? '操作成功' : ('操作失败,' + ret.errorMsg);
+                            list.load();
+                            Y.alertx(msg, '',{toast:true,height:70});
+                        },{data:{sort:$('#changeSort').val(),pid:data.id},meth:'PUT'})
+                    },{
+                        verifyFn:function(){
+                            var sort = $('#changeSort').val();
+                            if(sort >= 0 && sort <= 100000){
+                                return true;
+                            }else{
+                                $('#sortErr').html("必须在0~100000之间");
+                            }
+                        },
+                        title:'修改权重<span style="color:#ccc;font-size:12px;">(权重越大排序越靠前)</span>'
+                    })
+                })
+            }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/shop/v0.1/indexPages/","id","首页产品",{vKey:"title"});
+        })
+    })()
+</script>

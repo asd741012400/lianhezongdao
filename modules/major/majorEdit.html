@@ -1,0 +1,193 @@
+<form class="form">
+    <div class="form_title"><b>专业信息编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width50">
+            <div class="data_title"><span class="red">*</span>专业名称</div>
+            <span class="data_error">专业名称不能为空</span><input class="input" id="data-name" type="text" placeholder="请填写专业名称"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><span class="red">*</span>专业代码</div>
+            <span class="data_error">专业代码不能为空</span><input class="input" id="data-code" type="text" placeholder="请填写专业代码"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><span class="red">*</span>学制</div>
+            <span class="data_error">学制不能为空</span>
+            <input class="input" id="data-years" type="text" placeholder="请选择学制"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><span class="red">*</span>学费</div>
+            <span class="data_error">学费不能为空</span><input class="input" id="data-tuition" type="text" placeholder="请填写学费,单位：元"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">学历</div>
+            <span id="data-degree" type="radio"><input type="radio" value="1" checked/>中职<input type="radio" value="2"/>高职</span>
+        </div>
+        <div class="data width50">
+            <div class="data_title">院系</div>
+            <input class="input" id="data-groupId" readonly type="text" placeholder="请选择院系"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><span class="red">*</span>专业介绍</div>
+            <span class="data_error">专业介绍不能为空</span><div type="richEdit" class="richEdit" id="data-majorIntro"></div>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><span class="red">*</span>课程介绍</div>
+            <span class="data_error">课程介绍不能为空</span><input class="input" id="data-classIntro" type="text" placeholder="请填写课程介绍"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">状态</div>
+            <span id="data-status" type="radio"><input type="radio" value="1" checked/>启用<input type="radio" value="0"/>未启用</span>
+        </div>
+        <div class="data width50">
+            <div class="data_title">专业类型</div>
+            <span class="data_error">专业类型不能为空</span>
+            <input class="input" id="data-type" type="text" placeholder="请选择专业类型"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">热门推荐</div>
+            <span id="data-hot" type="radio"><input type="radio" value="0" checked/>否<input type="radio" value="1"/>是</span>
+        </div>
+        <div class="data width50">
+            <div class="data_title">就业去向</div>
+            <span class="data_error">就业去向不能为空</span><input class="input" id="data-graduateTo" type="text" placeholder="请填写就业去向"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">专业图标</div>
+            <div style="margin-left: 50px;">
+                <div id="data-logo" type="img"></div>
+                <span style="color: #ccc">建议尺寸300x300</span>
+            </div>
+        </div>
+        <div class="data width50">
+            <div class="data_title">专业要求</div>
+            <span class="data_error">专业要求不能为空</span><input class="input" id="data-requirement" type="text" placeholder="请填写专业要求"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">招收层次</div>
+            <span class="data_error">招收层次不能为空</span><input class="input" id="data-recruitmentLevel" type="text" placeholder="请填写招收层次"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">是否签订就业协议</div>
+            <span id="data-agreement" type="radio"><input type="radio" value="0" checked/>否<input type="radio" value="1"/>是</span>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    #data-logo{
+        height:100px;
+        width: 100px;
+        border-radius: 100px;
+        overflow: hidden;
+    }
+    #data-logo img{
+        width: 100px;
+    }
+    .data{
+        position:relative;
+    }
+    .data_error{
+        margin-top:0;
+        bottom: -21px;
+    }
+</style>
+<script src="js/ztree/jquery.ztree.core.min.js" type="text/javascript"></script>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            majorId : Y.getUrlParam("id"),
+            name : {
+                o:$("#data-name"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"专业名称不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            code : {
+                o:$("#data-code"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"专业代码不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            years : {
+                o:new Y.Select($("#data-years"),["请选择",,"2年","3年","4年","2年+2年","3年+2年","3年+3年","2年+3年"]),
+                _o:$("#data-years"),
+                f:function(v){
+                    if (v == "") {
+                        return [false,"请选择学制"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            tuition : {
+                o:$("#data-tuition"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"请填写学费"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            degree : {o:new Y.Radio($("#data-degree input"))},
+            majorIntro : {o:new Y.RichEdit($("#data-majorIntro")),f:function(v){
+                if (v == "") {
+                    $("#data-majorIntro").siblings('.data_error').show();
+                    return [false,"专业介绍不能为空"];
+                } else {
+                    return [true];
+                }
+            }},
+            classIntro : {
+                o:$("#data-classIntro"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"课程介绍不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            groupId : {
+                o:new Y.ZtreeSelectCheckBox($("#data-groupId"),{}),
+                s:"groupName",
+                _o:$("#data-groupId"),
+            },
+            status : {o:new Y.Radio($("#data-status input"))},
+            type : {o:new Y.Select($("#data-type"),["请选择","普通","重点","特色"])},
+            hot : {o:new Y.Radio($("#data-hot input"))},
+            graduateTo : {o:$("#data-graduateTo")},
+            logo : {o:new Y.Img($("#data-logo"), "<div style='cursor:pointer; background:#e4e4e4; border-radius:100px;height:100px; width:100px; line-height:100px;text-align:center; color:#ccc;'>上传图标</div>",{width:300,height:300,radius:150,scale:[1,1]})},
+            requirement : {o:$("#data-requirement")},
+            recruitmentLevel : {o:$("#data-recruitmentLevel")},
+            agreement : {o:new Y.Radio($("#data-agreement input"))},
+        }
+
+        var from = new Y.From(fromConfig,"majorId",{getURL:ucIP + "/api/uc/v0.1/majors/{majorId}/detail",postURL:ucIP + "/api/uc/v0.1/majors",putURL:ucIP + "/api/uc/v0.1/majors/{majorId}",title:"提交专业信息"});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

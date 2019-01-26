@@ -1,0 +1,101 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="date" class="input" type="text" placeholder="请选择年月"/>
+            <input id="classId" class="input" type="text" placeholder="请选择班级"/>
+            <input id="majorId" class="input" type="text" placeholder="请选择专业"/>
+            <input id="period" class="input" type="text" placeholder="请选择年级"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="printBtn" type="button" class="bg_eeeeee" value = "打印" />
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    #print{
+        display: none;
+    }
+</style>
+<style type="text/css" media=print>
+    body{
+        background:#fff;
+    }
+    .header,.left,.footer,.right,#nav,#printBtn,.formBtns,.list_header{
+        display: none;
+    }
+    #print{
+        display: block;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "classAttnendList", pageNum: 1};
+        var config = [
+            {CH: "班级", EN: "className"},
+            {CH: "正常", EN: "zhengchang"},
+            {CH: "迟到", EN: "chidao"},
+            {CH: "早退", EN: "zaotui"},
+            {CH: "旷课", EN: "kuangke"},
+            {CH: "罚", EN: "fa"},
+            {CH: "请假", EN: "qingjia"},
+            {CH: "总计", EN: "total"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/classAttend/v0.1/statistic", option, config);
+        list.btns = "<span class=\"listLook bg_dfba49\">查看</span>";
+        list.listNumTitle = "序号";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/cusAttn/classIdList.html",title:"班级考勤统计",data:{id:data.classId,date:$('#date').val()}});
+                    })
+                }
+            })
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("班级考勤统计");
+        })
+        var datecalendar = new Y.Calendar($("#date"),{type:"month",date:''});
+        datecalendar.maxDate = new Date();
+        $("#date").focus(function(){
+            var _this = $(this);
+            datecalendar.open(function(d){
+                _this.val(d);
+                datecalendar.close();
+            });
+        })
+        var classId = new Y.OnlySelectBox($("#classId"),{vKey:"classId",sKey:"className",SelectBox:{showNum:false,paramet:{key:"keyword"},url:ucIP + "/api/uc/v0.1/classes",dataString:"<div class='autoList' vaule='{classId}'><b class='listStyle_cicle'>{listStyle_className}</b><span>{className}</span><span style='color:#ccc;display:block;'>{headTeacherName} {classAddress}</span></div>"}});
+        var majorId = new Y.OnlySelectBox($("#majorId"),{vKey:"id",sKey:"name",SelectBox:{showNum:false,paramet:{key:"majorName"},url:ucIP + "/api/uc/v0.1/majors",dataString:"<div class='autoList' vaule='{id}'><b class='listStyle_cicle icon_img' imgUrl='{logo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>专业代码:{code}</span></div>"}})
+        var periodcalendar = new Y.Calendar($("#period"),{type:"year",date:''});
+        periodcalendar.maxDate = new Date();
+        $("#period").focus(function(){
+            var _this = $(this);
+            periodcalendar.open(function(d){
+                _this.val(d);
+                periodcalendar.close();
+            });
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            date:$("#date"),
+            classId:classId,
+            majorId:majorId,
+            period:$("#period")
+        });
+        //打印
+        $("#printBtn").click(function(){
+            var table = "<div id='print' class='table'>"+$(".table").html()+"</div>";
+            $('body').append(table);
+            window.print();
+            $("#print").remove();
+        })
+    })()
+</script>

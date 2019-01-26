@@ -1,0 +1,65 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="semesterId" class="input" type="text" placeholder="学期"/>
+            <input id="typeId" class="input" type="text" placeholder="成绩标题类型"/>
+            <input id="userId" class="input" type="text" placeholder="学生"/>
+            <input id="grade" class="input" type="text" placeholder="年级"/>
+            <input id="classId" class="input" type="text" placeholder="班级"/>
+            <input id="majorId" class="input" type="text" placeholder="专业"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "scoreGatherList", pageNum: 1};
+        var config = [
+            {CH: "成绩标题类型", EN: "typeName"},
+            {CH: "学期", EN: "semesterName"},
+            {CH: "班级", EN: "className"},
+            {CH: "专业", EN: "majorName"},
+            {CH: "年级", EN: "grade"},
+            {CH: "人数", EN: "num"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/examscore/v0.1/gather/class", option, config);
+        list.btns = "<span class=\"listLook bg_dfba49\">编辑</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/score/gatherClassList.html",title:"班级成绩统计",data:{id:data.id,data:data}});
+                    })
+                }
+            })
+        });
+        var calendar = new Y.Calendar($("#grade"),{type:"year",date:''});
+        calendar.maxDate = new Date();
+        $("#grade").focus(function(){
+            var _this = $(this);
+            calendar.open(function(d){
+                _this.val(d);
+                calendar.close();
+            });
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            typeId:new Y.OnlySelectBox($("#typeId"),Y.getSelectBox('examscoreType')),
+            userId:new Y.OnlySelectBox($("#userId"),Y.getSelectBox('student')),
+            classId:new Y.OnlySelectBox($("#classId"),Y.getSelectBox('classe')),
+            majorId:new Y.OnlySelectBox($("#majorId"),Y.getSelectBox('major')),
+            semesterId:new Y.OnlySelectBox($("#semesterId"),Y.getSelectBox('semester')),
+            grade:$('#grade')
+        });
+    })()
+</script>

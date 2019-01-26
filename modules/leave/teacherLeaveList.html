@@ -1,0 +1,104 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="keyword" class="input" type="text" placeholder="姓名/部门"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/><span id="advancedSearch_btn">高级查询<img src="images/gjcx.png" /></span>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+        <div id="advancedSearch_box">
+            <div class="advancedSearch_data"><input id="name" class="input" type="text" placeholder="姓名"/></div>
+            <div class="advancedSearch_data"><input id="deptName" class="input" type="text" placeholder="所在部门"/></div>
+            <div class="advancedSearch_data"><select id="type" class="input">
+                <option value="0">选择类型</option>
+                <option value="1">公事</option>
+                <option value="2">事假</option>
+                <option value="3">病假</option>
+                <option value="4">产假</option>
+                <option value="5">婚假</option>
+                <option value="6">丧假</option>
+                <option value="7">年假</option>
+                <option value="8">调休</option>
+                <option value="9">探亲假</option>
+            </select></div>
+            <div class="advancedSearch_data"><select id="status" class="input">
+                <option value="0">选择状态</option>
+                <option value="1">正在处理</option>
+                <option value="2">完成</option>
+                <option value="3">驳回</option>
+                <option value="4">撤销</option>
+                <option value="5">过期</option>
+            </select></div>
+            <div class="advancedSearch_data"><input id="begDate" class="input" type="text" placeholder="开始日期"/></div>
+            <div class="advancedSearch_data"><input id="endDate" class="input" type="text" placeholder="结束日期"/></div>
+            <div class="clear"></div>
+            <div class="advancedSearch_btn"><input type="button" value="搜索" id="advancedSearchBtn" class="bg_00b7ee"/><input type="button" value="取消" id="advancedSearchCancle" class="bg_ffffff"/></div>
+        </div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "teacherLeave", pageNum: 1};
+        var config = [
+            {CH: "姓名", EN: "name"},
+            {CH: "部门", EN: "belongDept"},
+            {CH: "请假时长", EN: "duration"},
+            {CH: "开始时间", EN: "startTime"},
+            {CH: "结束时间", EN: "endTime"},
+            {CH: "类型",EN: "type",Option:{"1":"<font class='fontStyle bg_ef8f7f'>公事</font>","2":"<font class='fontStyle bg_32bef8'>事假</font>","3":"<font class='fontStyle bg_32bef8'>病假</font>","4":"<font class='fontStyle bg_32bef8'>产假</font>","5":"<font class='fontStyle bg_32bef8'>婚假</font>","6":"<font class='fontStyle bg_32bef8'>丧假</font>","7":"<font class='fontStyle bg_32bef8'>年假</font>","8":"<font class='fontStyle bg_32bef8'>调休</font>","9":"<font class='fontStyle bg_32bef8'>探亲假</font>"},OptionExcel:{"1":"公事","2":"事假","3":"病假","4":"产假","5":"婚假","6":"丧假","7":"年假","8":"调休","9":"探亲假"}},
+            {CH: "状态", EN: "finalResult",Option:{"1":"正在处理","2":"完成","3":"驳回","4":"撤销","5":"过期"},OptionExcel:{"1":"正在处理","2":"完成","3":"驳回","4":"撤销","5":"过期"}}
+        ];
+        var list = new Y.List(bpmIP + "/api/leave/teacher/v0.1/leaves/fuzzyresult", option, config);
+        list.btns = "<span class=\"listLook bg_f11c1c\">查看</span>";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/leave/teacherLeaveInfo.html",title:"查看请假详情",data:{id:data.id}});
+                    })
+                }
+            })
+        });
+
+        //开始日期
+        var begDate = new Y.Calendar($("#begDate"),{date:""});
+        $("#begDate").focus(function () {
+            var _this = $(this);
+            begDate.open(function (d) {
+                _this.val(d);
+                begDate.close();
+            });
+        });
+        //结束日期
+        var endDate = new Y.Calendar($("#endDate"),{date:""});
+        $("#endDate").focus(function () {
+            var _this = $(this);
+            endDate.open(function (d) {
+                _this.val(d);
+                endDate.close();
+            });
+        });
+        //导出excel
+        $("#downLoadExcel").click(function(){
+            list.toExcel("教师请假统计");
+        })
+        //搜索
+        var advancedSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword")
+        },bpmIP + "/api/leave/teacher/v0.1/leaves/preciseresult",{
+            name:$("#name"),
+            deptName:$("#deptName"),
+            type:$("#type"),
+            status:$("#status"),
+            begDate:$("#begDate"),
+            endDate:$("#endDate"),
+        });
+    })()
+</script>

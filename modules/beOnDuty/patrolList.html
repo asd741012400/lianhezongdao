@@ -1,0 +1,60 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="date" class="input" type="text" placeholder="巡查时间"/>
+            <input id="inspectOne" class="input" type="text" placeholder="巡查人"/>
+            <input id="theManOnDuty" class="input" type="text" placeholder="值班人"/>
+            <input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+
+
+<script type="text/javascript">
+    (function() {
+        var option = { pageNum: 1,patrol_name:"",patrol_time:"",inspectedby_name:"" };
+        var config = [
+            {CH: "值班人", EN: "patrol_time"},
+            {CH: "巡查人", EN: "patrol_name"},
+            {CH: "巡查时间", EN: 'inspectedby_name'},
+        ];
+        var list = new Y.List(httpIp + "/sys/getRecordAll", option, config);
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                   
+                }
+            })
+        });
+
+        
+       
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            patrol_name:$("#inspectOne"),
+            inspectedby_name:$("#theManOnDuty"),
+            patrol_time:$('#date'),
+        });
+
+        //值班日期
+        var datecalendar = new Y.Calendar($("#date"),{date:''});
+        datecalendar.maxDate = new Date();
+        $("#date").focus(function(){
+            var _this = $(this);
+            datecalendar.open(function(d){
+                _this.val(d);
+                datecalendar.close();
+            });
+        })
+
+        
+    })()
+</script>

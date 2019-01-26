@@ -1,0 +1,115 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search" id="searchBox">
+            <input id="orderStatus" class="input" type="text" placeholder="选择订单状态"/>
+            <input id="userId" class="input" type="text" placeholder="购买人"/>
+            <input id="schoolId" class="input" type="text" placeholder="学校"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <div class="productTitle" id="productTitle"></div>
+        <div class="productId">商品编号:<span id="productId"></span></div>
+        <input id="cancel" type="button" value="返回" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style type="text/css">
+    .productTitle{
+        font-size: 24px;
+        clear: both;
+        font-weight: bold;
+        text-align: left;
+        padding:30px 0px 10px 0px;
+    }
+    .productId{
+        text-align: left;
+    }
+    .orderBtn{
+        cursor: pointer;
+        margin-right: 10px;
+        padding:2px 10px;
+        border-radius: 2px;
+        display: inline-block;
+        margin-bottom: 8px;
+    }
+</style>
+<script type="text/javascript">
+    (function(){
+        var data = Y.getUrlParam("data");
+        $('#productTitle').html(data.title);
+        $('#productId').html(data.id);
+        var orderStatusEmun = Y.getUrlParam("orderStatusEmun");
+        var config = [
+            {CH: "商品图", EN: "images",htmlFormat:function(k,v,o){
+                return '<img src="' + v[0].imageUrl + '" width="100" height="100" />'
+            }},
+            {CH: "订单编号", EN: "id"},
+            {CH: "创建时间", EN: "createTime"},
+            {CH: "规格", EN: "property"},
+            {CH: "单价(元)", EN: "price"},
+            {CH: "数量", EN: "count"},
+            {CH: "总价(元)", EN: "totalPrice"},
+            {CH: "收货信息", EN: "userName",htmlFormat:'<div style="text-align:left;"><div>姓名:{userName}</div><div>电话:{userPhone}</div><div>地址:{dorm}</div></div>'},
+            {CH: "备注", EN: "mark"},
+            {CH: "状态", EN: "orderStatus",Option:orderStatusEmun.html,OptionExcel:orderStatusEmun.text},
+            {CH: "操作", EN: "buttons",htmlFormat:function(k,v,o){
+                var btns = ''
+                for(var i = 0; i < v.length; i ++) {
+                    v[i].color = v[i].color == '#FFFFFF' ? '#666666' : v[i].color;
+                    btns += '<span class="orderBtn" style="border:1px solid {color};color:{color};">{text}</span>'._eval(v[i]);
+                }
+                return btns;
+            }}
+        ];
+        var type = Y.getUrlParam("type");
+        var args = {pageSize:"shopOrderProductList",pageNum:1,orderType:Y.getUrlParam("type"),pId:data.id};
+        var list = new Y.List(eschoolIP + "/api/shop/v0.1/mgt/orders/list", args, config);
+        list.btns = '';
+        list.load(function(){
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //订单处理
+                    $(this).find(".orderBtn").each(function(j){
+                        $(this).click(function(){
+                            Y.ajax(eschoolIP + "/api/shop/v0.1/orders/{orderId}/{orderStatus}",function(ret){
+                                var msg = '';
+                                if(ret && !ret.errorMsg){
+                                    msg = '操作成功!'
+                                }else{
+                                    msg = '操作失败,' + ret.errorMsg;
+                                }
+                                Y.alertx(msg,function(){
+                                    list.load();
+                                })
+                            },{meth:'PUT',data:{orderId:data.id,type:type,orderStatus:data.buttons[j].orderStatus}})
+                        })
+                    })
+                }
+            })
+        });
+        var orderStatus = new Y.Select($('#orderStatus'),orderStatusEmun.text);
+        var userId = new Y.OnlySelectBox($("#userId"),{idKey:"accountId",SelectBox:{paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},url:ucIP + "/api/uc/v0.1/students",dataString:"<div class='autoList' vaule='{accountId}'><b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{majorName}</span><span style='color:#ccc;display:block;margin-left:35px;'>{className}</span></div>"}});
+        var _schoolId = new Y.OnlySelectBox($("#schoolId"),{
+            idKey:"schoolId",
+            SelectBox:{
+                paramet:{pageNum:1,pageSize:10,key:"name"},
+                url:ucIP + "/api/uc/v0.1/schools",
+                dataString:"<div class='autoList' vaule='{code}'><b class='listStyle_cicle icon_img' imgUrl='{logo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>编码 {code}</span></div>"
+            }
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            orderStatus:orderStatus,
+            userId:userId,
+            schoolId:_schoolId
+        });
+        $("#cancel").click(function(){
+            Y.back(-1);
+        })
+    })()
+</script>

@@ -1,0 +1,186 @@
+<form class="form">
+    <div class="form_title"><b>公告编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>标题</div>
+        <span class="data_error">标题不能为空</span><input class="input" maxlength='20' id="data-title" type="text" placeholder="请填写标题（不超过20个字符）"/>
+    </div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>类型</div>
+        <span id="data-type" type="radio"><input type="radio" value="1" checked/>通知<input type="radio" value="2"/>公告 </span>
+    </div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>状态</div>
+        <span id="data-status" type="radio"><input type="radio" value="1" checked/>启用<input type="radio" value="2"/>停用 </span>
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>是否紧急</div>
+        <span id="data-urgency" type="radio"><input type="radio" value="1" checked/>是<input type="radio" value="2"/>不是 </span><span style="margin-left: 10px;">截止时间:</span><span class="data_error">截止时间不能为空</span><input style="width: 150px;" class="input" id="data-urgencyDeadline" type="text" />
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>发布组织</div><span class="data_error">发布组织不能为空</span><input class="input" id="data-groupId" type="text" placeholder="请选择组织"/>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title">接收学生</div>
+        <div id="data-students"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title">接收老师</div>
+        <div id="data-teachers"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title">接收班级</div>
+        <div id="data-classes"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title">接收部门</div>
+        <div id="data-receiveGroupIds"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+    </div>
+    <div class="data width100">
+        <div class="data_title">摘要</div>
+        <span class="data_error">摘要不能为空</span><input class="input" id="data-digest" type="text" placeholder="需通知接收组织请输入摘要内容，如不需通知可不填写"/>
+    </div>
+    <div class="data width100">
+        <div class="data_title">内容<span style="color: #ccc; margin-left: 10px;">编辑时请进行预览查看实际效果</span></div>
+        <div type="richEdit" class="richEdit" id="data-content"></div>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns">
+        <input type="button" id="preview" value="预览" class="bg_34a1e0"/>
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    #data-photoUrl img{
+        height:80px;
+        margin-right:10px;
+        border-radius: 80px;
+    }
+    .autoList{
+        position:relative;
+    }
+</style>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        Y.qiNiouKey(function(upladArgs){
+            var fromConfig = {
+                announcementId : Y.getUrlParam("id"),
+                title : {
+                    o:$("#data-title"),
+                    e:"blur",
+                    f:function(v){
+                        if (v == "") {
+                            return [false,"标题不能为空"];
+                        } else if (v.length>20){
+                            return [false,"标题不能超过20个字符"];
+                        } else {
+                            return [true];
+                        }
+                    }
+                },
+                digest : {o:$("#data-digest")},
+                type : {o:new Y.Radio($("#data-type input"))},
+                status : {o:new Y.Radio($("#data-status input"))},
+                urgency : {o:new Y.Radio($("#data-urgency input"))},
+                urgencyDeadline : {
+                    o:$("#data-urgencyDeadline"),
+                    i:function(v){
+                        var urgencyDeadlineCalendar = new Y.Calendar($("#data-urgencyDeadline"),{date:""});
+                        urgencyDeadlineCalendar.timeType = [23,00];
+                        urgencyDeadlineCalendar.minDate = new Date();
+                        $("#data-urgencyDeadline").focus(function(){
+                            var _this = $(this);
+                            _this.prev().hide();
+                            urgencyDeadlineCalendar.open(function(d){
+                                _this.val(d);
+                                urgencyDeadlineCalendar.close();
+                            });
+                        })
+                    }
+                },
+                groupId : {
+                    o:new Y.OnlySelectBox($("#data-groupId"),{
+                        vKey:"groupId",
+                        sKey:"name",
+                        SelectBox:{
+                            paramet:{key:"keyword",pageNum:1,pageSize:10},
+                            url:ucIP + "/api/uc/v0.1/groups/org",
+                            dataString:"<div class='autoList' value='{groupId}'>{name}</div>"
+                        }}
+                    ),
+                    _o:$("#data-groupId"),
+                    s:"name",
+                    f:function(v){
+                        if (v == "") {
+                            return [false,"发布组织不能为空"];
+                        } else {
+                            return [true];
+                        }
+                    }
+                },
+                pushClass:{
+                    o:new Y.AnySelectBox($("#data-classes"),$("#data-classes").next(),Y.getSelectBox('classes',{valArr:true}))
+                },
+                pushStudent:{
+                    o:new Y.AnySelectBox($("#data-students"),$("#data-students").next(),Y.getSelectBox('students',{valArr:true}))
+                },
+                pushTeacher:{
+                    o:new Y.AnySelectBox($("#data-teachers"),$("#data-teachers").next(),Y.getSelectBox('teachers',{valArr:true}))
+                },
+                receiveGroups:{
+                    o:new Y.AnySelectBox($("#data-receiveGroupIds"),$("#data-receiveGroupIds").next(),{
+                        idKey:"groupId",
+                        valueString:"<div groupId='{groupId}' class='personData'><div style='width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #e4e4e4;color:#00b7ee;font-size:20px;margin:7px auto;border-radius:50px;'>{listStyle_name}</div><div>{name}</div></div>",
+                        SelectBox:{
+                            paramet:{pageNum:1,pageSize:10,key:"keyword"},
+                            url:ucIP + "/api/uc/v0.1/groups",
+                            dataString:"<div class='autoList' vaule='{groupId}'>{has_groupId}<b class='listStyle_cicle icon_img'>{listStyle_name}</b><span>{name}<font style='color:#3ec0ef;margin-left:5px;'>({peopleNum}人)</font></span><span style='color:#ccc;display:block;'>{description}</span></div>",
+                            //disabled:['全体老师','全体家长','全体学生']
+                        },
+                        valArr:true
+                    })
+                },
+                content : {o:new Y.RichEdit($("#data-content"),true,upladArgs)}
+            }
+            var from = new Y.From(fromConfig,"announcementId",{getURL:eschoolIP + "/api/announcement/v0.1/announcements/{announcementId}/detail",postURL:eschoolIP + "/api/announcement/v0.1/announcements",putURL:eschoolIP + "/api/announcement/v0.1/announcements/{announcementId}",title:"提交通知公告",dataJson:false});
+            //提交
+            $("#submit").click(function(){
+                if (fromConfig.pushClass.o.val().length===0&&fromConfig.pushStudent.o.val().length===0&&fromConfig.pushTeacher.o.val().length===0&&fromConfig.receiveGroups.o.val().length===0) {
+                    Y.alertx('请至少选择一个接收项')
+                }else{
+                    from.submit($(this));
+                };
+            })
+            //取消
+            $("#cancel").click(function(){
+                Y.back(-1);
+            });
+            //预览
+            $("#preview").click(function(){
+                Y.creatCover({id:"preview_cover",obj:window,zIndex:99998,opacity:0.8,background:"#000",position:"fixed"});
+                $("body").append("<img id='preview_close' src='images/preview_close.png' style='position:absolute; z-index:99999; left:50%;margin-left:230px; top:100px;' />");
+                $("body").append("<div id='preview_box' style='width:459px;height:884px; background:url(\"images/iphone6.png\") no-repeat;position:absolute;left:50%;margin-left:-229px;top:10px;z-index:99999'><iframe id='preview_iframe' src='modules/news/news.html' width='377' height='664' style='margin-left:43px; margin-top:105px;border-radius:2px;' frameborder='no' border='0' marginwidth='0' marginheight='0'></iframe></div>");
+                (function(){
+                    if($("#preview_iframe")[0].contentWindow.document.getElementById("title")){
+                        var group = $("#groups .active").text(),
+                        groupImgHtml = $("#accountPhoto").html(),
+                        groupHtml = '<span style="width:40px;height:40px;overflow:hidden;border-radius:20px;display:inline-block;vertical-align: middle;margin-right:8px;">' + groupImgHtml + '</span>' + '<span>' + group + '</span>';
+                        $("#preview_iframe")[0].contentWindow.document.getElementById("title").innerHTML = $("#data-title").val();
+                        $("#preview_iframe")[0].contentWindow.document.getElementById("group").innerHTML = groupHtml;
+                        var time = new Date();
+                        $("#preview_iframe")[0].contentWindow.document.getElementById("time").innerHTML = time.getFullYear() + "-" + (time.getMonth() + 1) + "-" + time.getDate();
+                        $("#preview_iframe")[0].contentWindow.document.getElementById("content").innerHTML = fromConfig.content.o.val();
+                        $("#preview_iframe")[0].contentWindow.showDownLoad(true);
+                    }else{
+                        setTimeout(arguments.callee,200);
+                    }
+                })()
+                $("#preview_cover").click(function(){
+                    $(this).remove();
+                    $("#preview_box,#preview_close").remove();
+                })
+            })
+        })
+    })()
+</script>

@@ -1,0 +1,37 @@
+
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "cmsSuggestionList", pageNum: 1, type: 1};
+        var config = [
+            {CH: "标题", EN: "title"},
+            {CH: "类型", EN: "type"},
+            {CH: "发布时间", EN: "time"},
+            {CH: "状态", EN: "statusName"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/cms/mgt/suggestion/v0.1/list", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = false;
+        list.listNumTitle = "序号";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/cms/suggestion/suggestionEdit.html",title:"留言",data:{id:data.id}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/cms/mgt/suggestion/v0.1/","id","留言",{vKey:"title",obj:$(this)});
+                    })
+                }
+            })
+        });
+    })()
+</script>

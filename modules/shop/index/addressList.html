@@ -1,0 +1,54 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value = "删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style type="text/css">
+    
+</style>
+<script type="text/javascript">
+    (function(){
+        var option = {pageSize: "shopAddressList", pageNum: 1};
+        var config = [
+            {CH: "领货地址", EN: "address"},
+            {CH: "姓名", EN: "name"},
+            {CH: "电话", EN: "phone"},
+            {CH: "职称", EN: "vocation"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/shop/v0.1/mgt/share/address", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                var data = list.data.rows[i - 1];
+                if(data.studentType == 0) $(this).find(".listEdit").hide();
+                //删除
+                $(this).find(".listDelete").click(function(){
+                    list.deleteFn([data],eschoolIP + "/api/shop/v0.1/mgt/share/address/","id","地址",{vKey:"address",obj:$(this)});
+                })
+                //编辑
+                $(this).find(".listEdit").click(function(){
+                    Y.open({url:"modules/shop/index/addressEdit.html",title:"地址",data:{data:data}});
+                })
+            }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/shop/v0.1/mgt/share/address/","id","地址",{vKey:"address"});
+        })
+        $('#addBtn').click(function(){
+            Y.open({url:"modules/shop/index/addressEdit.html",title:"地址"});
+        })
+    })()
+</script>

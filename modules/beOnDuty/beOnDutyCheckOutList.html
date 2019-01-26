@@ -1,0 +1,175 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search" id="searchBox"></div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <input id="printBtn" type="button" class="bg_eeeeee" value = "打印" />
+        <div class="clear"></div>
+        <div class="statusBtns">
+            <span class="statusBtn active" id="status_1">班级考勤</span>
+            <span class="statusBtn" id="status_2">值班查宿</span>
+            <span class="statusBtn" id="status_3">楼层巡查</span>
+            <span class="statusBtn" id="status_4">区域巡查</span>
+        </div>
+    </div>
+</div>
+
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+.statusBtns{
+    overflow: hidden;
+}
+.statusBtns span{
+    float: left;
+}
+.statusBtns span#status_2{
+    border-left: 1px solid #e4e4e4;
+    border-radius: 0;
+}
+.statusBtns span#status_4{
+    border-left: none;
+    border-radius: 0px 5px 5px 0px;
+}
+.applyAndHiringNum{
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+}
+.showApplyAndHiringNum{
+    background: url("images/icon_sea.png") center center no-repeat;
+    width: 16px;
+    height: 16px;
+    border: none;
+    color: rgba(255,255,255,0);
+    overflow: hidden;
+    cursor: pointer;
+}
+.showApplyAndHiringNum:hover{
+    background: url("images/icon_sea_active.png") center center no-repeat;
+}
+</style>
+<script type="text/javascript">
+    (function(){
+        change(Y.Storage.get('shopProductActive') || 1);
+        //班级考勤
+        $('#status_1').click(function(){
+            change(1);
+        })
+        //值班查宿
+        $('#status_2').click(function(){
+            change(2);
+        })
+        //楼层巡查
+        $('#status_3').click(function(){
+            change(3);
+        })
+        //区域巡查
+        $('#status_4').click(function(){
+            change(4);
+        })
+        var list,config,status,args = {};
+        function change(i){
+            $('.statusBtn.active').removeClass('active');
+            $('#searchBox').html('<input id="keyword" class="input" type="text" placeholder="值班人员"/><input id="date" class="input" type="text" placeholder="值班日期"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>');
+            $('#status_' + i).addClass('active');
+            Y.Storage.set('shopProductActive',i);
+            switch(i){
+                case 1:
+                    
+                    config = [
+                        {CH: "值班人员", EN: "inspectedby_name"},
+                        {CH: "值班时间", EN: "patrol_time"},
+                        {CH: "班级", EN: "class_name"},
+                        {CH: "应到人数", EN: "due_number"},
+                        {CH: "实到人数", EN: "actual_number"},
+                        {CH: "缺勤人数", EN: "absence_namber"},
+                    ];
+                    args = {type:2,pageNum:1,patrol_time:'',name:""};
+                    break;
+                case 2:
+                    config = [
+                        {CH: "值班人员", EN: "inspectedby_name"},
+                        {CH: "值班时间", EN: "patrol_time"},
+                        {CH: "宿舍", EN: "dormitory_name"},
+                        {CH: "应到人数", EN: "due_number"},
+                        {CH: "实到人数", EN: "actual_number"},
+                        {CH: "缺勤人数", EN: "absence_namber"},
+                    ];
+                    args = {type:3,pageNum:1,patrol_time:'',name:""};
+                    break;  
+                case 3:
+                    config = [
+                        {CH: "值班人员", EN: "inspectedby_name"},
+                        {CH: "巡查时间", EN: "patrol_time"},
+                        {CH: "楼名楼层", EN: "floor_name"},
+                        {CH: "文字说明", EN: "remark"},
+                    ];
+                    args = {type:1,pageNum:1,patrol_time:'',name:""};
+                    break;
+                case 4:
+                    config = [
+                        {CH: "值班人员", EN: "inspectedby_name"},
+                        {CH: "巡查时间", EN: "patrol_time"},
+                        {CH: "标题", EN: "title"},
+                        {CH: "区域", EN: "area_name"},
+                        {CH: "备注信息", EN: "remark",htmlFormat:"<span class='applyAndHiringNum'>{remark}</span><span class='showApplyAndHiringNum'>查看</span>"},
+                    ];
+                    args = {type:0,pageNum:1,patrol_time:'',name:""};
+                    break;  
+                default:
+                    console.log(1111)
+                    break;
+            }
+            list = new Y.List(httpIp + "/sys/getSummaryAll", args, config);
+            list.load(function () {
+                //查看
+                $("tr").each(function(i){
+                    if(i > 0 && list.data.rows.length > 0){
+                        var data = list.data.rows[i - 1];
+                        if(data.absence_namber && data.absence_namber > 0)
+                        {
+                            var html = "<font style='color:#F33611'>"+data.absence_namber+"</font>"
+                            $(this).find("td").eq(6).html(html);
+                        }
+                    }
+
+                    
+
+                })
+                new Y.ListSearch(list,{
+                    name:$("#keyword"),
+                    patrol_time:$('#date'),
+                });
+                //值班日期
+                var datecalendar = new Y.Calendar($("#date"),{date:''});
+                datecalendar.maxDate = new Date();
+                $("#date").focus(function(){
+                    var _this = $(this);
+                    datecalendar.open(function(d){
+                        _this.val(d);
+                        datecalendar.close();
+                    });
+                })
+            });
+            
+
+        }
+        $("#downLoadExcel").click(function(){
+            list.toExcel("商品信息");
+        })
+        
+
+        //打印
+        $("#printBtn").click(function(){
+            var table = "<div id='print' class='table'>"+$(".table").html()+"</div>";
+            $('body').append(table);
+            window.print();
+            $("#print").remove();
+        })
+       
+    })()
+</script>

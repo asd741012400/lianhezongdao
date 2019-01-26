@@ -1,0 +1,174 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="classId" type="text" placeholder="选择班级"/>
+            <input class="input" id="teacherId" type="text" placeholder="选择教师"/>
+            <input id="startTime" class="input" type="text" placeholder="开始时间"/>
+            <input id="endTime" class="input" type="text" placeholder="结束时间"/>
+            <input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="addStatistic" type="button" value="生成统计" class="bg_eeeeee"/>
+
+        <a target="_blank"><input id="downLoadExcel" type="button" value="导出" class="bg_eeeeee"/></a>
+        <div class="clear"></div>
+    </div>
+</div>
+<div id="logStatistic">
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+
+<style>
+.table table{
+    table-layout:fixed;
+}
+.table th{
+    width:auto;
+}
+.fon-f00{color:#f00;}
+.load{position: absolute;top:50%;left:50%;margin-left:-33px;margin-top:-33px;}
+.boxShadow input{
+    display:block;
+    margin:auto;
+}
+.table table tr:first-child th:nth-child(7){
+    width:16%;
+}
+.table table tr:first-child th:nth-child(10){
+    width:20%;
+}
+.table table tr td:nth-child(10){
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+}
+</style>
+<script type="text/javascript">
+    (function() {
+        /*var rightLoading = new Y.loading(999, 0);
+        rightLoading.open("加载中...");*/
+        var option = {pageSize: "welcome_reports", pageNum: 1};
+        var config = [
+            {CH: "提交日期", EN: "date"},
+            {CH: "节次", EN: "sectionName"},
+            {CH: "科目", EN: "course"},
+            {CH: "班级", EN: "className"},
+            {CH: "教师", EN: 'teacherName'},
+            {CH: "考勤（人）", EN: "",htmlFormat:"<span>迟到{late}、早退{leaveEarly}、旷课{absence}、请假{leave}、罚{punish}、正常{normal}</span>"},
+            {CH: "纪律班风", EN: "jlbf"},
+            {CH: "教学效果自评", EN: "jxxgzp"},
+            {CH: "教学反思", EN: "selfExamination"},
+        ];
+        var list = new Y.List(eschoolIP + "/api/teachingLog/v0.1/web", option, config);
+        list.btnsWidth = 40;
+        list.btns = "<span class=\"listLook bg_dfba49\">查看</span>";
+        list.load(function () {
+            var data = list.data;
+            var totTtml = "班级总数：<span class='fon-f00'>" + data.classCount + "</span>；总节次：<span class='fon-f00'>" + data.total + "</span>；纪律班风："
+            data.jlbf.forEach(function(item,index){
+                var str = item.name + "<span class='fon-f00'>" + item.count + "</span>";
+                totTtml += index==data.jlbf.length-1 ? str + "；" : str + "、";
+            })
+            totTtml += "教学自评："
+            data.jxxgzp.forEach(function(item,index){
+                var str = item.name + "<span class='fon-f00'>" + item.count + "</span>";
+                totTtml += index==data.jxxgzp.length-1 ? str + "；" : str + "、";
+            })
+            $("#logStatistic").html(totTtml);
+            $("tr").each(function(i){
+                if(i > 0 && data.rows.length > 0){
+                    var _data = data.rows[i - 1];
+                    //查看
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/teachingLog/teachLogInfo.html",title:"教学日志详情",data:{id:_data.id}});
+                    })
+                    $(this).children().eq(9).attr('title',_data.selfExamination)
+                }
+            });
+
+            /*rightLoading.close();*/
+        });
+        dateCalendar("#startTime");
+        dateCalendar("#endTime");
+        //生成统计
+        $("#addStatistic").click(function(){
+            Y.confirmx('<input class="input" id="type" type="text" placeholder="按选择统计维度"/><input class="input" id="enrollI" type="text"/><input id="startTimeSta" class="input" type="text" placeholder="开始时间"/><input id="endTimeSta" class="input" type="text" placeholder="结束时间"/>',function(){
+                var _type = type.val(),
+                t  = "",
+                url = "";
+                if (_type == '') {
+                    Y.alertx("请选择统计维度");
+                    return false;
+                }
+                _type == "0" ? function(){t = "班级";url = "classStatisticTable.html";}() : function(){t = "教师",url = "teacherStatisticTable.html"}()
+                if (enrollI.val() == '') {
+                    Y.alertx("请选择" + t );
+                    return false;
+                }
+                Y.open({url:"modules/teachingLog/" + url,data:{enrollI:enrollI.val(),begDate:$("#startTimeSta").val(),endDate:$("#endTimeSta").val()}});
+            },{_h:300,initFn:function(){
+                $('#enrollI').hide();
+                dateCalendar("#startTimeSta");
+                dateCalendar("#endTimeSta");
+                type = new Y.Select($('#type'),['按班级统计','按教师统计'],{SelectBox:{
+                    eachClickFn:function(th,val){
+                        $('#enrollI').val('');
+                        val.k=='0'?$('#enrollI').attr('placeholder','请选择班级').show():$('#enrollI').attr('placeholder','请选择教师').show();
+                        enrollI = val.k == '0' ? new Y.OnlySelectBox($("#enrollI"),Y.getSelectBox('classe')) : new Y.OnlySelectBox($("#enrollI"),Y.getSelectBox('teacher'));
+                    }
+                },delFn:false});
+            }})
+        })
+
+        var classId = new Y.OnlySelectBox($("#classId"),Y.getSelectBox('classe'));
+        var teacherId = new Y.OnlySelectBox($("#teacherId"),Y.getSelectBox('teacher'));
+
+
+        $("#downLoadExcel").click(function(){
+            var ClassId = classId.val(),
+            begDate = $("#startTime").val(),
+            endDate = $("#endTime").val();
+            if (ClassId=='') {
+                Y.alertx("请选择班级");
+                return false;
+            };
+            var url = eschoolIP+"/api/teachingLog/v0.1/web/export?&classId="+ClassId+"&teacherId="+teacherId.val()+"&begDate="+begDate+"&endDate="+endDate+"&accessToken="+accessToken+"&accountId="+accountId+"&accountType="+accountType+"&schoolId="+Y.User.Get("schoolId");
+            Y.download(url);
+        })
+        var rxnd = new Y.Calendar($("#rxnd"),{date:""});
+        rxnd.type = "year"
+        rxnd.maxDate = new Date();
+        $("#rxnd").focus(function () {
+            var _this = $(this);
+            rxnd.open(function (d) {
+                _this.val(d);
+                rxnd.close();
+            });
+        });
+
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            classId:classId,
+            teacherId:teacherId,
+            begDate:$("#startTime"),
+            endDate:$("#endTime")
+        });
+
+        function dateCalendar(sel){
+            var startDateCalendar = new Y.Calendar($(sel),{date:""});
+            if (sel == "#endTimeSta") startDateCalendar.alignTop = true;
+            startDateCalendar.maxDate = new Date();
+            $(sel).focus(function(){
+                var _this = $(this);
+                startDateCalendar.open(function(d){
+                    _this.val(d);
+                    startDateCalendar.close();
+                });
+            })
+        }
+    })()
+</script>

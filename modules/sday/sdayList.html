@@ -1,0 +1,244 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="nickname" class="input" type="text" placeholder="昵称"/>
+            <select id="userType" class="input"><option selected value="3">全部类型</option><option value="1">学生</option><option value="2">老师</option></select>
+            <input id="beg" class="input" type="text" placeholder="开始时间"/>
+            <input id="end" class="input" type="text" placeholder="结束时间"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style type="text/css">
+    .sdayBtnDiv{
+        padding-top: 5px;
+        text-align: center;
+    }
+    .sdayBtn{
+        padding:3px 5px;
+        padding-left: 28px;
+        border:1px solid #e1e1e1;
+        cursor: pointer;
+        border-radius: 3px;
+        color:#333333;
+        transition: all 0.2s;
+        display: inline-block;
+    }
+    .sdayTop{
+        background: url("images/jh.png") 10px center no-repeat;
+    }
+    .sdayTop:hover{
+        color:#59a9e1;
+        background: url("images/jh_active.png") 10px center no-repeat;
+    }
+    .sdayShutup{
+        background: url("images/jy.png") 10px center no-repeat;
+    }
+    .sdayShutup:hover{
+        color:#ff8d31;
+        background: url("images/jy_active.png") 10px center no-repeat;
+    }
+    .sdayRemote{
+        background: url("images/scdt.png") 10px center no-repeat;
+    }
+    .sdayRemote:hover{
+        color:#fe6565;
+        background: url("images/scdt_active.png") 10px center no-repeat;
+    }
+    .sdayImgList{
+        line-height: 100%;
+        text-align: center;
+    }
+    .sdayImgList img{
+        width: 100px;
+        height: 100px;
+        margin:5px;
+    }
+    .expressionImg{
+        width: 24px;
+        vertical-align:bottom;
+    }
+    .hot{
+        background: #EFEFEF;
+        transition: all 0.2s;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var expressionMap = {
+            ee_1:"[):]",
+            ee_2:"[:D]",
+            ee_3:"[;)]",
+            ee_4:"[:-o]",
+            ee_5:"[:p]",
+            ee_6:"[(H)]",
+            ee_7:"[:@]",
+            ee_8:"[:s]",
+            ee_9:"[:$]",
+            ee_10:"[:(]",
+            ee_11:"[:'(]",
+            ee_12:"[:|]",
+            ee_13:"[(a)]",
+            ee_14:"[8o|]",
+            ee_15:"[8-|]",
+            ee_16:"[+o(]",
+            ee_17:"[<o)]",
+            ee_18:"[|-)]",
+            ee_19:"[*-)]",
+            ee_20:"[:-#]",
+            ee_21:"[:-*]",
+            ee_22:"[^o)]",
+            ee_23:"[8-)]",
+            ee_24:"[(|)]",
+            ee_25:"[(u)]",
+            ee_26:"[(S)]",
+            ee_27:"[(*)]",
+            ee_28:"[(#)]",
+            ee_29:"[(R)]",
+            ee_30:"[({)]",
+            ee_31:"[(})]",
+            ee_32:"[(k)]",
+            ee_33:"[(F)]",
+            ee_34:"[(W)]",
+            ee_35:"[(D)]"
+        }
+        var option = {pageSize: "sday", pageNum: 1};
+        var config = [
+            {CH: "姓名", EN: "name"},
+            {CH: "手机号", EN: "phone"},
+            {CH: "昵称", EN: "nickName"},
+            {CH: "动态内容", EN: "content",htmlFormat:function(k,v,o){
+                    for(var key in expressionMap){
+                        v = v.replaceAll(expressionMap[key],"<img class='expressionImg' src='images/expression/" + key + ".png' />");
+                    }
+                    return "<div>" + v + "</div>";
+                }
+            },
+            {CH: "图片", EN: "images",htmlFormat:function(k,v,o){
+                var imgs = "";
+                v.sort(function(a,b){
+                    return a["sort"] - b["sort"];
+                })
+                for(var i = 0; i < v.length; i ++) imgs += "<img _src='" + v[i].image + "' src='" + v[i].thumbnail + "' />";
+                return "<div class='sdayImgList'>" + imgs + "</div>";
+            }},
+            {CH: "用户类型", EN: "type"},
+            {CH: "发布时间", EN: "postTime"},
+            {CH: "操作",htmlFormat:function(k,v,o){
+                v = "<div class='sdayBtnDiv'><span class='sdayBtn sdayTop'>" + (o.top ? "取消精华" : "设为精华") + "</span></div>";
+                v += "<div class='sdayBtnDiv'><span class='sdayBtn sdayShutup'>" + (o.shutup ? "已禁言" : "用户禁言") + "</span></div>";
+                v += "<div class='sdayBtnDiv'><span class='sdayBtn sdayRemote'>删除动态</span></div>";
+                return v;
+            }}
+        ];
+        var list = new Y.List(sdayIP + "/api/sday/v0.1/timelines/admin/school", option, config);
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //图片预览
+                    $(this).find(".sdayImgList").viewer({url:function(_this){
+                        return $(_this).attr("_src");
+                    }});
+                    //删除
+                    $(this).find(".sdayRemote").click(function(){
+                        list.deleteFn([data],sdayIP + "/api/sday/v0.1/timelines/","timelineId","动态",{vKey:"name",obj:$(this)});
+                    })
+                    //精华
+                    $(this).find(".sdayTop").click(function(){
+                        Y.confirmx(data.top ? "确定取消精华？" : "确定设为精华?",function(){
+                            Y.ajax(sdayIP + "/api/sday/v0.1/timelines/" + data.timelineId + "/top",function(res){
+                                if(res && res.result){
+                                    Y.alertx("操作成功",function(){
+                                        list.load();
+                                    });
+                                }else{
+                                    var msg = "操作失败";
+                                    if(res && res.errorMsg) msg += "," + res.errorMsg;
+                                    Y.alertx(msg);
+                                }
+                            },{meth:data.top ? "DELETE" : "POST",data:{top:!data.top}})
+                        })
+                    })
+                    //禁言
+                    $(this).find(".sdayShutup").click(function(){
+                        var html = data.shutup ? "确定取消禁言?" : "<div>开始时间:<input id='begDate' type='text' class='input' style='width:150px;' /></div><div>结束时间:<input id='endDate' type='text' class='input' style='width:150px;' /></div>";
+                        Y.confirmx(html,function(){
+                            Y.ajax(sdayIP + (data.shutup ? "/api/sday/v0.1/timelines/permission" : "/api/sday/v0.1/timelines/permission"),function(res){
+                                if(res && res.result){
+                                    Y.alertx("操作成功",function(){
+                                        list.load();
+                                    });
+                                }else{
+                                    var msg = "操作失败";
+                                    if(res && res.errorMsg) msg += "," + res.errorMsg;
+                                    Y.alertx(msg);
+                                }
+                            },{dataJson:false,meth:data.shutup ? "DELETE" : "POST",data:data.shutup ? {id:data.userId,idType:2,type:1} : {id:data.userId,idType:2,type:1,begDate:$("#begDate").val(),endDate:$("#endDate").val()}})
+                        },{_w:300,_h:data.shutup ? 0 : 200,title:"选择禁言时间",initFn:function(){
+                            //开始日期
+                            var begDate = new Y.Calendar($("#begDate"),{date:"",timeType:[00,00,00]});
+                            $("#begDate").focus(function () {
+                                var _this = $(this);
+                                begDate.open(function (d) {
+                                    _this.val(d);
+                                    begDate.close();
+                                });
+                            });
+
+                            //结束日期
+                            var endDate = new Y.Calendar($("#endDate"),{date:"",timeType:[23,59,59]});
+                            $("#endDate").focus(function () {
+                                var _this = $(this);
+                                endDate.open(function (d) {
+                                    _this.val(d);
+                                    endDate.close();
+                                });
+                            });
+                        }})
+                    })
+                    if(data.top) $("tr").eq(1).addClass("hot");
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),sdayIP + "/api/sday/v0.1/timelines/","timelineId","动态",{vKey:"name"});
+        })
+        //开始日期
+        var beg = new Y.Calendar($("#beg"),{date:"",timeType:[00,00,00]});
+        $("#beg").focus(function () {
+            var _this = $(this);
+            beg.open(function (d) {
+                _this.val(d);
+                beg.close();
+            });
+        });
+
+        //结束日期
+        var end = new Y.Calendar($("#end"),{date:"",timeType:[23,59,59]});
+        $("#end").focus(function () {
+            var _this = $(this);
+            end.open(function (d) {
+                _this.val(d);
+                end.close();
+            });
+        });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            nickname:$("#nickname"),
+            userType:$("#userType"),
+            beg:$("#beg"),
+            end:$("#end")
+        });
+    })()
+</script>

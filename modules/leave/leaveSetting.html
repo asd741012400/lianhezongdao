@@ -1,0 +1,55 @@
+﻿<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="s_class" type="text" placeholder="输入班级"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="cancel" type="button" value="返回" class="bg_eeeeee" />
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style type="text/css">
+    .active{
+        background-color: #00b7ee;
+        color: #fff;
+        border: 1px solid #00b7ee;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "classAttendanceList", pageNum: 1};
+        var config = [
+            {CH: "班级名称", EN: "className"},
+            {CH: "接收学生", EN: "students"},
+            {CH: "接收教师", EN: "teachers"},
+            {CH: "接收部门", EN: "groups"},
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/classAttendancePushSendee", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span>";
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/classAttendance/classAttendanceEdit.html",title:"修改",data:{id:data.classId}});
+                    })
+                }
+            })
+        });
+        //返回
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$('#s_class')
+        });
+    })()
+</script>

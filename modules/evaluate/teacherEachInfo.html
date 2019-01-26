@@ -1,0 +1,312 @@
+<div class="form">
+    <div class="info-head">
+        <h1>评课详情</h1>
+        <span class="info-btn align-right" id="cancel">返回列表</span>
+    </div>
+
+    <div class="info-head-vice" id="pjGroupName">
+    </div>
+
+    <div class="info-body">
+        <div class="teacher-wrap">
+            <div class="teacher-list">
+                <div class="teacher-list-img"><img id="pjTeacherPhoto" src="images/headPortrait.png" /></div><div class="teacher-list-info">
+                    <div class="teacher-name" id="pjTeacherName"></div>
+                    <span class="type-i pk-i">评课</span>
+                    <span class="job" id="pjTeacherGroupName"></span>
+                </div>
+            </div>
+            <div class="teacher-list-type teacher-list-type-normal"></div>
+            <div class="teacher-list">
+                <div class="teacher-list-img">
+                    <img id="rkTeacherPhoto" src="images/headPortrait.png" />
+                </div><div class="teacher-list-info">
+                    <div class="teacher-name" id="rkTeacherName"></div>
+                    <span class="type-i rk-i">任课</span>
+                    <span class="job" id="rkTeacherGroupName"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="reason-wrap">
+            <span>拒绝理由</span>
+            <p id="refuseReason"></p>
+        </div>
+
+        <div class="info-body-list">
+            <h2 class="list-title">课程基本信息</h2>
+            <ul class="info-body-list-main">
+                <li>
+                    <span>上课时间</span>
+                    <div class="main-text" id="listenDate"></div>
+                </li>
+                <li>
+                    <span>节次</span>
+                    <div class="main-text" id="section"></div>
+                </li>
+                <li>
+                    <span>授课班级</span>
+                    <div class="main-text" id="className"></div>
+                </li>
+                <li>
+                    <span>课程名称</span>
+                    <div class="main-text" id="course"></div>
+                </li>
+                <li>
+                    <span>讲授课题</span>
+                    <div class="main-text" id="topic"></div>
+                </li>
+                <li>
+                    <span>授课地点</span>
+                    <div class="main-text" id="address"></div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="info-body-list">
+            <h2 class="list-title">评价细则</h2>
+            <ul class="info-body-list-main" id="answersList"></ul>
+        </div>
+
+        <div class="info-body-list proposal-wrap">
+            <h2 class="list-title">评议和建议</h2>
+            <p id="suggestion"></p>
+            <ul class="info-body-list-main">
+                <li>
+                    <span>每课作业布置量</span>
+                    <div class="main-text" id="homeworkCount"></div>
+                </li>
+                <li>
+                    <span>作业批改情况（每周）</span>
+                    <div class="main-text" id="correctCount"></div>
+                </li>
+                <li>
+                    <span>教学进程匹配</span>
+                    <div class="main-text" id="teachingProcess"></div>
+                </li>
+                <li>
+                    <span>班级学风评议</span>
+                    <div class="main-text" id="bjxf"></div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<style type="text/css">
+#right{
+    overflow:hidden;
+}
+.co-FC4210{
+    color:#FC4210;
+}
+.font-bold{
+    font-weight:bold;
+}
+
+.info-head-vice{
+    background:#F7FCFF;
+    font-weight:bold;
+    color:#59A9E1;
+    line-height:40px;
+    margin: 0 0 0 -10px;
+    width:calc( 100% + 20px );
+    padding-left:40px;
+}
+.info-body{
+    padding:40px 25px;
+}
+.teacher-list-img,.teacher-list-info,.teacher-list-type,.teacher-list{
+    display: inline-block;
+    vertical-align: middle;
+}
+.teacher-list-img{
+    width:56px;
+    height:56px;
+    border-radius:56px;
+    overflow:hidden;
+}
+.teacher-list-img img{
+    width:100%;
+    height:100%;
+}
+.teacher-name{
+    font-size:16px;
+    margin-bottom:2px;
+}
+.teacher-list-info{
+    margin-left:15px;
+}
+.teacher-list-info span{
+    font-size:12px;
+}
+.teacher-list-info .job{
+    color:#999;
+}
+.type-i{
+    height:16px;
+    width:32px;
+    line-height:16px;
+    color:#fff;
+    border-radius:4px;
+    display: inline-block;
+    text-align:center;
+}
+.pk-i{
+    background:#00B7EE;
+}
+.rk-i{
+    background:#75CD1F;
+}
+
+.teacher-list-type{
+    width:208px;
+    height:37px;
+    display:inline-block;
+    background:url('images/each_arrow.png') no-repeat;
+    margin: 0 56px;
+}
+.teacher-list-type-normal{
+    background-position: 0 0;
+}
+.teacher-list-type-refuse{
+    color:#FC4210;
+    background-position: 0 -40px;
+    line-height:5px;
+    text-align:center;
+}
+.reason-wrap{
+    margin-top:48px;
+    display:none;
+}
+.reason-wrap span{
+    color:#999;
+}
+.reason-wrap p,.proposal-wrap p{
+    font-size:16px;
+    border:1px solid #eee;
+    text-indent:0;
+    padding:18px 16px;
+    margin:8px 0 0 0;
+    max-width:880px;
+}
+.base-meg{
+    margin-top:64px;
+}
+.list-title{
+    font-size:18px;
+    margin-bottom:32px;
+}
+.info-body-list{
+    margin-top:64px;
+}
+.info-body-list-main{
+    clear:both;
+    overflow:hidden;
+}
+.info-body-list-main span{
+    color:#999;
+}
+.info-body-list-main li{
+    width:33.3%;
+    float:left;
+}
+.info-body-list-main li:nth-child(1),.info-body-list-main li:nth-child(2),.info-body-list-main li:nth-child(3){
+    margin-bottom:40px;
+}
+.main-text{
+    font-size:16px;
+    border-bottom:1px solid #eee;
+    margin:12px 80px 0 0;
+    padding-bottom:6px;
+}
+.proposal-wrap p{
+    margin-bottom:40px;
+}
+</style>
+<script>
+    (function() {
+        var type = Y.getUrlParam("type") || 'normal',
+        recordId = Y.getUrlParam("recordId"),
+        pjType = Y.getUrlParam("pjType");
+        Y.ajax(eschoolIP + "/api/teachingEvaluation/v0.1/teacher/record/{recordId}/detail",function(ret){
+            var anHtml = "",
+            answers = ret.answers;
+            for(var k in ret){
+                if (ret[k] != 'object') {
+                    switch(k){
+                        case 'homeworkCount':
+                        ret[k] += '题'
+                        break;
+                        case 'correctCount':
+                        ret[k] += '次'
+                        break;
+                        case 'teachingProcess':
+                        ret[k] = teachingProcess(ret[k])
+                        break;
+                        case 'bjxf':
+                        ret[k] = bjxf(ret[k])
+                        break;
+                    }
+                    if (ret[k]) {
+                        $("#"+k).html(ret[k])
+                    }
+                }
+            }
+            $("#pjTeacherPhoto").attr('src',ret.pjTeacherPhoto);
+            $("#rkTeacherPhoto").attr('src',ret.rkTeacherPhoto);
+            for (var i = 0; i < answers.length; i++) {
+                anHtml += '<li><span>' + answers[i].questionTitle + '</span><div class="main-text co-FC4210" id="homeworkCount">' + answers[i].score + '分</div></li>';
+            };
+            anHtml += '<li><span>总得分</span><div class="main-text co-FC4210 font-bold" id="homeworkCount">' + ret.scoreTotal + '分</div></li>'
+            $("#answersList").html(anHtml);
+        },{data:{recordId:recordId,pjType:pjType}})
+
+        function teachingProcess(data){
+            switch(data){
+                case 1:
+                return '一致'
+                break;
+                case 2:
+                return '滞后'
+                break;
+                case 3:
+                return '超前'
+                break;
+            }
+        }
+        function bjxf(data){
+            switch(data){
+                case 1:
+                return '优秀'
+                break;
+                case 2:
+                return '良好'
+                break;
+                case 3:
+                return '一般'
+                break;
+                case 4:
+                return '较差'
+                break;
+
+            }
+        }
+        if (type == 'normal') {
+            $(".reason-wrap").remove();
+            $(".teacher-list-type").addClass('teacher-list-type-normal');
+        }else{
+            $(".reason-wrap").show();
+            $(".teacher-list-type").text("任课老师拒绝本次评课");
+            $(".teacher-list-type").addClass('teacher-list-type-refuse');
+        };
+
+        //返回
+        $("#cancel").click(function(){
+            if (pjType=='1') {
+                Y.open({url:"modules/evaluate/teacherEachList.html",title:"",data:{type:type}});
+            }else{
+                Y.open({url:"modules/evaluate/teachGroupList.html",title:"",data:{type:type}});
+            };
+        });
+    })()
+</script>

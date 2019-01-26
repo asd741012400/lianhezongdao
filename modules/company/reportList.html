@@ -1,0 +1,121 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="statusBtns" id="typeBtns"></div>
+        <div class="search">
+            <input id="startDate" class="input" type="text" placeholder="开始时间"/>
+            <input id="endDate" class="input" type="text" placeholder="结束时间"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    .statusBtns{
+        margin-bottom: 10px;
+        border-bottom: 1px solid #eeeeee;
+        padding: 20px 0px;
+        text-align: left;
+    }
+    .statusBtn{
+        padding:10px 30px;
+        border: 1px solid #e4e4e4;
+        border-right-width:0px;
+        background: #f8f8f8;
+        color:#666666;
+        cursor: pointer;
+    }
+    .statusBtn.active{
+        border: 1px solid #00b7ee;
+        background: #00b7ee;
+        color:#ffffff;
+    }
+    .statusBtn:first-child{
+        border-radius: 5px 0px 0px 5px;
+    }
+    .statusBtn:last-child{
+        border-right-width: 1px;
+        border-radius: 0px 5px 5px 0px;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var config = [
+            {CH: "学生", EN: "studentName"},
+            {CH: "班级", EN: 'className'},
+            {CH: "实习单位", EN: "companyName"},
+            {CH: "岗位", EN: "postName"},
+            {CH: "指导老师", EN: "teacherName"},
+            {CH: "提交时间", EN: "createTime"}
+        ];
+        var active = '',title = '';
+        var html = '';
+        var rows = [{value:'日报',id:1},{value:'周报',id:2},{value:'月报',id:3}];
+        for(var i = 0; i < rows.length; i ++) html += '<span class="statusBtn">{value}</span>'._eval(rows[i]);
+        $('#typeBtns').html(html);
+        var defaultI = Y.Storage.get('companyReportListActive') || 0;
+        var list = '';
+        changeType(rows[defaultI].id,defaultI);
+        title = rows[defaultI].value;
+        $('.statusBtn').each(function(i){
+            $(this).click(function(){
+                changeType(rows[i].id,i);
+                title = rows[i].value;
+            })
+        })
+
+        var startDateCalendar = new Y.Calendar($("#startDate"),{date:"",timeType:[12,00,00]});
+        startDateCalendar.maxDate = new Date();
+        $("#startDate").focus(function(){
+            var _this = $(this);
+            startDateCalendar.open(function(d){
+                _this.val(d);
+                startDateCalendar.close();
+            });
+        })
+        var endDateCalendar = new Y.Calendar($("#endDate"),{date:"",timeType:[12,00,00]});
+        endDateCalendar.maxDate = new Date();
+        $("#endDate").focus(function(){
+            var _this = $(this);
+            endDateCalendar.open(function(d){
+                _this.val(d);
+                endDateCalendar.close();
+            });
+        })
+        function changeType(type,i){
+            if(active) active.removeClass('active');
+            active = $('.statusBtn').eq(i);
+            Y.Storage.set('companyReportListActive',i);
+            active.addClass('active');
+            $("#classId,#endDate,#startDate").val('');
+            var option = {pageSize: "companyReportListActive" + type, pageNum: 1,type:type};
+            list = new Y.List(eschoolIP + "/api/company/v0.1/mgt/report", option, config);
+            list.btns = "<span class=\"listLook bg_dfba49\">查看</span>";
+            list.listNumTitle = "序号";
+            list.load(function () {
+                var _list = this;
+                $("tr").each(function(i){
+                    if(i > 0 && _list.data && _list.data.rows && _list.data.rows.length > 0){
+                        var data = _list.data.rows[i - 1];
+                        //查看
+                        $(this).find(".listLook").click(function(){
+                            Y.open({url:"modules/company/reportEdit.html",title:title + "信息",data:{data:data,title:title}});
+                        })
+                    }
+                })
+            });
+            var listSearch = new Y.ListSearch(list,{
+                startTime:$('#startDate'),
+                endTime:$('#endDate')
+            });
+        }
+        $("#downLoadExcel").click(function(){
+            list.toExcel(title + "记录");
+        })
+    })()
+</script>

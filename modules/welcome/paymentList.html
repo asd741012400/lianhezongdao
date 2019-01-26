@@ -1,0 +1,195 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="keyword" type="text" placeholder="姓名/专业"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/><span id="advancedSearch_btn">高级查询<img src="images/gjcx.png" /></span>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+        <div id="advancedSearch_box">
+            <div class="advancedSearch_data"><input id="name" class="input" type="text" placeholder="姓名"/></div>
+            <div class="advancedSearch_data"><input id="major" class="input" type="text" placeholder="专业"/></div>
+            <div class="advancedSearch_data"><input id="rxnd" class="input" type="text" placeholder="入学年份"/></div>
+            <div class="advancedSearch_data"><select id="payStatu" class="input"><option value="">全部缴费状态</option><option value="0">未缴费</option><option value="1">缴费完成</option><option value="2">欠费</option></select></div>
+            <div class="clear"></div>
+            <div class="advancedSearch_btn"><input type="button" value="搜索" id="advancedSearchBtn" class="bg_00b7ee"/><input type="button" value="取消" id="advancedSearchCancle" class="bg_ffffff"/></div>
+        </div>
+        <div id="paymentStatistic"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    #paymentStatistic{
+        text-align: left;
+        padding-top: 32px;
+        color: #59a9e1;
+        font-size: large;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "welcome_payment", pageNum: 1};
+        var config = [
+            {CH: "姓名", EN: "name"},
+            {CH: "入学年份", EN: "rxnd"},
+            {CH: "性别", EN: "sex", Option: {"0": "女", "1": "男"},OptionExcel:{"0":"女","1":"男"}},
+            {CH: "专业", EN: "major"},
+            {CH: "手机号码", EN: 'phone'},
+            {CH: "身份证号", EN: "cardId"},
+            {CH: "应收金额", EN: "shouldPay"},
+            {CH: "宿舍费用", EN: "dormExpense"},
+            {CH: "减免金额", EN: "reduce"},
+            {CH: "实收金额", EN: "actualPay"},
+            {CH: "欠费金额", EN: "arrearage"},
+            {CH: "备注", EN: "note"},
+            {CH: "状态", EN: "payStatu", Option: {"0": "未缴费", "1": "<font style='color:#00b7ee'>缴费完成</font>", "2": "<font style='color:#ee2700'>欠费</font>"},OptionExcel:{"0": "未缴费", "1": "缴费完成", "2": "欠费"}},
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/welcome/payment", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span>";
+        list.load(function () {
+            $('#paymentStatistic').html('总人数：{total}人，缴费完成：{complete}人，欠费：{qianfei}人，未缴费：{weijiaofei}'._eval(list.data));
+
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        var html = "<div>";
+                        //应收金额
+                        html += "<div class=''>";
+                        html += "应收金额: <input class='input' id='shouldPay' type='text' placeholder='' />";
+                        html += "</div>";
+                        //减免金额
+                        html += "<div class=''>";
+                        html += "减免金额: <input class='input' id='reduce' type='text' placeholder='' />";
+                        html += "</div>";
+                        //实收金额
+                        html += "<div class=''>";
+                        html += "实收金额: <input class='input' id='actualPay' type='text' placeholder='' />";
+                        html += "</div>";
+                        //宿舍费用
+                        html += "<div class=''>";
+                        html += "宿舍费用: <input class='input' id='dormExpense' type='text' placeholder='' />";
+                        html += "</div>";
+                        //欠费金额
+                        html += "<div class=''>";
+                        html += "欠费金额: <input class='input' id='arrearage' type='text' placeholder='' readOnly='true' />";
+                        html += "</div>";
+                        //备注
+                        html += "<div class=''>";
+                        html += "备　　注: <input class='input' id='data-note' type='text' placeholder='' value='" + data.note + "' />";
+                        html += "</div>";
+
+                        html += "</div>";
+                        Y.confirmx(html,function(){
+                            var shouldPay = $("#shouldPay").val();
+                            var dormExpense = $("#dormExpense").val();
+                            var reduce = $("#reduce").val();
+                            var actualPay = $("#actualPay").val();
+                            var arrearage = $("#arrearage").val();
+                            var _note = $("#data-note").val();
+                            Y.ajax(ucIP + "/api/uc/v0.1/welcome/payment",function(res){
+                                var msg = res && res.result ? "修改缴费信息成功!" : ("修改缴费信息失败," + res.errorMsg);
+                                Y.alertx(msg,function(){
+                                    list.load();
+                                });
+                            },{meth:"PUT",data:{accountId:data.accountId,shouldPay:shouldPay,dormExpense:dormExpense,reduce:reduce,actualPay:actualPay,arrearage:arrearage,note:_note},dataJson:false})
+                        },{_w:300,_h:350,title:"修改缴费信息",initFn:function(res){
+                            $("#shouldPay").val(data.shouldPay);
+                            $("#shouldPay").keyup(function(){
+                                compute();
+                            })
+                            $("#dormExpense").val(data.dormExpense);
+                            $("#dormExpense").keyup(function(){
+                                compute();
+                            })
+                            $("#reduce").val(data.reduce);
+                            $("#reduce").keyup(function(){
+                                compute();
+                            })
+                            $("#actualPay").val(data.actualPay);
+                            $("#actualPay").keyup(function(){
+                                compute();
+                            })
+                            $("#arrearage").val(data.arrearage);
+                            $("#data-note").val(data.note);
+                            function compute(){
+                                var shouldPay = $("#shouldPay").val();
+                                shouldPay = !shouldPay ? 0 : parseInt(shouldPay);
+                                var dormExpense = $("#dormExpense").val();
+                                dormExpense = !dormExpense ? 0 : parseInt(dormExpense);
+                                var reduce = $("#reduce").val();
+                                reduce = !reduce ? 0 : parseInt(reduce);
+                                var actualPay = $("#actualPay").val();
+                                actualPay = !actualPay ? 0 : parseInt(actualPay);
+                                $("#arrearage").val(shouldPay + dormExpense - reduce - actualPay);
+                            }
+                        },verifyFn:function(){
+                            var shouldPay = $("#shouldPay").val();
+                            shouldPay = !shouldPay ? 0 : parseInt(shouldPay);
+                            var dormExpense = $("#dormExpense").val();
+                            dormExpense = !dormExpense ? 0 : parseInt(dormExpense);
+                            var reduce = $("#reduce").val();
+                            reduce = !reduce ? 0 : parseInt(reduce);
+                            var actualPay = $("#actualPay").val();
+                            actualPay = !actualPay ? 0 : parseInt(actualPay);
+                            var arrearage = $("#arrearage").val();
+                            console.log(/^\\d+$/.test(shouldPay));
+                            if(shouldPay < 0 || !Y.Verify.PositiveInt(shouldPay)[0]){
+                                Y.alertx("应收金额为不小于0的数字");
+                                return false;
+                            }
+                            if(dormExpense < 0 || !Y.Verify.PositiveInt(dormExpense)[0]){
+                                Y.alertx("宿舍费用为不小于0的数字");
+                                return false;
+                            }
+                            if(reduce < 0 || !Y.Verify.PositiveInt(reduce)[0]){
+                                Y.alertx("减免金额为不小于0的数字");
+                                return false;
+                            }
+                            if(actualPay < 0 || !Y.Verify.PositiveInt(actualPay)[0]){
+                                Y.alertx("实收金额为不小于0的数字");
+                                return false;
+                            }
+                            if(shouldPay < reduce){
+                                Y.alertx("减免金额不能大于应收金额");
+                                return false;
+                            }
+                            if(arrearage < 0 || !Y.Verify.PositiveInt(arrearage)[0]){
+                                Y.alertx("欠费金额为不小于0的数字");
+                                return false;
+                            }
+                            return true;
+                        }})
+                    })
+                }
+            })
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("新生缴费信息");
+        })
+        var rxnd = new Y.Calendar($("#rxnd"),{date:""});
+        rxnd.type = "year";
+        rxnd.maxDate = new Date();
+        $("#rxnd").focus(function () {
+            var _this = $(this);
+            rxnd.open(function (d) {
+                _this.val(d);
+                rxnd.close();
+            });
+        });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword")
+        },ucIP + "/api/uc/v0.1/welcome/payment/preciseresult",{
+            name:$("#name"),
+            major:$("#major"),
+            payStatu:$("#payStatu"),
+            rxnd:$("#rxnd")
+        });
+    })()
+</script>

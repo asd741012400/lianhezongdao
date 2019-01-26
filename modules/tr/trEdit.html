@@ -1,0 +1,75 @@
+<form class="form">
+    <div class="form_title"><img class="form_title_img" src="images/headPortrait.png"/><font>实训室信息编辑</font><span class="red">(*为必填项)</span></div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width100">
+            <div class="data_title"><b class="red">*</b>实训室名称</div>
+            <span class="data_error">实训室名称不能为空</span><input class="input" id="data-name" type="text" placeholder="请填写实训室名称"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b class="red">*</b>地址</div>
+            <span class="data_error">地址不能为空</span><input class="input" id="data-location" type="text" placeholder="请填写地址"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b class="red">*</b>责任人</div>
+            <span class="data_error">责任人不能为空</span><input class="input" id="data-response" type="text" placeholder="请选择责任人"/>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            id : Y.getUrlParam("id"),
+            name : {
+                o:$("#data-name"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"实训室名称不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            location : {
+                o:$("#data-location"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"地址不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            response:{
+                o:new Y.OnlySelectBox($("#data-response"),{vKey:"accountId",sKey:"name",SelectBox:{paramet:{key:"keyword"},url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div class='autoList' vaule='{accountId}'><b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"}}),
+                _o:$("#data-response"),
+                s:function(res){
+                    return [res.response.accountId,res.response.name];
+                },
+                f:function(v){
+                    if (v == "") {
+                        return [false,"责任人不能为空"];
+                    } else {
+                        return [true];
+                    }
+                },
+            }
+        }
+        var from = new Y.From(fromConfig,"id",{getURL:ucIP + "/api/uc/v0.1/tr/{id}",postURL:ucIP + "/api/uc/v0.1/tr",putURL:ucIP + "/api/uc/v0.1/tr",title:"提交实验室信息",dataJson:false});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

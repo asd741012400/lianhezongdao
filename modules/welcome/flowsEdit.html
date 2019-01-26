@@ -1,0 +1,59 @@
+<form class="form">
+    <div class="form_title"><img class="form_title_img" src="images/headPortrait.png"/><font>新生报到流程编辑</font><span class="red">(*为必填项)</span></div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width100">
+            <div class="data_title"><b class="red">*</b>处理部门</div>
+            <span class="data_error">处理部门不能为空</span><input class="input" id="data-department" type="text" placeholder="请填写处理部门"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b class="red">*</b>办理事项</div>
+            <span class="data_error">办理事项不能为空</span><input class="input" id="data-matter" type="text" placeholder="请填写办理事项"/>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            id : Y.getUrlParam("id"),
+            stepNo : parseInt(Y.getUrlParam("stepNo")),
+            department : {
+                o:$("#data-department"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"处理部门不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            matter : {
+                o:$("#data-matter"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"处理事项不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            }
+        }
+
+        var from = new Y.From(fromConfig,"id",{getURL:ucIP + "/api/uc/v0.1/flows/{id}",postURL:ucIP + "/api/uc/v0.1/flows",putURL:ucIP + "/api/uc/v0.1/flows",title:"编辑新生报到流程",dataJson:false});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

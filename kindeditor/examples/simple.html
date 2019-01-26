@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Simple Examples</title>
+		<style>
+			form {
+				margin: 0;
+			}
+			textarea {
+				display: block;
+			}
+			.ke-icon-uploadImg {
+				background-image: url(../themes/default/default.gif);
+				background-position: 0px -496px;
+				width: 16px;
+				height: 16px;
+			}
+			.ke-icon-uploadFile {
+				background-image: url(../themes/default/default.gif);
+				background-position: 0px -1040px;
+				width: 16px;
+				height: 16px;
+			}
+			.ke-icon-addComponent{
+				background-image: url(../themes/default/default.gif);
+				background-position: 0px -1072px;
+				width: 16px;
+				height: 16px;
+			}
+		</style>
+		<link rel="stylesheet" href="../themes/default/default.css" />
+		<script charset="utf-8" src="../kindeditor.js"></script>
+		<script charset="utf-8" src="../lang/zh_CN.js"></script>
+		<script>
+			var editor;
+			KindEditor.lang({
+				uploadImg : '插入图片'
+			});
+			KindEditor.plugin('uploadImg', function(K) {
+				var self = this, name = 'uploadImg';
+				self.clickToolbar(name, function() {
+					_ue.uploadImg();
+				});
+			});
+			KindEditor.lang({
+				uploadFile : '插入附件'
+			});
+			KindEditor.plugin('uploadFile', function(K) {
+				var self = this, name = 'uploadFile';
+				self.clickToolbar(name, function() {
+					_ue.uploadFile();
+				});
+			});
+			KindEditor.lang({
+				addComponent : '添加模板'
+			});
+			KindEditor.plugin('addComponent', function(K) {
+				var self = this, name = 'addComponent';
+				self.clickToolbar(name, function() {
+					_ue.addComponent();
+				});
+			});
+			KindEditor.ready(function(K) {
+				if(_ue){
+					document.getElementById("textar").style.width = _ue.width + "px";
+					document.getElementById("textar").style.height = _ue.height + "px";
+					var items = [
+						'source','plainpaste','fontname', 'fontsize', 'forecolor', 'hilitecolor', 'bold', 'italic', 'underline','lineheight',
+						'removeformat', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
+						'insertunorderedlist', 'emoticons', 'link','print','table','uploadFile','uploadImg'];
+					if(_ue.addComponent) items.push('addComponent');
+					editor = K.create('textarea[name="content"]', {
+						resizeType : 0,
+						allowPreviewEmoticons : false,
+						allowImageUpload : false,
+						items : items,
+						newlineTag : "p"
+					});
+				}
+			});
+			function Print(){
+				editor.exec('print');
+			}
+		</script>
+	</head>
+	<body>
+		<form>
+			<textarea id="textar" name="content" style="visibility:hidden;"></textarea>
+		</form>
+	</body>
+</html>

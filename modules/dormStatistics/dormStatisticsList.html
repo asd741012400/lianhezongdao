@@ -1,0 +1,233 @@
+<div class="form">
+    <h1>宿舍楼分配统计</h1>
+    <div class="info-body">
+        <!-- <div class="dorm-list">
+            <div class="title">
+                <i class="dorm-i dorm-w"></i>
+                <span class="dorm-num">学生宿舍1栋</span>
+                <span class="">【男生宿舍】</span>
+            </div>
+            <div class="chart-wrap">
+                <div class="chart" id="chart1">
+
+                </div>
+                <div class="chart-text">
+                    <span class="percent">68%</span>
+                    <span>入住率</span>
+                </div>
+            </div>
+            <div class="chart-detail">
+                <span>总寝室数量：12</span><span>总寝室数量：12</span><span>总寝室数量：12</span><span>总寝室数量：12</span>
+            </div>
+            <div class="surplus">
+                <div class="bed-left">
+                    <i class="dorm-i bed-i"></i>
+                    剩余床位：<span>6床</span>
+                </div>
+                <input class="goDetail" type="button" value="点击查看" />
+            </div>
+        </div> -->
+    </div>
+</div>
+<style type="text/css">
+    h1{
+        font-size:16px;
+        font-weight:normal;
+        padding:20px 30px;
+    }
+    .info-body{
+        padding:0 20px;
+        clear:both;
+        overflow:hidden;
+    }
+    .dorm-list{
+        width:320px;
+        float:left;
+        border:1px solid #eee;
+        padding-bottom:12px;
+        margin:0 10px 15px 10px;
+        box-shadow:2px 2px 8px #eee;
+
+    }
+    .title{
+        padding:8px 6px;
+        background:#eee;
+    }
+    .title span{
+        display:inline-block;
+        vertical-align: bottom;
+        height:19px;
+    }
+    .dorm-i{
+        display:inline-block;
+        width:30px;
+        height:24px;
+        background:url("images/dorm_sp.png");
+        vertical-align: bottom;
+        margin-right:5px;
+    }
+    .dorm-w{
+        background-position:0 -26px;
+    }
+    .title .dorm-num{
+        font-size:16px;
+    }
+    .chart-wrap{
+        position:relative;
+    }
+    .chart{
+        height:190px;
+    }
+    .chart-text{
+        position:absolute;
+        top:50%;
+        left:50%;
+        margin-top: -20px;
+        margin-left: -57px;
+    }
+    .chart-text span{
+        display:block;
+        font-size:16px;
+        color:#b5b5b5;
+        text-align:center;
+    }
+    .chart-text .percent{
+        font-size:28px;
+        color:#7ecef4;
+        margin-bottom:8px;
+        width:114px;
+    }
+    .chart-detail,.surplus{
+        padding:0 12px;
+    }
+    .chart-detail{
+        margin-bottom:8px;
+    }
+    .chart-detail span{
+        width:50%;
+        display:inline-block;
+    }
+    .bed-i{
+        width:33px;
+        height:21px;
+        background-position:-34px -3px;
+        margin-right:10px;
+    }
+    .surplus{
+        clear:both;
+        overflow:hidden;
+    }
+    .surplus input{
+        background:#75cd1f;
+        color:#fff;
+        border:none;
+        width:70px;
+        height:30px;
+        border-radius:3px;
+        cursor:pointer;
+        float:right;
+        line-height:30px;
+    }
+    .surplus .bed-left{
+        float:left;
+        margin-top:7px;
+    }
+</style>
+<script src="js/echarts.min.js"></script>
+<script>
+(function() {
+    Y.ajax(ucIP+"/api/uc/v0.1/dormExtend/list",function(res){
+        init(res)
+    },{meth:'GET'})
+
+    function init(res){
+        var list = "";
+        if (res.data.length===0) {
+            list = '<p>暂无数据...</p>'
+        }else{
+            for (var i = 0; i < res.data.length; i++) {
+                var item = res.data[i],
+                sex = item.type=='0'?'女':'男';
+                classi = item.type=='0'?'dorm-w':'';
+                list += '<div class="dorm-list">'
+                      +      '<div class="title">'
+                      +          '<i class="dorm-i '+classi+'"></i><span class="dorm-num">学生宿舍'+item.buildingName+'</span><span class="">【'+sex+'生宿舍】</span>'
+                      +      '</div>'
+                      +      '<div class="chart-wrap">'
+                      +          '<div class="chart" id="chart'+i+'"></div><div class="chart-text"><span class="percent">'+((Number(item.yzNum)/Number(item.sBedNum))*100).toFixed(2)+'%</span><span>入住率</span></div>'
+                      +      '</div>'
+                      +      '<div class="chart-detail">'
+                      +          '<span>总寝室数：'+item.sRoomNum+'</span><span>总床位数：'+item.sBedNum+'</span><span>总楼层数：'+item.sFloorNum+'</span><span>已住人数：'+item.yzNum+'</span>'
+                      +      '</div>'
+                      +      '<div class="surplus">'
+                      +          '<div class="bed-left">'
+                      +              '<i class="dorm-i bed-i"></i>剩余床位：<span>'+(item.sBedNum-item.yzNum)+'床</span>'
+                      +          '</div>'
+                      +          '<input class="goDetail" data="'+item.buildingName+'" type="button" value="点击查看" />'
+                      +     '</div>'
+                      +  '</div>'
+            };
+        };
+
+        $(".info-body").html(list)
+        for (var i = 0; i < res.data.length; i++) {
+            var sel = 'chart'+i,
+            hArray1 = res.data[i].yzNum,
+            hArray0 = res.data[i].sBedNum;
+            MyChart(sel,hArray1,hArray0)
+        }
+        //查看
+        $(".goDetail").click(function(){
+            Y.open({url:"modules/dormStatistics/dormStatisticsBesdetail.html",title:"详情",data:{name:$(this).attr("data")}});
+        })
+    }
+    function MyChart(sel,hArray1,hArray0){
+        var myChart = echarts.init(document.getElementById(sel));
+        var labelBottom = {
+            normal : {
+                color: '#F1F4FB',
+                label : {
+                    show : true,
+                    position : 'center',
+                    textStyle: {
+                        color : '#64BBFB'
+                    }
+                },
+                labelLine : {
+                    show : false
+                }
+            },
+        };
+        myChart.setOption({
+            color:['#64BBFB'],
+            calculable : false,
+            series : [
+                {
+                    type:'pie',
+                    radius : ['65%', '70%'],
+                    data:[
+                        {value:hArray0-hArray1,itemStyle : labelBottom},
+                        {value:hArray1},
+                    ],
+                    itemStyle : {
+                        normal: {
+                            label: {
+                                position : 'center',
+                                textStyle: {
+                                    align : 'center',
+                                    baseline : 'bottom',
+                                    fontSize : 24,
+                                    fontWeight : 'bolder'
+                                },
+                            },
+                            labelLine : {
+                                show :false,
+                            }
+                        }
+                    }
+                }
+            ]
+        });
+    }
+})()
+</script>

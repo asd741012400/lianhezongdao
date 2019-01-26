@@ -1,0 +1,49 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="keyword" class="input" type="text" placeholder="申请人/申请班级/实训室"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var config = [
+            {CH: "申请人", EN: "applyName"},
+            {CH: "工号", EN: "jobNumber"},
+            {CH: "申请班级", EN: "className"},
+            {CH: "申请实训室", EN: "trName"},
+            {CH: "日期", EN: "date"},
+            {CH: "节次", EN: "section"},
+            {CH: "状态", EN: "status",Option:{"1":"<font style='color:#f0996b;'>待使用</font>","2":"<font style='color:#ff0000;'>已撤销</font>","3":"<font style='color:#f6452d;'>未到</font>","4":"<font style='color:#5dbdef;'>已到</font>"},OptionExcel:{"1":"待使用","2":"已撤销","3":"未到","4":"已到"}}
+        ];
+        var list = new Y.List(bpmIP + "/api/tr/v0.1/application", {pageSize:"trProcess",pageNum:1,ril:"M"}, config);
+        list.btns = "<span class=\"listLook\">查看</span>";
+        list.load(function () {
+            //操作
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/tr/trInfo.html",title:"实训室申请详情",data:{id:data.traId}});
+                    })
+                }
+            })
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("实训室申请");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword")
+        });
+    })()
+</script>

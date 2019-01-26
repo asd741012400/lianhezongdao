@@ -1,0 +1,509 @@
+<div id="classifyBox">
+    <div id='classifyBox_1' class="classifyBox">
+        <div class="classifyBox_t"><span><font id="_title"></font>检查类型</span></div>
+        <div class="classifyBox_c"></div>
+    </div>
+    <div id='classifyBox_2' class="classifyBox">
+        <div class="classifyBox_t"><span class="nav"></span></div>
+        <div class="classifyBox_c"></div>
+    </div>
+</div>
+<div class="_box">
+    <div class="_top">设置学生检查</div>
+    <div class="_title">学生检查人(最多20人)</div>
+    <div class="_add">+</div><div id="data-student"></div>
+    <div class="_title">教师审批人(最多20人)</div>
+    <div class="_add">+</div><div id="data-teacher"></div>
+    <div class="_button"><input type="button" id="submit1" value="保存学生检查人员" class="bg_00b7ee"/></div>
+</div>
+<div class="_box">
+    <div class="_top">设置教师检查</div>
+    <div class="_title">教师检查人(最多20人)</div>
+    <div class="_add">+</div><div id="data-teacherCheck"></div>
+    <div class="_button"><input type="button" id="submit2" value="保存教师检查人员" class="bg_00b7ee"/></div>
+</div>
+<style type="text/css">
+    ._box{
+        margin:16px 0px 24px 16px;
+        clear: both;
+        display: none;
+    }
+    ._top{
+        font-weight: bold;
+        margin-bottom: 16px;
+    }
+    ._title{
+        clear: both;
+        margin:8px 0px;
+    }
+    ._add{
+        width: 70px;
+        height: 70px;
+        line-height: 60px;
+        text-align: center;
+        font-size: 40px;
+        float: left;
+        cursor: pointer;
+        color: #e4e4e4;
+        border: 2px dashed #e4e4e4;
+    }
+    ._button{
+        clear: both;
+        padding-top: 16px;
+    }
+    ._button input{
+        padding: 8px 16px;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+    #classifyBox{
+        margin:10px;
+    }
+    .classifyBox{
+        width: 260px;
+        float: left;
+        border: 1px solid #e4e4e4;
+        border-radius: 5px;
+        margin-right: 20px;
+        min-height: 79px;
+        display: none;
+        margin-bottom: 20px;
+    }
+    .classifyBox_t{
+        line-height: 40px;
+        border-bottom: 1px dashed #e4e4e4;
+    }
+    .classifyBox_t span{
+        margin-left: 10px;
+        font-weight: bold;
+    }
+    .treeNode_self{
+        text-align:right;
+        height:40px;
+        line-height:40px;
+    }
+    .treeNode_name{
+        float:left;
+        margin-left:5px;
+        cursor:pointer;
+        display: block;
+        width: 130px;
+        overflow: hidden;
+        height: 30px;
+        text-align: left;
+    }
+    .treeNode_self .listBtns{
+        margin-right:8px;
+        cursor:pointer;
+        float: right;
+        margin-top: 15px;
+        *margin-top: 0px;
+        width: 16px;
+        height: 16px;
+        *height: 28px;
+        padding: 0px;
+    }
+    .treeNode_self_active{
+        background: #f4f4f4;
+    }
+    .treeNode_child{
+        margin-left:20px;
+    }
+    .listAdd{
+        line-height: 40px;
+        text-align: center;
+        color: #19b0e0;
+        cursor:pointer;
+        border-top: 1px solid #e4e4e4;
+    }
+    .moveup1,.movedown1,.moveup2,.movedown2{
+        display: none;
+        margin-right:10px;
+        cursor: pointer;
+        position: relative;
+        margin-top: 15px;
+    }
+    .checkbox1,.checkbox2{
+        float: left;
+        margin-top: 13px;
+        margin-left: 8px;
+    }
+    .showActionsBox{
+        position: relative;
+        border:1px solid #d5d5d5;
+        min-width:100px;
+        background:#fff;
+        display: none;
+        top:20px;
+        left: -10px;
+    }
+    .treeActionDiv{
+        color: #9cbdd3;
+        padding: 0px 10px;
+        border-bottom: 1px solid #d5d5d5;
+        cursor: pointer;
+        text-align: right;
+        line-height: 30px;
+    }
+    .treeActionDiv:hover{
+        background: #fbfbfb;
+    }
+    .treeActionLabel{
+        float: left;
+    }
+    .treeActionIcon img{
+        position: relative;
+        top: 3px;
+    }
+</style>
+<script type="text/javascript">
+    (function(){
+        var type = Y.urlQuery('type') || 1;
+        $('#_title').html(type == 1 ? '生活卫生' : '操行');
+        if(type != 1) $('._box').show();
+        var student = new Y.AnySelectBox($("#data-student"),$("#data-student").prev(),Y.getSelectBox('students',{maxSize:20,valArr:true}));
+        var teacher = new Y.AnySelectBox($("#data-teacher"),$("#data-teacher").prev(),Y.getSelectBox('teachers',{maxSize:20,valArr:true}))
+        var teacherCheck = new Y.AnySelectBox($("#data-teacherCheck"),$("#data-teacherCheck").prev(),Y.getSelectBox('teachers',{maxSize:20,valArr:true}))
+        Y.ajax(eschoolIP + '/api/daily/v0.1/discipline/user?type=1',function(ret){
+            if(ret && ret.length > 0){
+                var students = [],teachers = [];
+                for(var i = 0; i < ret.length; i ++){
+                    if(ret[i].studentId && ret[i].studentName){
+                        students.push({accountId:ret[i].studentId,name:ret[i].studentName,photo:ret[i].studentPhoto});
+                    }else{
+                        teachers.push({accountId:ret[i].teacherId,name:ret[i].teacherName,photo:ret[i].teacherPhoto});
+                    }
+                }
+                student.val(students);
+                teacher.val(teachers);
+            }
+        })
+        $('#submit1').click(function(){
+            Y.ajax(eschoolIP + '/api/daily/v0.1/discipline/user',function(ret){
+                var msg = '';
+                if(ret && ret.result){
+                    msg = '修改成功';
+                }else{
+                    msg = '修改失败,' + ret.errorMsg;
+                }
+                Y.alertx(msg);
+            },{meth:'POST',dataJson:false,data:{type:1,teacherIds:teacher.val(),studentIds:student.val()}})
+        })
+        Y.ajax(eschoolIP + '/api/daily/v0.1/discipline/user?type=2',function(ret){
+            if(ret && ret.length > 0) {
+                var teachers = [];
+                for(var i = 0; i < ret.length; i ++) teachers.push({accountId:ret[i].teacherId,name:ret[i].teacherName,photo:ret[i].teacherPhoto});
+                teacherCheck.val(teachers);
+            }
+        })
+        $('#submit2').click(function(){
+            Y.ajax(eschoolIP + '/api/daily/v0.1/discipline/user',function(ret){
+                var msg = '';
+                if(ret && ret.result){
+                    msg = '修改成功';
+                }else{
+                    msg = '修改失败,' + ret.errorMsg;
+                }
+                Y.alertx(msg);
+            },{meth:'POST',dataJson:false,data:{type:2,teacherIds:teacherCheck.val()}})
+        })
+        Y.qiNiouKey(function(upladArgs){
+            var tree = new Y.TreeModel($("#classifyBox_1 .classifyBox_c"));
+            tree.levelMax = 2;
+            tree.editable = true;
+            tree.dataModelConfig = {
+                confirmx:{
+                    _w:300,
+                    _h:300,
+                    title:'编辑类型',
+                    initFn:function(){
+                        $('#dataModel_icon').click(function(){
+                            var imgBox = new Y.ImgBox([
+                                    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAD+ElEQVRoQ+2ZbWhbZRTH/+e5WavL2KZ29QX9VJlCnSioFITGoBMm+m30w9zWLCVuJRDfJmxQoSoyhoLQLKnOlGabfjHgF7F+kJF0m4wIIqLDwupedNKVapUOVpPce/+SaLqY3I3beHNbXe7n85x7fs/zP+c8L4IGfoF07AFNMEygq1G/kUA6eq9Tzj0KOeVtuXDwoZ2Fok9XAILj8axTACDOK+ovJfyRC+4BZGJ0DACYyBPPfOAPT1oDUAfkJwC5Ov/pAXAXgNbyeAm6CoAZeKQ3X+DpegA8kDaleAjE+iUBIHBRUW0c8fd/Vw9AIB27TYl8DvC+KwAnonfU48xqjHelt3BxctVsqqfHsJJQQwCcCt7KT3UVagJYSai5AteYAVckVMxsp1Yhh3ldn8n+lupJuZfEwUz8W6cARHDWBMOjvnCxWdVsJRqSxG42siaAZSNzcSvRkBVwSv/NRmZjJi33QjbG1W3iSh+oOzobA5sAVZP0/5RQ33jsZxtqsGsyaZiqN+nvP9fsxBZTZn0i+683smAmNmVXHzbsJk2qba5K6NmxodU2ArNlorScceTJ3ZchUrqqaZbR66KM2tJGnUZNCV0XElouR8pNY0Ott3u1raCaPcPpTzL+Qb1aucu2kW3PHrhlRU49R5MvCrAaSl4zoSdGuyMzlRDLEuCvoPgKIEEAa4sBi8AE5T1D1DtJ366Fm+yrAXxfZ5GxGCZn9UJh1+GNz/9op5H1Hh3q0DRtH4GnBbix0iGBeQE+NVfgzeSj4W8A0BJgazp2t1MAStfzp86cmvpq50HLJ6bKQ33f+PCDBKM02SUC7Sox5CDICtQLI77+r5fNeQAa1pB8F0AnSLkSPCcAuRlAexXQeSrtKRrGbM37gFOzb+dWAsAvBN4CsV0EnaUxxX0TmRfBURHZqxsypxSTIIsvmwtPSQB+FcoeCnYDvKf8vwp651FqOjFhQHhJIKVk/fvLAfKREu5L+MKlfCxWJc8fsh8mNkOwpsJ2HqAJiHdJAGqmSDAvRFTYEk34Q6WXzfK37Yvh9pa8GTEFIamV1IKdqyvwTwD+DlEDuVb9yIddkTmr9d9yPH7TDTp6IdwD4FYrmyUC4DQoL19qX5dKdfbkryXex9KDng60baao9wGuqrZ1G8AEcFo0eXVuqu3j8mOgnezbcSzuUyYOE+adgKilyQFB1gRfT3aHPyuf2uwEX7YJZGIPK8HbJLsE0lIqYotxsFjbiir0CMAxUdobI939Xy7Wz4L94KAK+dbdbygZALgJxEo3AIYITBiGsf/Q45Ef6g6+PJCUvpPxDuSxl8CWhgKEjh9YD2obmPecSDwRmv7XwVc4CKRH1wouD/wJ78BYARj+3v4AAAAASUVORK5CYII=',
+                                    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAEBUlEQVRoQ+2aTWwbRRTH/29mvWuHpikFlQqVUz+gddxQEVBvnDiA4FY4ICASEhUSatUkNkqkVHJBqGoTJSk+AIUDHzcicUHAAXHjQCog1KmVSAn0E5WqbRrSBNvr3XloDU6ceNM6Zr0O0u75zdv3e587M0uo45MYm38UUr7HwP56vYa603OPeKWcOJSfK4SvnG6ngqPTH4Dx7Kh3AHRRsOo62dZ0xTeAeDrLXgGAMGmb5nNDj7VMrwJgAbgMQr7Gd2pgPATAKK0nnwGuS0kdZi4/VQsAaaH7BYlPAN7VIAD+A2w/NdDWfK4WgMSZ+a0c1r4FuHUR4M2fFx6sRZnbGtncVJjegZkRIts9heoA4JXxbnoqu1AAUJlCQQTu4AFfUsipbK+ioISyLv3WfGvkBR+LOJ7OjXsFAMJ5BfXGYKzpsm9dyN9BVocuFACU599dv4XqEAHP8t9FkS9dKABo9BwIIhBEoPoccN0PxNPZ36tXcRdJomnL4o7hfZELwSR2a8tuO7L//yQez171LIWAaUvDy8O7fUyhQz/c3OgVgBHZbA/sxV8gKh7VBJN4hWddu5BX3g829VV4MohAFU5aJuJLEa+XOXBoasowctteAsTMhlb9yySRcxC83CHrdZD1TvB9tmUeZFadTLRRCDqW1fWPUjvpejnBat9CPh6vV24pE5n5rWxrCQCvArzJMZiIFAMfkMRQ/57w4km2O8B4dmKtub2qPON8QeL1U9HIpWoGWeLH2e2sh48D/CyAyHK9lAXwFUnxTn80dBYgdgXo/OnPHV4BqLBuZrOZq6fb21e5YlqKQFfG3CeVSinF+4kgXW0gyoN5VEl5ZDCqj62bNkoy3MKs3gc4CmYqGc/AJAGbAWxZBkS4GBLhZ6yFhZmK+wGvvF/NJGbmG0LKfqXUKwREi2uc7yZmE0TfIUS9GutztpX/mJmdm82lqyTCTUXoIYU4gIdL71ukrwfIyjnADJuIbwNULNZ/AfIAf25BHB+OGcV6dLpSwcqfAPMBAC1Ltjl1wQrAPQ0BqHQSOTeMKclG6mQbFW82S0/87O0tENphMF6rSKkyOV8jUG4gg2eFEH05w/gstZPm3DKgJz17r8V6BxH1MPCAm0xDABh8DaDuZhkeSUbJvFP6Jpm1+Yx5AMwfgnnDSlm/ARRAUwQ6emFS/6J0j1BN/SUmCk9ywfoUwDYAolE1MKpAbw3GjG9Ku7ZqjC/JdJ8zHydlD+Cffy/0YhNbi4K1ypZ1oSeY6GtF4u2hVv3MWvWU5JNJFgvPF/ayUn1gPA1wU90BWMp34QwoohP9sfCvtRq/uI6ZOjP57UJxLxG9WFeArl9yu6RGMZP170/F6Np/Nr5MwZGxW5tCItL3N/1NxyYs9vMOAAAAAElFTkSuQmCC',
+                                    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAFFUlEQVRoQ9Vaa0wcVRT+zi4LBRdooNRaLGALJX1QBE2siVqf1V+mrdpYFWtCmxhltrZUTRNjE5PGxhgNs6RNU1ErscVEEX8ZjW0wlegPu8vLapUESwELtFReu3Qfc80Mu8DCzs6dmQWz83Pn+84539177j3n3iHE6XG01T7CgtIrAAoZsIIIqZBYqmLeQl7G4CXgKoAuslqOiaVVZ+Phmowa2X/lg1T/NdvjBFYHhixDdgjDDFRpW+b/7sNVB7xGbBgS4HCJnzHgWQA2I06jcPwENIjljhf12tMloMrlrCTCSTCmi8cdFBFjDHtry4U6Xg5XIMIvYgaS0QEgj9ewSVwPfChxbnaMatnRFLDv15r7JAud1zK0EO8tEru/5u59P8WyHVOAw+18joHVg8GyEAFq2iRIBKoQy4TTalhVAUrwjH2u6WQRAET0vJqIqAKUaWOlH/+3kZ87KATJEmRbok2neQJCCTuyCAOr34UPmXMTe74Al3h5EVcbvSJ6nOWO/NmkCAHKOg/2kV6rMr40cw1eKngCVstMvkuM4Zv+FjQPusGMGI3CYaA9s/eJCAGC2ykZ2aQOrt2JvFtuVQ1x1O/BOxdPwScFzMsgYs4yYXqUpgWEyoMKvR5eK3oKq+0rNWk3gz683n4iAieWCao88a9GdI33qb2vd4bKDkWAXJgFhpLkxNVV2+QuWYY31+3SDD4MODfgRlP/zL5kQoA/KSeQKReAioAqt3MbMfY1dyQh4P6ip3GH/TZu2kTAi0MdMykmFG5X5Tb2nUef95rqe0a0vbZMaFIECG7xupGSONYIqnl+o+0EJiUft2hVIGHYWebInhLgEg0tEkYEvN35Cf71j5sXAMBZ7iAKdVI/GLFoRMBbHXUYDXgUdyZyQOGT1fIoCS7xKwA7FktAdetx+NnUcmpWAIBGWUAbgE1GBBzZuAfptqm2l+fxS0FUtx2bhhbac1Vpfd4heIOaudJOVS5xgIDlPAHMxezO34q7soq5qTd8Yzj826fceC0gAwZlAWME2LXA0d7fm70Bu/Ie5qb2eAbx/qUvuPFaQAaMk3Chxg+iJC1wtPfF6avwauE2bqq8s8o7bPgxnQOMBUwJeDCnFDtuf4BbQK9nCO9daoizALc4CoZ07ihCwFRrCo6W7AURIcgkjPk9WJo8fyZKTIKcvClWG+Qjh3f/OI2rk8N63UXHE8YMJ/E9Weuwaelq9EwMouV6J17IfwzrMyJKdcXpzaAfhzpOYnP2emzMKED3xD/4fuACWBwKbCWJzSyj4WFJs6bgSEklrGSNOlJHfz+D/kn1usbE39FuaiOTHRfZc/Hymidhs6ivA/I0auprQfNQq4lYo1IbDZUSKRYbCu0rUZG/FWlJS7iDCkhBfNnbjPaRbowHDB2FRvhSSgn5F95ibktOKR5afieykjO4g1YDyknfOdKNhivnDGeDUswpAjjK6eq1O5Efo200qkhuMw+2HddPn11OazU02ckZOLxht34nnIwzl8/i5+GLnOgpWERDo9VSFqStwIHiZ3Q50ANuvdGFj//+Vg8lsqWUmbGaerlqdBQZqri5gvpzrBe1XfwdLQH14buEuByrcEUZL5DasYps38zBVrzi07IT82ArtKQm7tGiImDqNiZxD3dlEQl9vB6egwl9wREhIlGvmMIiEvqSLywioa9ZZ6/LCXvRPXdzSdhPDWYLSeiPPaJt93M/twGQRowp7RojmgTgWYjPbf4DtlJPIPyU/v4AAAAASUVORK5CYII=',
+                                    'data:image/png;base64,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'
+                                ],{
+                                    imgStyle:'border:4px solid #ffffff;margin-right:16px;width:40px;cursor:pointer;',
+                                    confirmxArgs:{_h:230,_w:400,title:'选择图标'},
+                                initFn:function(boxObj){
+                                    boxObj.append('<div style="padding-top:8px;"><span style="padding:3px 8px;cursor:pointer;color:#2fa4e7;background:#f1f1f1;" id="ImgBoxUpLoad">本地上传</span></div>');
+                                    $('#ImgBoxUpLoad').click(function(){
+                                        upladArgs.imgEdit = {width:48,height:48,radius:24,scale:[1,1]};
+                                        Y.upload(upladArgs.url, function (res, filesData) {
+                                            if (res && !res.errorMsg) {
+                                                imgBox.close();
+                                                upladArgs.retFn(res,function(url){
+                                                    $('#dataModel_icon').html('<img src="' + url + '" width="48" height="48" />');
+                                                })
+                                            }else{
+                                                var msg = "上传失败";
+                                                if(res && res.errorMsg) msg += "," + res.errorMsg;
+                                                Y.alertx(msg);
+                                            }
+                                        },upladArgs)
+                                    })
+                                }
+                            });
+                            imgBox.open(function(src){
+                                if(src){
+                                    $('#dataModel_icon').html('<img src="' + src + '" width="48" height="48" />');
+                                }
+                            })
+                        })
+                    }
+                }
+            };
+            tree.dataModel = {
+                id:{primary:true},
+                value:{
+                    input:{
+                        title:"名称",
+                        html:"<input maxlength='9' value='{value_}' id='dataModel_value' type='text' style='border:1px solid #e4e4e4;height:25px;padding:0px 3px;' />",
+                        htmlEval:function(s,k,v,o){
+                            return s.replace('{value_}',o.value ? o.value : '');
+                        },
+                        val:function(){
+                            var vaule = $("#dataModel_value").val();
+                            if(!vaule){
+                                return {result:false,msg:"名称不能为空"};
+                            }else{
+                                return {result:true,vaule:vaule};
+                            }
+                        }
+                    }
+                },
+                type:type,
+                icon:{
+                    input:{
+                        title:"图标(点击选择)",
+                        html:'<div id="dataModel_icon" style="width:48px;height:48px;background:#f1f1f1;cursor:pointer;"><img src="{icon}" width="48" height="48" /></div>',
+                        htmlEval:function(s,k,v,o){
+                            return o.parentId == 0 ? s : '';
+                        },
+                        val:function(){
+                            if($('#dataModel_icon').size() == 1){
+                                var vaule = $("#dataModel_icon img").attr('src');
+                                if(!vaule){
+                                    return {result:false,msg:"图标不能为空"};
+                                }else{
+                                    return {result:true,vaule:vaule};
+                                }
+                            }else{
+                                return {result:true,vaule:''};
+                            }
+                        }
+                    }
+                },
+                score:type == 1 ? '' :{
+                    input:{
+                        title:"分值",
+                        html:"<input maxlength='9' value='{score_}' id='dataModel_score' type='number' style='border:1px solid #e4e4e4;height:25px;padding:0px 3px;' />",
+                        htmlEval:function(s,k,v,o){
+                            return o.parentId == 0 ? '' : s.replace('{score_}',o.score ? o.score : 0);
+                        },
+                        val:function(){
+                            if($("#dataModel_score").size() == 1){
+                                var vaule = $("#dataModel_score").val();
+                                if(!vaule){
+                                    return {result:false,msg:"分值不能为空"};
+                                }else{
+                                    if(Math.abs(vaule) >= 0){
+                                        return {result:true,vaule:vaule};
+                                    }else{
+                                        return {result:false,msg:"分值必须为数字"};
+                                    }
+                                }
+                            }else{
+                                return {result:true,vaule:''};
+                            }
+                        }
+                    }
+                },
+                parentId:{}
+            }
+            function sortFn(data1,data2,n){
+                var sort1 = data1.sort;
+                data1.sort = data2.sort;
+                data2.sort = sort1;
+                var d = tree.data.num0;
+                tree.data = {num0:n == 0 ? '' : d};
+                Y.ajax(eschoolIP + "/api/daily/v0.1/dic",function(ret){
+                    if(ret && ret.result){
+                        Y.ajax(eschoolIP + "/api/daily/v0.1/dic",function(ret){
+                            Y.alertx('移动成功','',{toast:true,height:70,width:100});
+                            Y.refresh();
+                        },{meth:'PUT',data:data2,dataJson:false})
+                    }else{
+                        Y.alertx('移动失败,' + ret.errorMsg,'',{toast:true,height:70});
+                        Y.refresh();
+                    }
+                },{meth:'PUT',data:data1,dataJson:false})
+            }
+            tree.levelConfig = [{
+                url:eschoolIP + "/api/daily/v0.1/mgt/dic",
+                meth:"GET",
+                idKey:"id",
+                pidKey:"parentId",
+                req:{parentId:0,level:1,pageSize: 10000, pageNum: 1,type:type},
+                res:{
+                    obj:$("#classifyBox_1 .classifyBox_c").eq(0),
+                    clickBox:"treeNode_name",
+                    activeClass:"treeNode_self_active",
+                    childBox:"treeNode_child",
+                    arrKey:["rows"],
+                    add:{
+                        btnClass:"listAdd",
+                        url:eschoolIP + "/api/daily/v0.1/dic",
+                        meth:"POST",
+                        req:{level:1,sort:1},
+                        ajaxConfig:{},
+                        res:{successKey:"result"},
+                        html:"<div class='listAdd'>+ 添加类型</div>"
+                    },
+                    edit:{
+                        btnClass:"listEdit",
+                        url:eschoolIP + "/api/daily/v0.1/dic",
+                        meth:"PUT",
+                        ajaxConfig:{},
+                        req:{},
+                        res:{successKey:"result"}
+                    },
+                    del:{
+                        btnClass:"listDelete",
+                        url:eschoolIP + "/api/daily/v0.1/dic/{id}",
+                        meth:"DELETE",
+                        req:{},
+                        res:{successKey:"result"}
+                    },
+                    beforeFn:function(){
+                        $("#classifyBox_1").show();
+                    },
+                    endFn:function(){
+                        $("#classifyBox_2,#classifyBox_3").hide();
+                        var datas = tree.data.num0;
+                        tree.levelConfig[0].res.add.req.sort =  datas.length > 0 ? datas[datas.length - 1].sort + 1 : 1;
+                        $('.checkbox1').each(function(i){
+                            $(this).change(function(){
+                                var self = this;
+                                datas[i].status = !datas[i].status ? 1 : 0;
+                                Y.ajax(eschoolIP + "/api/daily/v0.1/dic",function(ret){
+                                    if(ret && ret.result){
+                                        Y.alertx(datas[i].status ? '启用成功' : '禁用成功','',{toast:true,height:70,width:100});
+                                    }else{
+                                        self.checked = !datas[i].status;
+                                        datas[i].status = !datas[i].status;
+                                    }
+                                },{meth:'PUT',data:datas[i],dataJson:false})
+                            })
+                        })
+                    },
+                    editBtn:"listEdit",
+                    deleteBtn:"listDelete",
+                    html:"<div class='treeNode'><div class='treeNode_self'><input type='checkbox' class='checkbox1' {status_} /><img src='{icon}' width='24' height='24' style='float:left;margin-top:8px;' /><span class='treeNode_name'>{value}</span><span class='listBtns' style='float:right;height:1px;width:1px;margin-right:0px;'><div class='boxShadow showActionsBox'></div></span><span class='listTreeAction listBtns showActions'>　</span><span class='listDelete listBtns'>　</span><span class='listEdit listBtns'>　</span></div></div>",
+                    htmlEval:function(s,k,v){
+                        return s.replace(new RegExp('{' + k + '_}'),function(){
+                            return !v ? '' : 'checked';
+                        }).replace('{_' + k + '}',function(){
+                            return type == 1 ? '' : "<font style='font-size:12px;' class='scoreFont'>(" + v + "分)</font>";
+                        })
+                    },
+                    actions:[
+                        {label:'上移',icon:'images/i_up.png',action:function(dom,datas,i){
+                            sortFn(datas[i],datas[i - 1],0)
+                        }},
+                        {label:'下移',icon:'images/i_down.png',action:function(dom,datas,i){
+                            sortFn(datas[i],datas[i + 1],0);
+                        }}
+                    ],
+                    style:''
+                }
+            },
+            {
+                url:eschoolIP + "/api/daily/v0.1/mgt/dic",
+                meth:"GET",
+                idKey:"id",
+                pidKey:"parentId",
+                req:{parentId:0,level:2,type:type,pageSize: 10000,pageNum: 1},
+                res:{
+                    obj:$("#classifyBox_2 .classifyBox_c").eq(0),
+                    clickBox:"treeNode_name",
+                    activeClass:"treeNode_self_active",
+                    childBox:"treeNode_child",
+                    arrKey:["rows"],
+                    add:{
+                        btnClass:"listAdd",
+                        url:eschoolIP + "/api/daily/v0.1/dic",
+                        meth:"POST",
+                        ajaxConfig:{},
+                        req:{level:2,sort:1},
+                        res:{successKey:"result"},
+                        html:"<div class='listAdd'>+ 添加分类</div>"
+                    },
+                    edit:{
+                        btnClass:"listEdit",
+                        url:eschoolIP + "/api/daily/v0.1/dic",
+                        meth:"PUT",
+                        ajaxConfig:{},
+                        req:{},
+                        res:{successKey:"result"}
+                    },
+                    del:{
+                        btnClass:"listDelete",
+                        url:eschoolIP + "/api/daily/v0.1/dic/{id}",
+                        meth:"DELETE",
+                        req:{},
+                        res:{successKey:"result"}
+                    },
+                    beforeFn:function(clickData){
+                        $("#classifyBox_2 .nav").html(clickData.value);
+                        $("#classifyBox_2").show();
+                    },
+                    endFn:function(active){
+                        var datas = tree.data['num' + tree.active[0].id];
+                        tree.levelConfig[1].res.add.req.sort = datas.length > 0 ? datas[datas.length - 1].sort + 1 : 1;
+                        var score = 0;
+                        $('.checkbox2').each(function(i){
+                            $(this).change(function(){
+                                var self = this;
+                                datas[i].status = !datas[i].status ? 1 : 0;
+                                Y.ajax(eschoolIP + "/api/daily/v0.1/dic",function(ret){
+                                    if(ret && ret.result){
+                                        Y.alertx(datas[i].status ? '启用成功' : '禁用成功','',{toast:true,height:70,width:100});
+                                    }else{
+                                        self.checked = !datas[i].status;
+                                        datas[i].status = !datas[i].status;
+                                    }
+                                },{meth:'PUT',data:datas[i],dataJson:false})
+                            })
+                            score += parseInt(datas[i].score);
+                        })
+                        tree.data['num0'][active[0].flog].score = score;
+                        active[0].obj.find('.scoreFont').html('(' + score + '分)');
+                    },
+                    editBtn:"listEdit",
+                    deleteBtn:"listDelete",
+                    html:"<div class='treeNode'><div class='treeNode_self'><input type='checkbox' class='checkbox2' {status_} /><span class='treeNode_name'>{value}{_score}</span><span class='listBtns' style='float:right;height:1px;width:1px;margin-right:0px;'><div class='boxShadow showActionsBox'></div></span><span class='listTreeAction listBtns showActions'>　</span><span class='listDelete listBtns'>　</span><span class='listEdit listBtns'>　</span></div></div>",
+                    htmlEval:function(s,k,v){
+                        return s.replace(new RegExp('{' + k + '_}'),function(){
+                            return !v ? '' : 'checked';
+                        }).replace('{_' + k + '}',function(){
+                            log(v);
+                            return type == 1 ? '' : "<font style='font-size:12px;' class='scoreFont'>(" + v + "分)</font>";
+                        })
+                    },
+                    actions:[
+                        {label:'上移',icon:'images/i_up.png',action:function(dom,datas,i){
+                            sortFn(datas[i],datas[i - 1],0)
+                        }},
+                        {label:'下移',icon:'images/i_down.png',action:function(dom,datas,i){
+                            sortFn(datas[i],datas[i + 1],0);
+                        }}
+                    ],
+                    style:''
+                }
+            }]
+            tree.getData(0);
+        })
+    })()
+</script>

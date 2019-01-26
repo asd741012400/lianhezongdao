@@ -1,0 +1,73 @@
+<div class="list_header">
+    <div class="form_title" id="applyInfoTitle" style="font-size: 18px;margin-bottom: 10px;"></div>
+    <div class="list_header_form">
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <input type="button" value="返回" id="cancel" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "cmsApplyInfo", pageNum: 1};
+        var config = [
+            {CH: "姓名", EN: "name"},
+            {CH: "性别", EN: "sex", Option: {"0": "女", "1": "男"},OptionExcel:{"0":"女","1":"男"}},
+            {CH: "联系方式", EN: "phone"},
+            {CH: "身份证号码", EN: "idcard"},
+            {CH: "报名时间", EN: "createTime"}
+        ];
+        var title = Y.getUrlParam("title"),limit = Y.getUrlParam("limit");
+        var id = Y.getUrlParam("id");
+        var list = new Y.List(eschoolIP + "/api/cms/mgt/apply/v0.1/" + id + "/info", option, config);
+        list.btns = "<img class='show' style='cursor:pointer;position: relative;width:11px;top:3px;' src='images/i_from.png' /><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        var components,applyId;
+        Y.config(function(){
+            components = new Y.Components({isData:true});
+        })
+        list.load(function () {
+            $('#applyInfoTitle').html(title + '<span style="color:#f15011;margin-left:10px;">' + list.total + (limit > -1 ? '/' + limit : '') + '</span>');
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    applyId = data.applyId;
+                    //查看
+                    $(this).find(".show").click(function(){
+                        Y.ajax(eschoolIP + "/api/cms/mgt/apply/v0.1/info/" + data.applyInfoId,function(ret){
+                            if(ret && !ret.errorMsg){
+                                components.from = ret.components;
+                                components.data = ret;
+                                components.show();
+                            }else{
+                                Y.alertx('获取报名信息失败,' + ret.errorMsg);
+                            }
+                        })
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/cms/mgt/apply/v0.1/" + data.applyId + "/info/","applyInfoId","报名人员",{vKey:"name",obj:$(this)});
+                    })
+                }
+            })
+        });
+        $("#downLoadExcel").click(function(){
+            Y.download(eschoolIP + '/api/cms/mgt/apply/v0.1/' + id + '/info/export?schoolId=' + schoolId + '&accessToken=' + accessToken);
+        })
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/cms/mgt/apply/v0.1/" + applyId + "/info/","applyInfoId","报名人员",{vKey:"name"});
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        })
+    })()
+</script>

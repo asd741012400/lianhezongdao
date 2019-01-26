@@ -1,0 +1,62 @@
+<form class="form">
+    <div class="form_title"><b>地址编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>领货地址</div>
+        <span class="data_error"></span><input class="input" id="data-address" type="text" placeholder="请填写地址"/>
+    </div>
+    <div class="data width100">
+        <div class="data_title">姓名</div>
+        <span class="data_error"></span><input class="input" id="data-name" type="text" placeholder="请填写负责人名字"/>
+    </div>
+    <div class="data width100">
+        <div class="data_title">电话</div>
+        <span class="data_error"></span><input class="input" id="data-phone" type="text" placeholder="请填写联系电话"/>
+    </div>
+    <div class="data width100">
+        <div class="data_title">职称</div>
+        <span class="data_error"></span><input class="input" id="data-vocation" type="text" placeholder="职称"/>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var data = Y.getUrlParam("data") || {id:'',address:''};
+        var fromConfig = {
+            id : data.id,
+            address : {
+                o:$("#data-address"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"地址不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            name : {
+                o:$("#data-name")
+            },
+            phone : {
+                o:$("#data-phone")
+            },
+            vocation : {
+                o:$("#data-vocation")
+            }
+        }
+        var from = new Y.From(fromConfig,"id",{data:data,getURL:'',postURL:eschoolIP + "/api/shop/v0.1/mgt/share/address",putURL:eschoolIP + "/api/shop/v0.1/mgt/share/address",title:"编辑地址",dataJson:false});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        })
+    })()
+</script>

@@ -1,0 +1,78 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="status" type="text" placeholder="选择状态"/>
+            <input class="input" id="startTime" type="text" placeholder="开始时间"/>
+            <input class="input" id="endTime" type="text" placeholder="结束时间"/>
+            <input id="name" class="input" type="text" placeholder="考勤地点"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <input type="button" value="返回" id="cancel" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "cusAttnRecord", pageNum: 1,id:Y.getUrlParam("id")};
+        var config = [
+            {CH: "头像", EN: "photo",htmlFormat:'<img src="{photo}" width="50" height="50" style="border-radius: 25px;" />'},
+            {CH: "班级", EN: "className"},
+            {CH: "姓名", EN: "name"},
+            {CH: "考勤点", EN: 'address'},
+            {CH: "考勤时间", EN: 'createTime'},
+            {CH: "状态", EN: 'status', htmlFormat: '<font style="color:{rgb};">{status}</font>'}
+        ];
+
+        var list = new Y.List(eschoolIP + "/api/cusAttn/mgt/v0.1/record", option, config);
+        list.btns = "";
+        list.listNumTitle = "序号";
+        list.load(function () {
+            //新生隐藏编辑按钮
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                }
+            })
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("考勤统计");
+        })
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+        var expression = JSON.parse(Y.getUrlParam("rules").expression);
+        var expressionString = {};
+        for(var key in expression) expressionString[key] = expression[key].name;
+        var status = new Y.Select($("#status"),expressionString);
+        //开始日期
+        var startTime = new Y.Calendar($("#startTime"),{date:""});
+        $("#startTime").focus(function () {
+            var _this = $(this);
+            startTime.open(function (d) {
+                _this.val(d);
+                startTime.close();
+            });
+        });
+        //结束日期
+        var endTime = new Y.Calendar($("#endTime"),{date:""});
+        $("#endTime").focus(function () {
+            var _this = $(this);
+            endTime.open(function (d) {
+                _this.val(d);
+                endTime.close();
+            });
+        });
+        var listSearch = new Y.ListSearch(list,{
+            status:status,
+            startTime:$('#startTime'),
+            endTime:$('#endTime'),
+            name:$('#name')
+        });
+    })()
+</script>

@@ -1,0 +1,78 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="courseTeacherId" class="input" type="text" placeholder="任课老师"/>
+            <input id="patrolTeacherId" class="input" type="text" placeholder="巡课老师"/>
+            <input id="classId" class="input" type="text" placeholder="班级"/>
+            <input id="startDate" class="input" type="text" placeholder="开始时间"/>
+            <input id="endDate" class="input" type="text" placeholder="结束时间"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "patrol", pageNum: 1};
+        var config = [
+            {CH: "班级", EN: "className"},
+            {CH: "任课老师", EN: "courseTeacherName"},
+            {CH: "巡课时间", EN: 'patrolDate'},
+            {CH: "巡课老师", EN: "patrolTeacherName"},
+            {CH: "巡课节次", EN: "section"},
+            {CH: "巡课内容", EN: "formData",FormExtMap:"formExt",Hide:true}
+        ];
+        var list = new Y.List(eschoolIP + "/api/patrol/v0.1/course/list", option, config);
+        list.btns = "<span class=\"listLook bg_dfba49\">查看</span>";
+        list.listNumTitle = "序号";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //查看
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/patrol/patrolEdit.html",title:"查看巡课信息",data:{data:data,readOnly:true}});
+                    })
+                }
+            })
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("巡课记录");
+        })
+        //搜索
+        var courseTeacherId = new Y.OnlySelectBox($("#courseTeacherId"),{vKey:"accountId",sKey:"name",SelectBox:{showNum:false,paramet:{key:"keyword"},url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div class='autoList' vaule='{accountId}'><b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"}});
+        var patrolTeacherId = new Y.OnlySelectBox($("#patrolTeacherId"),{vKey:"accountId",sKey:"name",SelectBox:{showNum:false,paramet:{key:"keyword"},url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div class='autoList' vaule='{accountId}'><b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"}});
+        var classId = new Y.OnlySelectBox($("#classId"),{vKey:"classId",sKey:"className",SelectBox:{showNum:false,paramet:{key:"keyword"},url:ucIP + "/api/uc/v0.1/classes",dataString:"<div class='autoList' vaule='{classId}'><b class='listStyle_cicle'>{listStyle_className}</b><span>{className}</span><span style='color:#ccc;display:block;'>{headTeacherName} {classAddress}</span></div>"}});
+        var startDateCalendar = new Y.Calendar($("#startDate"),{date:"",timeType:[12,00,00]});
+        startDateCalendar.maxDate = new Date();
+        $("#startDate").focus(function(){
+            var _this = $(this);
+            startDateCalendar.open(function(d){
+                _this.val(d);
+                startDateCalendar.close();
+            });
+        })
+        var endDateCalendar = new Y.Calendar($("#endDate"),{date:"",timeType:[12,00,00]});
+        endDateCalendar.maxDate = new Date();
+        $("#endDate").focus(function(){
+            var _this = $(this);
+            endDateCalendar.open(function(d){
+                _this.val(d);
+                endDateCalendar.close();
+            });
+        })
+        var listSearch = new Y.ListSearch(list,{
+            courseTeacherId:courseTeacherId,
+            patrolTeacherId:patrolTeacherId,
+            classId:classId,
+            startDate:$('#startDate'),
+            endDate:$('#endDate')
+        });
+    })()
+</script>

@@ -1,0 +1,75 @@
+<form class="form">
+    <div class="form_title"><b>简易链接编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>名称</div>
+        <span class="data_error">链接名称不能为空</span><input class="input" id="data-title" type="text" placeholder="请填写链接名称"/>
+    </div>
+    <div class="data width100">
+        <div class="data_link">地址</div>
+        <span class="data_error">链接地址不能为空</span><input class="input" id="data-link" type="text" placeholder="请填写链接地址"/>
+    </div>
+    <div class="data width100">
+        <div class="data_title">图片</div>
+        <div id="data-photoUrl" type="img"></div>
+    </div>
+    <div class="data width100">
+        <div class="data_title">备注</div>
+        <span class="data_error"></span><input class="input" id="data-custom" type="text" placeholder="请填写备注"/>
+    </div>
+    <div class="data width50">
+        <div class="data_title">权重</div>
+        <span class="data_error"></span><input class="input" id="data-sort" type="number" placeholder="请填写权重"/>
+    </div>
+    <div class="data width50">
+        <div class="data_title">状态</div>
+        <span id="data-status" type="radio"><input type="radio" value="1" checked/>启用<input type="radio" value="0"/>停用</span>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    #data-photoUrl img{
+        max-height:200px;
+        margin-right:10px;
+    }
+</style>
+<script>
+    (function() {
+        Y.config(function(){
+            var id = Y.getUrlParam("id"),type = Y.getUrlParam("type");
+            var imgEditConfig = Y.configs && Y.configs.imgEditConfig && Y.configs.imgEditConfig.linkImgSize && Y.configs.imgEditConfig.linkImgSize[type] ? Y.configs.imgEditConfig.linkImgSize[type] : {};
+            var _config = Y.clone(imgEditConfig);
+            if(!imgEditConfig.width) _config.width = 200;
+            if(!imgEditConfig.height) _config.height = 200;
+            if(imgEditConfig.height > 300){
+                _config.width = imgEditConfig.width / imgEditConfig.height * 300;
+                _config.height = 300;
+            }
+            Y.qiNiouKey(function(upladArgs){
+                var fromConfig = {
+                    id : id,
+                    title : {o:$("#data-title")},
+                    link:{o:$('#data-link')},
+                    photoUrl : {o:new Y.Img($("#data-photoUrl"), "<div style='cursor:pointer; width:" + _config.width + "px;min-height:" + _config.height + "px; line-height:" + _config.height + "px;text-align:center; color:#ccc; background:#F9F9F9;'>上传</div>",imgEditConfig,upladArgs)
+                    },
+                    type:type,
+                    sort:{o:$("#data-sort")},
+                    status:{o:new Y.Radio($("#data-status input"))},
+                    custom:{o:$('#data-custom')}
+                }
+                var from = new Y.From(fromConfig,"id",{getURL:eschoolIP + "/api/cms/mgt/link/" + type + "/v0.1/{id}/detail",postURL:eschoolIP + "/api/cms/mgt/link/{type}/v0.1",putURL:eschoolIP + "/api/cms/mgt/link/{type}/v0.1/{id}",title:"提交链接",dataJson:false});
+                //提交
+                $("#submit").click(function(){
+                    from.submit($(this));
+                })
+                //取消
+                $("#cancel").click(function(){
+                    Y.back(-1);
+                })
+            })
+        })
+    })()
+</script>

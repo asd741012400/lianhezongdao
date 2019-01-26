@@ -1,0 +1,36 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="keyword" class="input" type="text" placeholder="请输入姓名/部门"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="cancel" type="button" value="返回" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "wagesDetail", pageNum: 1};
+        var config = [
+            {CH: "月份", EN: "month"},
+            {CH: "部门", EN: "deptName"},
+            {CH: "姓名", EN: "name"},
+            {CH: "工号", EN: "jobNumber"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/wages/v0.1/"+ Y.getUrlParam("id"), option, config,"listTitle");
+        list.load(function(){});
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword")
+        });
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

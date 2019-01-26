@@ -1,0 +1,107 @@
+<form class="form">
+    <div class="form_title"> <b>走访信息编辑</b>
+        <span class="red">(*为必填项)</span>
+    </div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>标题</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-title" type="text" placeholder="请填写标题"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>企业</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-visitCompanyId" type="text" placeholder="请选择企业" />
+        </div>
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>走访人</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-visitUserId" type="text" placeholder="请选择走访人"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>走访时间</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-visitTime" type="text" placeholder="请选择走访时间"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title"> <b class="red">*</b>走访方式</div>
+            <span class="data_error"></span>
+            <span id="data-type" type="radio"><input type="radio" value="1" id="graduateType0"/><label for="graduateType0">面谈</label><input type="radio" id="graduateType1" checked value="2"/><label for="graduateType1">电访</label></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title">内容</div>
+            <div type="richEdit" class="richEdit" id="data-content"></div>
+        </div>
+        <div class="data width100">
+            <div class="data_title"> <b class="red">*</b>走访地址</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-visitAddress" type="text" placeholder="请填写走访地址"/>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        Y.qiNiouKey(function(upladArgs){
+            var fromConfig = {
+                id : Y.getUrlParam("id"),
+                title:{
+                    o:$('#data-title'),
+                    e:'blur',
+                    f:{NotNull:'标题不能为空'}
+                },
+                visitCompanyId : {
+                    o:new Y.OnlySelectBox($("#data-visitCompanyId"),{vKey:"id",sKey:"name",SelectBox:{showNum:false,paramet:{key:"name"},url:eschoolIP + "/api/company/v0.1/list",dataString:"<div class='autoList' vaule='{id}'><span>{name}</span></div>"}}),
+                    f:{NotNull:'请选择企业'},
+                    v:function(data,ret){
+                        this.o.val(ret.visitCompanyId,ret.companyName);
+                    }
+                },
+                visitUserId:{
+                    o:new Y.OnlySelectBox($("#data-visitUserId"),{vKey:"accountId",sKey:"name",SelectBox:{showNum:false,paramet:{key:"keyword"},url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div class='autoList' vaule='{accountId}'><b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"}}),
+                    f:{NotNull:'请选择走访人'},
+                    v:function(data,ret){
+                        this.o.val(ret.visitUserId,ret.visitUserName);
+                    }
+                },
+                visitTime:{
+                    o:$('#data-visitTime'),
+                    i:function(){
+                        var calendar = new Y.Calendar($("#data-visitTime"),{timeType:[12,00]});
+                        $("#data-visitTime").focus(function(){
+                            var _this = $(this);
+                            _this.prev().hide();
+                            calendar.open(function(d){
+                                _this.val(d);
+                                calendar.close();
+                            });
+                        })
+                    },
+                    e:"blur",
+                    f:{NotNull:'请选择时间'}
+                },
+                type:{o:new Y.Radio($("#data-type input"))},
+                visitAddress : { o:$("#data-visitAddress") },
+                content : {o:new Y.RichEdit($("#data-content"),true,upladArgs)}
+            }
+            var data = Y.getUrlParam("data");
+            if(data) data.visitTime = data.visitTime.replace(/^(.+):00$/,'$1');
+            var from = new Y.From(fromConfig,"id",{data:data,postURL:eschoolIP + "/api/company/v0.1/visit",putURL:eschoolIP + "/api/company/v0.1/visit",title:"提交走访记录",dataJson:false,submitFn:function(data){
+                data.visitTime = data.visitTime + ':00';
+            }});
+            //提交
+            $("#submit").click(function(){
+                from.submit($(this));
+            })
+            //取消
+            $("#cancel").click(function(){
+                Y.back(-1);
+            });
+        })
+    })()
+</script>

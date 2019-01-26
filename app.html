@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<!-- saved from url=(0147)http://mp.weixin.qq.com/s?__biz=MzA3MDI4Nzk5MA==&mid=400009285&idx=2&sn=ab283c62d496512551cef62a196b1052&scene=23&srcid=0112uKNxAgP8hudV7tGqnzbS#rd -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width" />
+	<meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<link href="images/iconfont-yunpingtai-2.png" rel="shortcut icon">
+	<title>e智教下载页面</title>
+	<link rel="stylesheet" type="text/css" href="css/my.css" />
+</head>
+<body>
+	<div class="content_xz">
+		<div class="pic">
+			<img src="images/xbg.png"/>
+		</div>
+		<div class="xz_btn" id="ios" style="display: none;">
+			<a href="#" class="button01">
+				<img src="images/ios.png" width="20">
+				<span>教师端IOS版</span>
+			</a>
+			<a href="#" class="button01">
+				<img src="images/ios.png" width="20">
+				<span>学生端IOS版</span>
+			</a>
+		</div>
+		<div class="xz_btn" id="android" style="display: none;">
+			<a href="#" class="button01">
+				<img src="images/android.png" width="20">
+				<span>教师端安卓版</span>
+			</a>
+			<a href="#" class="button01">
+				<img src="images/android.png" width="20">
+				<span>学生端安卓版</span>
+			</a>
+		</div>
+	</div>
+	<!-- <div class="footer">Copyright 2016 etech.com ALL rights reserved</div> -->
+
+	<!-- 广告 -->
+	<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="js/tool.js"></script>
+	<script type="text/javascript" src="js/config.js"></script>
+	<script type="text/javascript" src="js/common.js"></script>
+	<script type="text/javascript">
+    	var ua = navigator.userAgent.toLowerCase();
+    	Y.ajax(eschoolIP + '/api/app/v0.1/newest',function(ret){
+    		if(ret && !ret.errorMsg){
+    			if (/iphone|ipad|ipod/.test(ua)) {
+					$("#ios").show();
+					$("#ios a").eq(0).attr("href",ret.ios.teacher);
+					$("#ios a").eq(1).attr("href",ret.ios.student);
+				} else if (/android/.test(ua)) {
+					$("#android").show();
+					if(navigator.userAgent.toLowerCase().indexOf("micromessenger") == -1){
+						$("#android a").eq(0).attr("href",ret.android.teacher);
+						$("#android a").eq(1).attr("href",ret.android.student);
+					}else{
+						//安卓用户为微信打开，提示用户通过浏览器打开
+			    		$("body").append("<div id='wzd1' style='position: absolute;width:100%;height:" + $(window).height() + "px;background:#000;opacity: 0.5;left:0;top:0;z-index:1031;'></div>");
+			    		var imgUrl = "images/tiaozhuan.png";
+			    		$("body").append("<img id='wzd' src='" + imgUrl + "' style='position:absolute;right:20px; top:0; z-index:1032;' />");
+						$("#wzd").click(function(){
+							$("#wzd").hide();
+					    	$("#wzd1").hide();	 	
+					    })
+						$(".xz_btn a").click(function(){
+							$("#wzd").show();
+					    	$("#wzd1").show();		
+						})
+					}
+				}else{
+					$("#android").show();
+					$("#android a").eq(0).attr("href",ret.android.teacher);
+					$("#android a").eq(1).attr("href",ret.android.student);	
+				}
+    		}else{
+    			Y.alertx('获取下载信息失败,' + ret.errorMsg);
+    		}
+    	})
+    </script>
+</body>
+</html>

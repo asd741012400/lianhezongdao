@@ -1,0 +1,80 @@
+<form class="form">
+    <div class="form_title"><b><font id="_title"></font>生活检查信息</b></div>
+    <div class="formBox">
+        <div class="data width100">
+            <div class="data_title"><b>班级</b></div>
+            <span class="data_error"></span><span class="inputSpan" id="data-className"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b>班主任</b></div>
+            <span class="data_error"></span><span class="inputSpan" id="data-teacherName"></span>
+        </div>
+        <div class="clear"></div>
+        <div id="dicValue"></div>
+        <div class="data width100">
+            <div class="data_title">扣分</div>
+            <span class="data_error"></span><span class="inputSpan" style="color: #ff0000;" id="data-deScore"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title">备注</div>
+            <span class="data_error"></span><span class="inputSpan" id="data-remark"></span>
+        </div>
+        <div class="data width100">
+            <div class="data_title">检查人</div>
+            <span class="data_error"></span><span class="inputSpan" id="data-userName"></span>
+        </div>
+        <div class="clear"></div>
+        <div id="imgs"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    .data{
+        line-height: 32px;
+        margin:0px;
+    }
+    .data_title{
+        position: absolute;
+        margin-top:4px;
+        width:130px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .inputSpan{
+        margin-left: 140px;
+        float: left;
+        margin-top: 5px;
+    }
+</style>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var data = Y.getUrlParam("data");
+        $('#_title').html(Y.getUrlParam("title") || '');
+        if(data){
+            for(var key in data) $('#data-' + key).html(data[key]);
+            var values = data.value ? JSON.parse(data.value) : {};
+            var picUrls = data.picUrls ? data.picUrls.split(',') : [];
+            var imgs = '';
+            for(var i = 0; i < picUrls.length; i ++) imgs += '<img src="' + picUrls[i] + '" width="100" />';
+            $('#imgs').html(imgs);
+            Y.ajax(eschoolIP + '/api/daily/v0.1/mgt/dic',function(ret){
+                if(ret && ret.rows){
+                    var html = '';
+                    for(i = 0; i < ret.rows.length; i ++) {
+                        var row = ret.rows[i];
+                        var v = values[row.id] == 0 ? '合格' : '<font style="color:#ff0000;">不合格</font>';
+                        html += '<div class="data width100"><div title=' + row.value + ' class="data_title">' + row.value + '</div><span class="data_error"></span><span class="inputSpan">' + v + '</span></div>';
+                    }
+                    $('#dicValue').html(html);
+                }
+            },{data:{type:1,parentId:data.dicId}})
+        }
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

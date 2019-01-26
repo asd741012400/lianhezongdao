@@ -1,0 +1,467 @@
+<form class="form">
+    <div class="form_title"> <b>宿舍信息编辑</b>
+        <span class="red">(*为必填项)</span>
+    </div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>
+                楼名
+            </div>
+            <span class="data_error">楼名不能为空</span>
+            <input class="input par-input" id="data-buildingName" type="text" placeholder="请填写楼名" maxlength="10" />
+        </div>
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>
+                楼层
+            </div>
+            <span class="data_error"></span>
+            <input class="input par-input" id="data-floor" type="text" placeholder="请填写楼层"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>
+                房间号
+            </div>
+            <div>
+                <span id="data-reBuildingName"></span>
+                <span class="data_error">房间号不能为空</span>
+                <input class="input par-input" style="width:calc(100% - 100px)" id="data-no" type="text" placeholder="房号" maxlength="10" />
+            </div>
+        </div>
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>
+                人数限制
+            </div>
+            <span class="data_error">人数限制不能为空</span>
+            <input class="input par-input" id="data-numLimit" type="text" placeholder="请填写人数限制"/>
+        </div>
+        <div class="data widthAll">
+            <div class="data_title"> <b class="red">*</b>
+                类型
+            </div>
+            <span class="data_error">类型不能为空</span>
+            <span id="data-type" type="radio"><input type="radio" value="1" id="type_1" checked /><label for="type_1">男生宿舍</label><input type="radio" id="type_0" value="0" /><label for="type_0">女生宿舍</label></span>
+            <input type="hidden" id="data-type-sex" />
+        </div>
+        <div class="data widthAll">
+            <div class="data_title">
+                床号
+            </div>
+            <div class="bed-number-wrap">
+                <p>（信息填写完整生成床号）</p>
+            </div>
+        </div>
+        <div class="data widthAll">
+            <div class="data_title">
+                责任人老师
+            </div>
+            <div id="data-dormTeacherInfo"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+        </div>
+        <div class="data widthAll">
+            <div class="data_title">人员</div>
+            <div id="data-dormStudentInfo"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style type="text/css">
+    .width50{
+        width: 200px;
+    }
+    .width50 .input{
+        width: 100%;
+    }
+    #data-reBuildingName{
+        border-bottom: 1px solid #e3e3e3;
+        padding: 10px 0px;
+        cursor: default;
+    }
+    select.input{
+        border:1px solid #e3e3e3;
+        height:24px;
+        margin-top:4px;
+    }
+    select.input:hover{
+        border:1px solid #00b7ee;
+    }
+    .bed-number-wrap input{
+        border:1px solid #e3e3e3;
+        text-align:center;
+        width:100px;
+        padding:5px;
+        margin-right:6px;
+        margin-bottom:5px;
+    }
+    .bed-number-wrap input.active{
+        border:1px solid #00b7ee;
+    }
+    #data-dormStudentInfo .personData{
+        height:110px;
+        margin-right:20px;
+    }
+</style>
+<script>
+    (function() {
+        var dormStudent = new Y.AnySelectBox($("#data-dormStudentInfo"),$("#data-dormStudentInfo").next(),{idKey:"accountId",prevClickFn:function(){
+            var hasBedNumList = [];
+            $("#data-dormStudentInfo .personData").each(function(){
+                var bedNum = $(this).find('select.input').val();
+                hasBedNumList.push({bedNum:bedNum})
+            })
+            dormStudent.addList = hasBedNumList;
+        },appendFun:function(addList){
+            if (addList.length>0) {
+                for (var i = 0; i < addList.length; i++) {
+                    var bedNum = addList[i].bedNum;
+                    $("#data-dormStudentInfo").find('select').eq(i).children('option[value='+bedNum+']').attr('selected','selected');
+                };
+            };
+        },valueString:"<div accountId='{accountId}' class='personData'><div style='width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #e4e4e4;color:#00b7ee;font-size:20px;margin:7px auto;border-radius:50px;' imgUrl='{photo}' class='icon_img'>{listStyle_name}</div><div>{name}</div><select value='{bedNum}' class='input'><option value='0'>配置床号</option></select></div>",/*selected='selected'*/
+                    SelectBox:{paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},placeholder:"请输入学生专业/班级/姓名搜索",url:ucIP + "/api/uc/v0.1/students",dataString:"<div class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><div style='display: inline-block;vertical-align: middle;width:calc(100% - 65px)'><span>{name}</span><span style='color:#ccc;display:block;'>{majorName} {className} {sex}</span></div></div>"}
+                })
+        //整合床位数据
+        var bedData = function(){
+            this.val = function(bedList){
+                if (bedList) {
+                    var list = ""
+                    for (var i = 0; i < bedList.length; i++) {
+                        list += '<input type="text" data="'+bedList[i].bedNum+'" value="'+bedList[i].bedAlias+'" />'
+                    };
+                    $(".bed-number-wrap").html(list);
+                }else{
+                    var list = [];
+                    $(".bed-number-wrap input").each(function(){
+                        var val = $(this).val(),
+                        data = $(this).attr("data");
+                        list.push({bedAlias:val,bedNum:data});
+                    })
+                    return list;
+                };
+            }
+        }
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            dormId : Y.getUrlParam("id"),
+            buildingName : {
+                o:$("#data-buildingName"),
+                e:"blur",
+                i:function(o){
+                    o.keyup(function(){
+                        var value = o.val();
+                        var floor = $("#data-floor").val();
+                        var html = '';
+                        if(value) html += (value + '-');
+                        if(floor) html += (floor + '-');
+                        $("#data-reBuildingName").html(html);
+                    })
+                },
+                v:function(v,data){
+                    var html = '';
+                    if(data.buildingName) html += (data.buildingName + '-');
+                    if(data.floor) html += (data.floor + '-');
+                    $("#data-reBuildingName").html(html);
+                },
+                f:function(v){
+                    if (v == "") {
+                        return [false,"楼名不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            no : {
+                o:$("#data-no"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"房间号不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            floor : {
+                o:$("#data-floor"),
+                e:"blur",
+                i:function(o){
+                    o.keyup(function(){
+                        var value = o.val();
+                        var buildingName = $("#data-buildingName").val();
+                        var html = '';
+                        if(buildingName) html += (buildingName + '-');
+                        if(value) html += (value + '-');
+                        $("#data-reBuildingName").html(html);
+                    })
+                },
+                f:function(v){
+                    if (v == "") {
+                        return [false,"楼层不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            type : {o:new Y.Radio($("#data-type input"),{changeFn:function(){
+                $('#data-type-sex').val(this.val())
+            }})},
+            numLimit : {
+                o:$("#data-numLimit"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"人数限制不能为空"];
+                    } else {
+                        if(isNaN(v)){
+                            return [false,"人数必须为数字"];
+                        }else{
+                            return [true];
+                        }
+                    }
+                }
+            },
+            dormBed:{
+                o:new bedData(),
+            },
+            dormTeacherInfo:{
+                o:new Y.AnySelectBox($("#data-dormTeacherInfo"),$("#data-dormTeacherInfo").next(),{idKey:"accountId",valArr:true,valueString:"<div accountId='{accountId}' class='personData'><div style='width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #e4e4e4;color:#00b7ee;font-size:20px;margin:7px auto;border-radius:50px;' imgUrl='{photo}' class='icon_img'>{listStyle_name}</div><div>{name}</div></div>",
+                    SelectBox:{paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},placeholder:"请输入教师部门/姓名搜索",url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div title='{name}' class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><div style='display: inline-block;vertical-align: middle;width:calc(100% - 65px)'><span>{name}<font style='color:#3ec0ef;margin-left:5px;'>{birthday}</font></span><span style='color:#ccc;display:block;'>组织:{groupName}</span></div></div>"}
+                })
+            },
+            dormStudentInfo:{
+                o:dormStudent,
+                f:function(v){
+                    var bedEmpty = false;
+                    for (var i = 0; i < v.length; i++) {
+                        if (v[i].bedNum=="0") {
+                            bedEmpty = true;
+                        };
+                    };
+                    if(fromConfig.numLimit.o.val() < fromConfig.dormStudentInfo.o.value.length){
+                        return [false,"寝室人员超过人数限制",true];
+                    }/*else if(bedEmpty){
+                        return [false,"请给人员配置床号",true];
+                    }*/else{
+                        return [true];
+                    }
+                }
+            }
+        }
+        var from = new Y.From(fromConfig,"dormId",{getURL:ucIP + "/api/uc/v0.1/dorms/{dormId}/detail",postURL:ucIP + "/api/uc/v0.1/dorms",putURL:ucIP + "/api/uc/v0.1/dorms/{dormId}",title:"提交宿舍信息",dataJson:false,fn:function(res){
+            if (Y.getUrlParam("id")) {
+                if (res.dormBed.length===0) {
+                    getBed();
+                };
+                var option = "<option value='0'>配置床号</option>";
+                for (var i = 0; i < res.dormBed.length; i++) {
+                    var item = res.dormBed[i];
+                    option += "<option value='"+item.bedNum+"'>"+item.bedAlias+"</option>";
+                };
+                $("#data-dormStudentInfo select").html(option);
+                setTimeout(function(){
+                    for (var i = 0; i < res.dormStudentInfo.length; i++) {
+                        $("#data-dormStudentInfo").children('.personData').eq(i).find('select').val(res.dormStudentInfo[i].bedNum)
+                    };
+                    getSelectHtml();
+                },200)
+                BedList();
+                //BedChange();
+                dormStudent.selectBox('selectMax',res.numLimit);
+
+            };
+        }});
+        //配置床号
+        $("#right").off().on('click', 'select.input', function(event) {
+            event.preventDefault();
+            var emptyInp = true;
+            $(".bed-number-wrap input").each(function(){
+                var val = $(this).val()
+                if (val=="") {
+                    emptyInp = false;
+                }
+            })
+            if (!emptyInp) {
+                $(this).attr("disabled","disabled");
+                Y.alertx("床号不能为空");
+                $(this).removeAttr('disabled')
+            }
+        });
+
+        //手动获取床号
+        $(".par-input").change(function() {
+            var isOk = true;
+            $(".par-input").each(function(){
+                if ($(this).val()=="") {
+                    isOk = false;
+                };
+            })
+            if (isOk) {
+                getBed();
+                dormStudent.selectBox('selectMax',$("#data-numLimit").val());
+            }else{
+                $(".bed-number-wrap").html("<p>（信息填写完整生成床号）</p>")
+            };
+        });
+        //床号与配置床号统一
+        $("#right").off().on('change', '.bed-number-wrap input', function(event) {
+            event.preventDefault();
+            BedList();
+            getSelectHtml();
+            /*var n = 0;
+            $("select.input").each(function(){
+                if ($(this).val()=='0') {
+                    n++;
+                };
+            })
+            if (n == $("select.input").length) {
+                getSelectHtml();
+            };*/
+        });
+
+        //提交
+        $("#submit").click(function(){
+            fromConfig.dormStudentInfo.o.val = function(){
+                var studentsList = [];
+                $("#data-dormStudentInfo .personData").each(function(){
+                    var accountId = $(this).attr("accountid"),
+                    bedNum = $(this).find('select.input').val();
+                    studentsList.push({accountId:accountId,bedNum:bedNum})
+                })
+                return studentsList;
+            }
+            var err = "";
+            var bedList = [];
+            $(".bed-number-wrap input").each(function(){
+                var val = $(this).val();
+                bedList.push(val)
+                if (val=='') {
+                    err = "床号不能为空";
+                };
+            })
+            var stuList = fromConfig.dormStudentInfo.o.val();
+            var stuBedList = [];
+            var stuBedList0 = [];
+            for (var i = 0; i < stuList.length; i++) {
+                if (stuList[i].bedNum!='0') {
+                    stuBedList.push(stuList[i].bedNum);
+                };
+                stuBedList0.push(stuList[i].bedNum);
+            };
+            if (stuBedList0.length>$("#data-numLimit").val()) {
+                err = "人数不能超过限制";
+            };
+            if (isRepeat(bedList)) {
+                err = "床号不能相同";
+            };
+            if (isRepeat(stuBedList)) {
+                err = "不能分配相同的床号";
+            };
+            if (err!='') {
+                Y.alertx(err)
+                return false;
+            };
+            var stus = fromConfig.dormStudentInfo.o.value,type = fromConfig.type.o.val(),err = [];
+            for(var i = 0; i < stus.length; i ++) if(stus[i].sex != type) err.push(stus[i].name);
+            if(err.length > 0){
+                Y.alertx(err.join(',') + ' 不能分配在此 ' + (type == 1 ? '男生' : '女生') + ' 宿舍');
+            }else{
+                from.submit($(this));
+            }
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+
+        //查重
+        function isRepeat(list){
+            var hash = {};
+            for(var i in list) {
+               if(hash[list[i]]){
+                   return true;
+               }
+               hash[list[i]] = true;
+            }
+            return false;
+        }
+        //生成床号list
+        function BedList(){
+            var option = "<option value='0'>配置床号</option>";
+            $(".bed-number-wrap input").each(function(i){
+                var val = $(this).val(),
+                data = $(this).attr("data");
+                option += "<option value='"+data+"'>"+val+"</option>";
+            })
+            dormStudent.valueString = "<div accountId='{accountId}' class='personData'><div style='width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #e4e4e4;color:#00b7ee;font-size:20px;margin:7px auto;border-radius:50px;' imgUrl='{photo}' class='icon_img'>{listStyle_name}</div><div>{name}</div><select value='{bedNum}' class='input'>"+option+"</select></div>"
+        }
+
+        //修改床号提示
+        /*function BedChange(){
+            $(".bed-number-wrap input").off().change(function(){
+                var b = false;
+                var _this = $(this);
+                $("select.input").each(function(){
+                    if ($(this).val()!="0") {
+                        b = true;
+                    };
+                })
+                if(b){
+                    Y.confirmx("修改床号会清空已分配学生床号，是否继续？",function(){
+                        getSelectHtml();
+                    },{closeFun:function(){
+                        getBed();
+                    }})
+                }
+
+            })
+        }*/
+        //获取床号
+        function getBed(n){
+            var data = {
+                buildingName:$("#data-buildingName").val(),
+                floor:$("#data-floor").val(),
+                no:$("#data-no").val(),
+                numLimit:$("#data-numLimit").val()
+            }
+            Y.ajax(ucIP+"/api/uc/v0.1/dormExtend/bed/generate_nums",function(res){
+                bedNumHrml(res);
+                BedList();
+                getSelectHtml();
+                //BedChange();
+            },{meth:'POST',data:data})
+        }
+        //生成床号html
+        function bedNumHrml(res){
+            var bedList = "";
+            for (var i = 0; i < res.data.length; i++) {
+                var item = res.data[i];
+                bedList += '<input type="text" data="'+item.num+'" value="'+item.alias+'" />'
+            };
+            $(".bed-number-wrap").html(bedList)
+        }
+        //生成配置选项html
+        function getSelectHtml(){
+            var getBedList = [];
+            $("#data-dormStudentInfo .personData").each(function(i){
+                var getBed = $(this).find('select').val();
+                if (getBed!='0') {
+                    getBedList.push({ind:i,getBed:getBed})
+                };
+            })
+            var option = "<option value='0'>配置床号</option>";
+            $(".bed-number-wrap input").each(function(){
+                var val = $(this).val(),
+                data = $(this).attr("data");
+                option += "<option value='"+data+"'>"+val+"</option>";
+            })
+            $("select.input").html(option)
+            for (var i = 0; i < getBedList.length; i++) {
+                var ind = getBedList[i].ind,
+                getBed = getBedList[i].getBed;
+                $("select.input").eq(ind).val(getBed);
+            };
+        }
+    })()
+</script>

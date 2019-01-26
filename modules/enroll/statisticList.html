@@ -1,0 +1,78 @@
+﻿<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="enrollId" type="text" placeholder="选择招录信息"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="_tip">
+    <span class="_tips">报名总人数:<span class="_num" id="enroll"></span>人</span>
+    <span class="_tips">录取总人数:<span class="_num" id="admit"></span>人</span>
+    <span class="_tips">录取男生人数:<span class="_num" id="admitFemale"></span>人</span>
+    <span class="_tips">录取女生人数:<span class="_num" id="admitMale"></span>人</span>
+    <span class="_tips">录取率:<span class="_num" id="admitRate"></span>%</span>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<div id="print"></div>
+<style type="text/css">
+    ._tip{
+        line-height: 32px;
+        background: #efefef;
+        border:1px solid #e4e4e4;
+        padding:0px 16px;
+    }
+    ._tips{
+        margin-right: 32px;
+    }
+    ._num{
+        margin-left:8px;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "enrollStatisticList", pageNum: 1};
+        var config = [
+            {CH: "标题", EN: "enrollTitle"},
+            {CH: "专业", EN: "majorName"},
+            {CH: "录取人数", EN: "admit"},
+            {CH: "录取男生", EN: "admitFemale"},
+            {CH: "录取女生", EN: "admitMale"},
+            {CH: "录取率(%)", EN: "admitRate"},
+            {CH: "招生总数", EN: "enroll"},
+            {CH: "招收男生", EN: "enrollFemale"},
+            {CH: "招收女生", EN: "enrollMale"},
+            {CH: "面试总人数", EN: "interview"},
+            {CH: "面试通过人数", EN: "interviewPass"},
+            {CH: "面试通过率(%)", EN: "interviewPassRate"}
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/enroll/student/statistic", option, config);
+        list.listNumTitle = "序号";
+        list.load(function(){
+            for(var key in list.data) $('#' + key).text(list.data[key]);
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("招生统计");
+        })
+        var enrollId = new Y.OnlySelectBox($("#enrollId"),{
+            vKey:"id",
+            sKey:"title",
+            SelectBox:{
+                showNum:false,
+                paramet:{},
+                url:ucIP + "/api/uc/v0.1/enroll/template",
+                dataString:"<div class='autoList' vaule='{id}'><span>{title}</span></div>"
+            }
+        });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            enrollId:enrollId
+        });
+    })()
+</script>

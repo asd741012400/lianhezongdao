@@ -1,0 +1,75 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="keyword" class="input" type="text" placeholder="姓名/手机号/入学年份"/>
+            <input id="majorId" class="input" type="text" placeholder="选择专业"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="goBack" type="button" value="返回" class="bg_eeeeee"/>
+        <div class="clear"></div>
+        <div id="statistic"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    #statistic{
+        text-align: left;
+        padding-top: 32px;
+        color: #59a9e1;
+        font-size: large;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var type = Y.getUrlParam("type");
+        var option = {pageSize: "teachers", pageNum: 1};
+        var config = [
+            {CH: "姓名", EN: "name", Align:"center"},
+            {CH: "入学年份", EN: "rxnd", Align:"center"},
+            {CH: "性别", EN: "sex", Option: {"0": "女", "1": "男"}, Align:"center"},
+            {CH: "专业", EN: "majorName", Align:"center"},
+            {CH: "手机", EN: "phoneNum", Align:"center"},
+            {CH: "身份证号", EN: "cardId", Align:"center"},
+            {CH: "出生日期", EN: "birthday", Align:"center"},
+            {CH: "报到状态", EN: "reportStatu",Option: {"0": "未报到", "1": "已报到"}, Align:"center"},
+            {CH: "缴费状态", EN: "payStatu",Option: {"0": "未缴费", "1": "缴费完成", "2": "欠费"}, Align:"center"},
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/welcome/class/getStuMesg", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listLook bg_dfba49\">查看</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $('#statistic').html('总人数：{total}人，专业数：{mayjorCount}个，缴费完成：{isPayCount}人，欠费：{ownPayCount}人，未缴费：{notPayCount}人'._eval(list.data));
+
+
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/welcome/reportsEdit.html",title:"新生分班信息详情",data:{type:"reviewEdit",id:data.accountId}});
+                    })
+                    //查看
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/welcome/reportsEdit.html",title:"新生信息详情",data:{type:"review",id:data.accountId}});
+                    })
+                }
+            })
+        });
+
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword"),
+            majorName:new Y.OnlySelectBox($("#majorId"),Y.getSelectBox('divisionMajor'))
+        });
+        //返回
+        $("#goBack").click(function(){
+            var goHtml = type == 'manu' ? 'classListManual' : 'classList';
+            Y.open({url:"modules/welcome/" + goHtml + ".html",title:"新生分班管理",data:{type:"autoBack"}});
+        })
+    })()
+</script>

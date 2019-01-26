@@ -1,0 +1,87 @@
+﻿<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="keyword" type="text" placeholder="姓名/专业"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <input id="downLoadDetailExcel" type="button" value="导出学籍" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "welcome_review", pageNum: 1};
+        var config = [
+            {CH: "姓名", EN: "name"},
+            {CH: "入学年份", EN: "rxnd"},
+            {CH: "性别", EN: "sex", Option: {"0": "女", "1": "男"},OptionExcel:{"0":"女","1":"男"}},
+            {CH: "专业", EN: "major"},
+            {CH: "手机号码", EN: 'phone'},
+            {CH: "身份证号", EN: "cardId"},
+            {CH: "缴费状态", EN: "payStatu", Option: {"0": "未缴费", "1": "<font style='color:#00b7ee'>缴费完成</font>", "2": "<font style='color:#ee2700'>欠费</font>"},OptionExcel:{"0": "未缴费", "1": "缴费完成", "2": "欠费"}},
+            {CH: "报到状态", EN: "reportStatu", Option: {"0": "未报到", "1": "<font style='color:#00b7ee'>已报到</font>"},OptionExcel:{"0":"未报到","1":"已报到"}},
+            {CH: "审核状态", EN: "reviewStatu", Option: {"0": "<input class='reviewStatu' type='checkbox' />", "1": "<input class='reviewStatu' type='checkbox' checked />"},OptionExcel:{"0":"未审核","1":"已审核"}}
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/welcome/review", option, config);
+        list.btns = "<span class=\"listLook bg_dfba49\">查看</span><span class=\"listEdit bg_dfba49\">修改</span>";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //查看
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/welcome/reportsEdit.html",title:"新生信息详情",data:{type:"review",id:data.accountId,readOnly:true}});
+                    })
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/welcome/reportsEdit.html",title:"新生信息详情",data:{type:"reviewEdit",id:data.accountId}});
+                    })
+                    //修改报到状态
+                    $(this).find(".reviewStatu").click(function(){
+                        var _this = this;
+                        var checked = _this.checked;
+                        _this.checked = !checked;
+                        Y.confirmx("确定该生" + (checked ? "已审核?" : "未审核?"),function(){
+                            _this.checked = checked;
+                            Y.ajax(ucIP + "/api/uc/v0.1/welcome/review/" + data.accountId,function(res){
+                                if(res){
+                                    res.reviewStatu = checked ? 1 : 0;
+                                    Y.ajax(ucIP + "/api/uc/v0.1/welcome/review",function(res){
+                                        var msg = res && res.result ? "修改审核状态成功!" : ("修改审核状态失败," + res.errorMsg);
+                                        list.load();
+                                        Y.alertx(msg,'',{toast:true,height:70});
+                                    },{data:res,meth:"PUT",dataJson:false})
+                                }else{
+                                    Y.alertx("修改失败",'',{toast:true,height:70});
+                                }
+                            })
+                        },{titleHeight:0,styles:{
+                            bottom:'border-top:none;',
+                            center:'border-top:none;',
+                            box:'left:' + ($(this).offset().left - 150) + 'px;top:' + ($(this).offset().top - 110) + 'px;'
+                        },_h:110,_w:200})
+                    })
+                }
+            })
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("学籍信息审核");
+        })
+        $("#downLoadDetailExcel").click(function() {
+            var pageNum = option.pageNum;
+            var pageSize = option.pageSize;
+            var url = ucIP + "/api/uc/v0.1/welcome/exportStudent?" + "schoolId=" + schoolId + "&pageNum="+ pageNum + "&pageSize=" + 99999;
+            Y.download(url);
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword")
+        });
+    })()
+</script>

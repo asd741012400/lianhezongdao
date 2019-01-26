@@ -1,0 +1,23 @@
+{
+  "name": "NodeMVC",
+  "version": "1.0.0",
+  "description": "",
+  "main": "express.js",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "body-parser-xml": "^1.1.0",
+    "cookie-parser": "^1.4.3",
+    "crypto": "^1.0.1",
+    "ejs": "^2.5.8",
+    "express": "^4.15.2",
+    "express-session": "^1.15.3",
+    "mongodb": "^2.2.25",
+    "multer": "^1.3.0",
+    "request": "^2.83.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+  },
+  "author": "yfei",
+  "license": "ISC"
+}

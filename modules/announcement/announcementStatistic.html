@@ -1,0 +1,208 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="name" type="text" placeholder="输入姓名"/>
+            <input value="已查阅人员" id="status" class="input" type="text" placeholder="毕业状态"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+    </div>
+</div>
+<div class="f_left table_box">
+    <div class="table">
+        <div id="table"></div>
+    </div>
+    <div class="list_footer">
+        <div id="pagaBtns"></div>
+    </div>
+</div>
+<div class="f_left chart_box">
+    <div class="chart_header">
+        查阅占比统计
+    </div>
+    <div class="chart_body">
+        <div id="chart1" class="chart1"></div>
+        <div id="chart2" class="chart2"></div>
+        <ul id="bodyTable" class="bodyTable"></ul>
+    </div>
+</div>
+<style>
+ul{
+    padding:0;
+    margin:0;
+}
+li{
+    list-style:none;
+}
+.list_header{
+    clear:both;
+    overflow:hidden;
+}
+.f_left{
+    float:left;
+}
+.table_box{
+    width:calc(100% - 413px);
+}
+.chart_box{
+    border:1px solid #e4e4e4;
+    margin:2px 0 0 10px;
+    width:400px;
+}
+.chart_body{
+    padding:10px 10px 15px 10px;
+}
+.chart_header{
+    padding:15px 10px;
+}
+.tipCenter{
+    text-align:center;
+}
+.chart1,.chart2{
+    height:240px;
+}
+.bodyTable{
+    border:1px solid #e4e4e4;
+}
+.bodyTable li{
+    border-top:1px solid #e4e4e4;
+}
+.bodyTable li:first-child{
+    border:none;
+}
+.bodyTable li span{
+    width:50%;
+    display:inline-block;
+    position:relative;
+    text-indent: 20px;
+    padding: 5px 0;
+}
+.bodyTable li span:first-child:before{
+    content:'';
+    position:absolute;
+    width:1px;
+    height:100%;
+    background:#e4e4e4;
+    top:0;
+    right:0;
+}
+</style>
+<script src="js/echarts.min.js"></script>
+<script type="text/javascript">
+    (function() {
+        var announcementId = Y.getUrlParam("id"),
+        option = {announcementId:announcementId,pageSize: "view", pageNum: 1},
+        config = [
+            {CH: "通知公告标题", EN: "title"},
+            {CH: "姓名", EN: "userName"},
+            {CH: "班级/部门", EN: "deptOrClass"},
+            {CH: "来源", EN: "userType", Option:{"1":"学生", "2":"教师"}},
+            {CH: "查阅状态", EN: "viewType", Option:{"1":"已查阅", "2":"未查阅"}},
+        ];
+
+        var list = new Y.List(eschoolIP + "/api/announcement/v0.1/" + announcementId + "/view", option, config);
+        list.listNumTitle = "序号";
+        list.load();
+
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            viewType:new Y.Select($('#status'),{'1':'已查阅人员','2':'未查阅人员',},{delFn:false}),
+            name:$('#name')
+        });
+
+
+
+        Y.ajax(eschoolIP + "/api/announcement/v0.1/" + announcementId + "/view/statistic",function(ret){
+            var ret1 = [{'name':'已查阅','num':ret.viewTotal},{'name':'未查阅','num':ret.notViewTotal}],
+            ret2 = [{'name':'教师端','num':ret.notViewTeacher + ret.viewTeacher},{'name':'学生端','num':ret.notViewStudent + ret.viewStudent}];
+            chart1F(ret1);
+            chart2F(ret2);
+            statisticTable(ret);
+        },{data:{announcementId:announcementId}})
+
+        function chart1F(ret){
+            //var ret=[{'name':'已查阅','num':75},{'name':'未查阅','num':25}];
+            var chart1 = document.getElementById('chart1');
+            var myChart = echarts.init(chart1);
+            var data1 = [],data2 = [];
+            if(ret.length == 0) {
+                chart1.innerHTML = '<div class="tipCenter">暂无数据</div>';
+                return false;
+            }
+            for(var i = 0; i < ret.length; i ++){
+                data1.push(ret[i].name);
+                data2.push({value:ret[i].num, name:ret[i].name});
+            }
+            // 指定图表的配置项和数据
+            var option = {
+                tooltip : {
+                    trigger: 'item',
+                    formatter: "{b} : {d}%"
+                },
+                color:[ '#33ccff', '#ffcc66'],
+                legend: {
+                    x : 'center',
+                    y : 200,
+                    data:data1,
+                },
+                calculable : true,
+                series : [
+                    {
+                        name:'',
+                        type:'pie',
+                        radius : '55%',
+                        center: ['50%', '40%'],
+                        data:data2,
+                    }
+                ]
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        }
+        function chart2F(ret){
+            //var ret = [{'name':'教师端','num':50},{'name':'学生端','num':25},{'name':'家长端','num':25}];
+            var chart2 = document.getElementById('chart2');
+            var myChart = echarts.init(chart2);
+            var data1 = [],data2 = [];
+            if(ret.length == 0) {
+                chart2.innerHTML = '<div class="tipCenter">暂无数据</div>';
+                return false;
+            }
+            for(var i = 0; i < ret.length; i ++){
+                data1.push(ret[i].name);
+                data2.push({value:ret[i].num, name:ret[i].name});
+            }
+            // 指定图表的配置项和数据
+            var option = {
+                tooltip : {
+                    trigger: 'item',
+                    formatter: "{b} : {d}%"
+                },
+                color:[ '#009dd9', '#ccff66'],
+                legend: {
+                    x : 'center',
+                    y : 200,
+                    data:data1,
+                },
+                calculable : true,
+                series : [
+                    {
+                        name:'',
+                        type:'pie',
+                        radius : '55%',
+                        center: ['50%', '40%'],
+                        data:data2
+                    }
+                ]
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        }
+
+        function statisticTable(ret){
+            var str = "<li><span>已查阅（" + ret.viewTotal + "）</span><span>未查阅（" + ret.notViewTotal + "）</span></li>"
+                    + "<li><span>已查阅学生：" + ret.viewStudent + "人</span><span>未查阅学生：" + ret.notViewStudent + "人</span></li>"
+                    + "<li><span>已查阅教师：" + ret.viewTeacher + "人</span><span>未查阅教师：" + ret.notViewTeacher + "人</span></li>"
+            $("#bodyTable").html(str);
+        }
+
+   })()
+</script>

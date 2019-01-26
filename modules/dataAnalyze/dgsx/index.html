@@ -1,0 +1,1137 @@
+<div class="dataAnalyzePage" id="dgsxIndex">
+    <div style="display: flex;">
+        <!--<div class="_div1" style="width: 220px;">
+            <div @click="openPick(1,$event)" style="display: flex;justify-content:space-between;">
+                <span>{{computT(1)}}</span>
+                <img src="images/icon_calendar.png" width="14" height="14" />
+            </div>
+            <div>课堂违纪 (人)<span style="font-size: 24px;color: #F5A623;margin:12px;">{{data1.d2}}</span><span style="font-size: 12px;color: #AAAAAA;">同比</span><span style="font-size: 12px;color:#88E91D;">{{data1.d3}}%</span></div>
+        </div>-->
+        <!--<div class="_div2" v-for="d in data1.d4">
+            <div class="_div2_1">{{d[0]}}</div>
+            <div class="_div2_2">{{d[1]}}</div>
+        </div>-->
+    </div>
+    <div style="display: flex;">
+        <div class="dataAnalyzeBox">
+            <div class="dataAnalyzeBox_t">
+                <div class="dataAnalyzeBox_title">学生实习情况</div>
+                <div class="dataAnalyzeBox_t_right">
+                    <input id="ans-pick" type="text"  class="dataAnalyzeTime" :value="data1.t" />
+                </div>
+            </div>
+            <div class="dataAnalyzeBox_c">
+                <div style="display: flex;margin:0px 30px;">
+                    <div class="_div3" id="dgsxIndex1"></div>
+                </div>
+            </div>
+        </div>
+        <div class="dataAnalyzeBox">
+            <div class="dataAnalyzeBox_t">
+                <div class="dataAnalyzeBox_title">实习薪酬情况</div>
+                <div class="dataAnalyzeBox_t_right">
+                    <input type="text" @click="openPick(2,$event)" class="dataAnalyzeTime" :value="data4.t" />
+                </div>
+            </div>
+            <div class="dataAnalyzeBox_c">
+                <div>
+                    <div class="_div3" id="dgsxIndex2"></div>
+                </div>
+            </div>
+        </div>
+        <div class="dataAnalyzeBox">
+            <div class="dataAnalyzeBox_t">
+                <div class="dataAnalyzeBox_title">热门实习岗位分析</div>
+                <div class="dataAnalyzeBox_t_right">
+                    <input type="text" @click="openPick(3,$event)" class="dataAnalyzeTime" :value="data6.t" />
+                </div>
+            </div>
+            <div class="dataAnalyzeBox_c">
+                <div>
+                    <div class="_div3" id="dgsxIndex3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="display: flex;">
+        <div class="dataAnalyzeBox">
+            <div class="dataAnalyzeBox_t">
+                <div class="dataAnalyzeBox_title">实习签到情况</div>
+                <div class="dataAnalyzeBox_t_right">
+                    <input type="text" @click="openPick(4,$event)" class="dataAnalyzeTime" :value="data4.t" />
+                </div>
+            </div>
+            <div class="dataAnalyzeBox_c">
+                <div style="display: flex;margin-top: 16px;">
+                    <div v-for="d in data4.d" style="flex:1;padding-left: 30px;">
+                        <div style="font-size: 12px;color: #A7A7A7;">{{d[0]}}</div>
+                        <div style="font-size: 17px;color: #7D7D7D;">{{d[1]}}</div>
+                       <!-- <div style="font-size: 12px;color: #AAAAAA;">同比<span style="color: #FF9800;margin-left: 12px;" v-if="d[2]">{{d[2]}}</span></div>-->
+                    </div>
+                </div>
+                <div>
+                    <div class="_div3" id="dgsxIndex4">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="dataAnalyzeBox">
+            <div class="dataAnalyzeBox_t">
+                <div class="dataAnalyzeBox_title">实习计划情况分析</div>
+                <div class="dataAnalyzeBox_t_right">
+                    <input type="text" @click="openPick(5,$event)" class="dataAnalyzeTime" :value="data6.t" />
+                </div>
+            </div>
+            <div class="dataAnalyzeBox_c">
+                <div style="display: flex;margin-top: 16px;">
+                    <div v-for="d in data5.d" style="flex:1;padding-left: 30px;">
+                        <div style="font-size: 12px;color: #A7A7A7;">{{d[0]}}</div>
+                        <div style="font-size: 17px;color: #7D7D7D;">{{d[1]}}</div>
+                        <div style="font-size: 12px;color: #AAAAAA;">同比<span style="color: #FF9800;margin-left: 12px;" v-if="d[2]">{{d[2]}}</span></div>
+                    </div>
+                </div>
+                <div style="display: flex">
+                    <div class="_div3" id="dgsxIndex5"></div>
+                    <div class="_div3" id="dgsxIndex5_2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="display: flex;">
+        <div class="dataAnalyzeBox">
+            <div class="dataAnalyzeBox_t">
+                <div class="dataAnalyzeBox_title">实习薪资区间占比</div>
+                <div class="dataAnalyzeBox_t_right">
+                    <input type="text" @click="openPick(6,$event)" class="dataAnalyzeTime" :value="data4.t" />
+                </div>
+            </div>
+            <div class="dataAnalyzeBox_c">
+                <div>
+                    <div class="_div3" id="dgsxIndex6"></div>
+                </div>
+            </div>
+        </div>
+        <div class="dataAnalyzeBox">
+            <div class="dataAnalyzeBox_t">
+                <div class="dataAnalyzeBox_title">日志提交情况</div>
+                <div class="dataAnalyzeBox_t_right">
+                    <input type="text" @click="openPick(7,$event)" class="dataAnalyzeTime" :value="data6.t" />
+                </div>
+            </div>
+            <div class="dataAnalyzeBox_c">
+                <div style="display: flex;margin-top: 16px;">
+                    <div v-for="d in data7.d" style="flex:1;padding-left: 30px;">
+                        <div style="font-size: 12px;color: #A7A7A7;">{{d[0]}}</div>
+                        <div style="font-size: 17px;color: #7D7D7D;">{{d[1]}}</div>
+                        <!-- <div style="font-size: 12px;color: #AAAAAA;">同比<span style="color: #FF9800;margin-left: 12px;" v-if="d[2]">{{d[2]}}</span></div>-->
+                    </div>
+                </div>
+                <div>
+                    <div class="_div3" id="dgsxIndex7">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="dataAnalyzeBox" style="margin-right: 0px;">
+        <div class="dataAnalyzeBox_t">
+            <div class="dataAnalyzeBox_title">学生实习情况</div>
+            <div class="dataAnalyzeBox_t_right">
+                <input type="text" @click="openPick(8,$event)" class="dataAnalyzeTime" :value="computT(2)" />
+                <!--<input type="text" v-if="!type" @click="openDept(8,$event)" class="dataAnalyzeTime" :value="data5.dept" />-->
+            </div>
+        </div>
+        <div class="dataAnalyzeBox_c">
+            <div class="table">
+                <div id="table"></div>
+            </div>
+            <div class="list_footer">
+                <div id="pagaBtns"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<style type="text/css">
+    ._div1{
+        background: #fff;
+        border: 1px solid #E6EAEE;
+        border-radius: 4px;
+        overflow: hidden;
+        padding:20px 10px;
+        height: 63px;
+    }
+    ._div2{
+        background: #fff;
+        border: 1px solid #E6EAEE;
+        border-radius: 4px;
+        overflow: hidden;
+        padding:22px 10px;
+        height: 60px;
+        flex: 1;
+        margin-left: 10px;
+    }
+    ._div2_1{
+        font-size: 14px;
+        color: #666666;
+        text-align: center;
+    }
+    ._div2_2{
+        font-size: 16px;
+        color: #F5A623;
+        text-align: center;
+    }
+    ._div3{
+        flex: 1;
+        height: 250px;
+    }
+    .dataAnalyzeBox .table table{
+        border: none;
+    }
+</style>
+<script src="js/echarts.min.js"></script>
+<script type="text/javascript">
+    (function(){
+        $('.rightContent').css('background','none');
+        var type = Y.urlQuery('type');
+        var vue = new Vue({
+            el:'#dgsxIndex',
+            data:{
+                type:type,
+                data1:{
+                    type:'other',
+                    t:'按企业筛选',
+                    d1:[
+                        {value:22, name:'合资'},
+                        {value:17, name:'私营/民企'},
+                        {value:29, name:'政府机关'},
+                        {value:3, name:'事业单位'},
+                        {value:120, name:'国企'}
+                    ],
+                    d2:[
+                        {value:22, name:'北京'},
+                        {value:8, name:'上海'},
+                        {value:26, name:'广州'},
+                    ],
+                    d3:[],
+                    d4:{'1':'按企业筛选','2':'按区域筛选'}
+                },
+                data2:{
+                    t:'2018-04',
+                    type:'month'
+                },
+                data3:{
+                    t:'2018-04',
+                    type:'month',
+                    d:[
+                        ['教师总数',159,1],
+                        ['出勤人数',124,1],
+                        ['请假人数',12,2],
+                        ['专职教师/兼职教师（人）','127/32',0]
+                    ],
+                    dept:'全部'
+                },
+                data4:{
+                    t:'2018-04',
+                    type:'month',
+                    d:[
+                        ['实习人数',159],
+                        ['公司总数',124],
+                        ['签到总数',12],
+                        ['未签到',2],
+                        ['正常/异常','8/2']
+                    ]
+                },
+                data5:{
+                    t:'2018-04',
+                    type:'month',
+                    d:[
+                        ['优秀',159,'+3'],
+                        ['良好',1240,'+4'],
+                        ['合格',12,'-5'],
+                        ['未合格',2,'-1'],
+                        ['未完成',8,'+2']
+                    ],
+                    dept:'全部'
+                },
+                data6:{
+                    t:'2018-04',
+                    type:'month',
+                    d:[
+                        {id:1}
+                    ],
+                    dept:'全部'
+                },
+                data7:{
+                    t:'2018-04',
+                    type:'month',
+                    d:[
+                        ['已提交次数',159],
+                        ['未提交次数',124],
+                        ['今日未提交',2],
+                        ['今日未评价',12],
+                    ]
+                },
+                data8:{
+                    t:'2018-04',
+                    type:'month',
+                    d:[
+                    ]
+                },
+            },
+            methods:{
+                getRandomNumArray:function(baseRange,numRange,size){
+                    var array=[];
+                    for(var i=0;i<size;i++){
+                        array[i]=parseInt(Math.random()*numRange)+baseRange;
+                    }
+                    return array;
+                },
+                getRandomNum:function(baseRange,numRange){
+                  return parseInt(Math.random()*numRange)+baseRange;
+                },
+                getHundredArray:function(num,minNum){
+                    var total=100-num*minNum;
+                    var leftSize=total;
+                    var count=0;
+                    var array=[];
+                    for(var i=0;i<num-1;i++) {
+                        var firstRandom = parseInt(Math.random() * leftSize);
+                        var sendRandom = parseInt(Math.random() * firstRandom);
+                        array[i]= sendRandom;
+                        count+=array[i];
+                        leftSize=leftSize=array[i];
+                        if(minNum)
+                            array[i]=array[i]+minNum;
+                    }
+                    array[num-1]=total-count+minNum;
+                    return array
+                },
+                computT:function(flog){
+                    return this['data' + flog].type == 'week' ? '第' + this['data' + flog].t + '周' : this['data' + flog].t;
+                },
+                openPick:function(flog,e){
+                    var _this = this;
+                    Y.dataAnalyzePick(function(type,value){
+                        _this['data' + flog].type = type;
+                        _this['data' + flog].t = value;
+                        _this['build' + flog]();
+                    },this['data' + flog].type,$(e.target))
+                },
+                openDept:function(flog,e){
+                    var _this = this;
+                    Y.dataAnalyzePickDept(function(value){
+                        _this['data' + flog].dept = value;
+                        _this['build' + flog]();
+                    },$(e.target))
+                },
+                openCutomSelect:function(flog,e){
+                    var _self=this;
+                    if(flog==1){
+                        new Y.Select($('#ans-pick'),_self.data1.d4,{
+                            selectedFn:function(ele){
+                                var k=ele.k;
+                                if(k=='1'){
+
+                                    _self.data1.d3=_self.data1.d1;
+                                    _self.build1();
+                                }else if(k=='2'){
+                                    _self.data1.d3=_self.data1.d2;
+                                    _self.build1();
+                                }
+                            }
+                        })
+                    }
+
+                },
+                build1:function(){
+                    var _self=this;
+                    var myChart = echarts.init(document.getElementById('dgsxIndex1'));
+                    myChart.setOption({
+                        tooltip : {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        calculable : true,
+                        series : [
+                            {
+                                color:['#82A5DA','#FFBB57','#88E91D','#DB7D5B','#97CBFF'],
+                                name:'访问来源',
+                                type:'pie',
+                                radius : '55%',
+                                data:_self.data1.d3,
+                                itemStyle: {
+                                    normal: {
+                                        label:{
+                                            formatter:'{b} {d}%'
+                                        }
+                                    },
+                                    emphasis: {
+                                        label:{
+                                            formatter:'{b} {d}%'
+                                        }
+                                    }
+                                }
+
+                            }
+                        ]
+                    });
+                },
+                build2:function(){
+                    var myChart = echarts.init(document.getElementById('dgsxIndex2'));
+                    var xAxis = [],total = 0,dayNum = 1;
+                    function buildArray(max){
+                        var rc = [];
+                        for(var i = 1; i <= max; i ++) rc.push(i);
+                        return rc;
+                    }
+                    switch(this.data2.type){
+                        case 'year':
+                            xAxis = buildArray(12);
+                            total = 3000;
+                            dayNum = 30;
+                            break;
+                        case 'month':
+                            var months = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],d = this.data2.t.split('-');
+                            d[1] = d[1].charAt(0) == 0 ? d[1].charAt(1) : d[1];
+                            months[1] = (d[0] % 4 == 0 && d[0] % 100 != 4) || d[0] % 400 == 0 ? 29 : 28;
+                            xAxis = buildArray(months[d[1] - 1]);
+                            total = 100;
+                            break;
+                        case 'week':
+                            xAxis = ['周一','周二','周三','周四','周五'];
+                            total = 100;
+                            break;
+                        default:
+                            break;
+                    }
+                    if(type) total = total / 3;
+                    var data1 = [],data2 = [];
+                    for(var i = 0; i < xAxis.length; i ++){
+                        var err = parseInt(Math.random() * 9 + 1) * dayNum;
+                        data2.push(err);
+                        data1.push(total - err);
+                    }
+                    myChart.setOption({
+                        tooltip : {
+                            trigger: 'axis',
+                            axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                                type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                            }
+                        },
+                        grid: {
+                            borderWidth: 1,
+                            x:100,
+                            y2:40
+                        },
+                        legend: {
+                            itemWidth:14,
+                            itemHeight:12,
+                            data:['最低薪酬', '平均薪酬','最高薪酬'],
+                            textStyle:{
+                                //fontSize:24
+                            },
+
+                        },
+                        calculable : true,
+                        xAxis : [
+                            {
+                                type : 'value',
+                                //show: false,
+                            }
+                        ],
+                        yAxis : [
+                            {
+                                type : 'category',
+                                data : ['其它','私企/民营','国企/事业','学校推荐'],
+                                //zlevel:10,
+                                axisLabel: {
+                                    textStyle: {
+                                        //fontSize:26,
+                                        //align:'left',
+                                        color:'#7A8FAC'
+                                    },
+                                   // margin:-5
+                                },
+                                axisLine:{
+                                    show:false
+                                },
+                                axisTick:{
+                                    //show:false
+                                }
+                            }
+                        ],
+                        series : [
+                            {
+                                name:'最低薪酬',
+                                type:'bar',
+                                stack: '总量',
+                                itemStyle : {
+                                    normal: {
+                                        label : {show: true, position: 'insideRight',textStyle:{color:'#ffffff'}},
+                                        //barBorderRadius:[10,0,0,10],
+                                        color:'#82a5da'
+                                    }
+                                },
+                                data:this.getRandomNumArray(200,300,4)
+
+                            },
+                            {
+                                name:'平均薪酬',
+                                type:'bar',
+                                stack: '总量',
+                                itemStyle : {
+                                    normal: {
+                                        label : {show: true, position: 'insideRight',color:'#ffc057',textStyle:{color:'#ffffff'}},
+                                        color:'#ffc057'
+                                    }
+                                },
+                                data:this.getRandomNumArray(200,300,4)
+
+                            },
+                            {
+                                name:'最高薪酬',
+                                type:'bar',
+                                stack: '总量',
+                                itemStyle : {
+                                    normal: {
+                                        label : {show: true, position: 'insideRight',textStyle:{color:'#ffffff'}},
+                                        //barBorderRadius:[0,10,10,0],
+                                        color:'#fb8154'
+                                    }
+                                },
+                                data:this.getRandomNumArray(200,300,4)
+                            }
+                        ]
+                    });
+                },
+                build3:function(){
+                    var myChart = echarts.init(document.getElementById('dgsxIndex3'));
+                    var data1 = [],data2 = [];
+                    for(var i = 0; i < 4; i ++){
+                        data1.push(parseInt(Math.random() * 150));
+                        data2.push(parseInt(Math.random() * 50))
+                    }
+                    myChart.setOption( {
+                        //color:['#9CDA58','#64BBFB','#E88E6D','#EBEBEB'],
+                        xAxis : [
+                            {
+                                type : 'category',
+                                data : ['汽车修理','轨道交通','交通运输','汽车销售']
+                            }
+                        ],
+                        yAxis : [
+                            {
+                                type : 'value'
+                            }
+                        ],
+                        calculable : true,
+                        series : [
+                            {
+                                color:['#7dd0ff','#7dd0ff','#7dd0ff','#7dd0ff'],
+                                name:'2011年',
+                                type:'bar',
+                                //data:data1,
+                                barWidth:'30%',
+                                itemStyle:{
+                                    normal:{
+                                        label:{
+                                            show: false,
+                                            position: 'top',
+                                            //formatter: '{b}\n{c}'
+
+                                        }
+                                    }
+
+                                },
+                                data : this.getRandomNumArray(100,100,4),
+                            },
+                            {
+                                color:['#7A8FAC','#7A8FAC','#7A8FAC','#7A8FAC'],
+                                name:'2012年',
+                                type:'line',
+                                data:data2,
+                                itemStyle:{
+                                    normal:{
+                                        label:{
+                                            show: true,
+                                            position: 'top',
+                                            //formatter: '{c}'
+                                            formatter:function(v1){
+                                                var dataIndex=v1.dataIndex;
+                                                var showdata=['+4%','+5%','-4%','+3%'];
+                                                return showdata[dataIndex];
+                                            }
+                                        }
+                                    }
+
+                                },
+                                data : this.getRandomNumArray(100,100,4)
+                            }
+                        ]
+                    });
+                },
+                build4:function(){
+                    var myChart = echarts.init(document.getElementById('dgsxIndex4'));
+                    var hArray1=this.getHundredArray(2,20);
+                    var hArray2=this.getHundredArray(2,20);
+                    var hArray3=this.getHundredArray(2,20);
+                    var total = 0;
+                    switch(this.data4.type){
+                        case 'year':
+                            total = 360000;
+                            break;
+                        case 'month':
+                            total = 3000;
+                            break;
+                        case 'week':
+                            total = 700;
+                            break;
+                        default:
+                            break;
+                    }
+                    var data = [
+                        {value:this.getRandomNum(100,200), name:'2017'},
+                        {value:this.getRandomNum(50,200), name:'2018'},
+                        {value:this.getRandomNum(100,200), name:'2019'}
+                    ]
+                    var err = parseInt(Math.random() * 20) / 100 * total;
+                    for(var i = 0; i < 2; i ++){
+                        data[i].value = parseInt(err * 0.166);
+                        err -= data[i].value;
+                    }
+                    if(err > 0){
+                        data[2].value = err;
+                    }
+                    var labelBottom = {
+                        normal : {
+                            color: '#F1F4FB',
+                            label : {
+                                show : true,
+                                position : 'center',
+                                textStyle: {
+                                    color : '#64BBFB'
+                                }
+                            },
+                            labelLine : {
+                                show : false
+                            }
+                        },
+                    };
+                    myChart.setOption({
+                        tooltip : {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        color:['#64BBFB'],
+                        calculable : false,
+                        series : [
+                            {
+                                type:'pie',
+                                center:['16.6%','50%'],
+                                radius : ['65%', '70%'],
+                                x: '60%',
+                                width: '35%',
+                                funnelAlign: 'left',
+                                max: 1048,
+                                startAngle:270,
+                                data:[
+                                    {value:hArray1[0], name:hArray1[0]+'%',itemStyle : labelBottom},
+                                    {value:hArray1[1], name:''},
+                                ],
+                                itemStyle : {
+                                    normal: {
+                                        label: {
+                                            position : 'center',
+                                            textStyle: {
+                                                align : 'center',
+                                                baseline : 'bottom',
+                                                fontFamily : '微软雅黑',
+                                                fontSize : 24,
+                                                fontWeight : 'bolder'
+                                            },
+                                            //formatter:'{b}%'
+                                        },
+                                        labelLine : {
+                                            show :false,
+                                        }
+                                    }
+                                }
+                                //
+                            },
+                            {
+                                type:'pie',
+                                center:['50%','50%'],
+                                radius : ['65%', '70%'],
+                                x: '60%',
+                                width: '35%',
+                                funnelAlign: 'left',
+                                max: 1048,
+                                startAngle:270,
+                                data:[
+                                    {value:hArray2[0], name:hArray2[0]+'%',itemStyle : labelBottom},
+                                    {value:hArray2[1], name:''},
+                                ],
+                                itemStyle : {
+                                    normal: {
+                                        label: {
+                                            position : 'center',
+                                            textStyle: {
+                                                align : 'center',
+                                                baseline : 'bottom',
+                                                fontFamily : '微软雅黑',
+                                                fontSize : 24,
+                                                fontWeight : 'bolder'
+                                            },
+                                            //formatter:'{b}%'
+                                        },
+                                        labelLine : {
+                                            show :false,
+                                        }
+                                    }
+                                }
+                                //
+                            },
+                            {
+                                type:'pie',
+                                center:['83.3%','50%'],
+                                radius : ['65%', '70%'],
+                                x: '60%',
+                                width: '35%',
+                                funnelAlign: 'left',
+                                max: 1048,
+                                startAngle:270,
+                                data:[
+                                    {value:hArray3[0], name:hArray3[0]+'%',itemStyle : labelBottom},
+                                    {value:hArray3[1], name:''},
+                                ],
+
+                                itemStyle : {
+                                    normal: {
+                                        label: {
+                                            position : 'center',
+                                            textStyle: {
+                                                align : 'center',
+                                                baseline : 'bottom',
+                                                fontFamily : '微软雅黑',
+                                                fontSize : 24,
+                                                fontWeight : 'bolder'
+                                            },
+                                            //formatter:'{b}%'
+                                        },
+                                        labelLine : {
+                                            show :false,
+                                        }
+                                    }
+                                }
+                                //
+                            }
+                        ]
+                    });
+                },
+                build5:function(){
+                    var _self=this;
+                    var myChart = echarts.init(document.getElementById('dgsxIndex5'));
+                    var myChart2 = echarts.init(document.getElementById('dgsxIndex5_2'));
+                    var total = 0;
+                    switch(this.data4.type){
+                        case 'year':
+                            total = 360000;
+                            break;
+                        case 'month':
+                            total = 3000;
+                            break;
+                        case 'week':
+                            total = 700;
+                            break;
+                        default:
+                            break;
+                    }
+                    var data = [
+                        {value:this.getRandomNum(100,200), name:'2017'},
+                        {value:this.getRandomNum(50,200), name:'2018'},
+                        {value:this.getRandomNum(100,200), name:'2019'}
+                    ]
+                    var err = parseInt(Math.random() * 20) / 100 * total;
+                    for(var i = 0; i < 2; i ++){
+                        data[i].value = parseInt(err * 0.166);
+                        err -= data[i].value;
+                    }
+                    if(err > 0){
+                        data[2].value = err;
+                    }
+                    myChart.setOption({
+                        tooltip : {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        xAxis : [
+                            {
+                                show:false,
+                                type : 'category',
+                                data : ['日报','周报','月报']
+                            }
+                        ],
+                        yAxis : [
+                            {
+                                show:false,
+                                type : 'value'
+                            }
+                        ],
+                        grid:{
+                            show:false,
+                        },
+                        calculable : true,
+                        series : [
+                            {
+                                color:['#368FE7','#97CBFF','#DB7D5B','#FFCD33','#7dffff'],
+                                name:'访问来源',
+                                type:'pie',
+                                radius : '55%',
+                                data:[
+                                    {value:this.getRandomNum(100,200), name:'合资'},
+                                    {value:this.getRandomNum(0,200), name:'私营/民企'},
+                                    {value:this.getRandomNum(40,200), name:'政府机关'},
+                                    {value:this.getRandomNum(100,200), name:'事业单位'},
+                                    {value:this.getRandomNum(5,200), name:'国企'}
+                                ],
+                                itemStyle: {
+                                    normal: {
+                                        label:{
+                                            formatter:'{b} {d}%'
+                                        }
+                                    }
+                                }
+
+                            }
+                        ]
+                    });
+                    myChart2.setOption({
+                        tooltip : {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        xAxis : [
+                            {
+                                //show:false,
+                                type : 'category',
+                                data : ['日报','周报','月报'],
+
+                            }
+                        ],
+                        yAxis : [
+                            {
+                                show:false,
+                                type : 'value'
+                            }
+                        ],
+                        grid:{
+                            show:false,
+                        },
+                        calculable : true,
+                        series : [
+                            {
+                                color:['#34B5FF'],
+                                name:'2011年',
+                                center:['75%','50%'],
+                                type:'bar',
+                                barWidth:'40px',
+                                itemStyle:{
+                                    normal:{
+                                        label:{
+                                            show: false,
+                                            position: 'top',
+                                            formatter: '{b}\n{c}'
+                                        }
+                                    }
+
+                                },
+                                data : this.getRandomNumArray(50,100,3)
+                            }
+                        ]
+                    });
+                },
+                build6:function(){
+                    var myChart = echarts.init(document.getElementById('dgsxIndex6'));
+                    var data1 = [],data2 = [];
+                    for(var i = 0; i < 5; i ++){
+                        data1.push(parseInt(Math.random() * 100));
+                    }
+                    myChart.setOption({
+                        tooltip : {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        legend: {
+                            orient : 'horizontal',
+                            y : 'bottom',
+                            itemWidth:14,
+                            itemHeight:12,
+                            data:['1-3k','3-5k','5-8k','其他'],
+                            textStyle:{
+                                //fontSize:24
+                            }
+                        },
+                        calculable : false,
+                        series : [
+                            {
+                                color:['#64BBFB','#9CDA58','#FDC666','#D8D8D8'],
+                                type:'pie',
+                                radius : ['40%', '60%'],
+                                x: '60%',
+                                width: '35%',
+                                funnelAlign: 'left',
+                                max: 1048,
+
+                                data:[
+                                    {value:this.getRandomNum(10,20), name:'1-3k'},
+                                    {value:this.getRandomNum(100,200), name:'3-5k'},
+                                    {value:this.getRandomNum(10,200), name:'5-8k'},
+                                    {value:this.getRandomNum(10,20), name:'其他'}
+                                ],
+                                itemStyle : {
+                                    normal: {
+                                        label: {
+                                            textStyle: {
+                                                align : 'center',
+                                                baseline : 'middle',
+                                                fontFamily : '微软雅黑',
+                                                //fontSize : 24,
+                                                fontWeight : 'bolder'
+                                            },
+                                            formatter:'{b}'
+                                        },
+                                        labelLine : {
+                                            show :true,
+                                            length:20,
+                                            lineStyle:{
+                                                width:2
+                                            }
+                                        }
+                                    },
+                                    emphasis: {
+                                        label: {
+                                            show: true,
+                                            position: 'center',
+                                            textStyle: {
+                                                //fontSize: 30,
+                                                fontWeight: 'bold'
+                                            }
+                                        },
+                                        labelLine: {
+                                            show: false
+                                        }
+                                    }
+                                }
+                                //
+                            }
+                        ]
+                    });
+                },
+                build7:function(){
+                    var myChart = echarts.init(document.getElementById('dgsxIndex7'));
+                    var hArray1=this.getHundredArray(2,20);
+                    var hArray2=this.getHundredArray(2,20);
+                    var hArray3=this.getHundredArray(2,20);
+                    var total = 0;
+                    switch(this.data4.type){
+                        case 'year':
+                            total = 360000;
+                            break;
+                        case 'month':
+                            total = 3000;
+                            break;
+                        case 'week':
+                            total = 700;
+                            break;
+                        default:
+                            break;
+                    }
+                    var data = [
+                        {value:this.getRandomNum(100,200), name:'2017'},
+                        {value:this.getRandomNum(100,200), name:'2018'},
+                        {value:this.getRandomNum(100,200), name:'2019'}
+                    ]
+                    var err = parseInt(Math.random() * 20) / 100 * total;
+                    for(var i = 0; i < 2; i ++){
+                        data[i].value = parseInt(err * 0.166);
+                        err -= data[i].value;
+                    }
+                    if(err > 0){
+                        data[2].value = err;
+                    }
+                    var labelBottom = {
+                        normal : {
+                            color: '#F1F4FB',
+                            label : {
+                                show : true,
+                                position : 'center',
+                                textStyle: {
+                                    color : '#64BBFB'
+                                }
+                            },
+                            labelLine : {
+                                show : false
+                            }
+                        },
+                    };
+                    myChart.setOption({
+                        tooltip : {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        color:['#64BBFB'],
+                        calculable : false,
+                        series : [
+                            {
+                                type:'pie',
+                                center:['16.6%','50%'],
+                                radius : ['65%', '70%'],
+                                x: '60%',
+                                width: '35%',
+                                funnelAlign: 'left',
+                                max: 1048,
+                                startAngle:270,
+                                data:[
+                                    {value:hArray1[0], name:hArray1[0]+'%',itemStyle : labelBottom},
+                                    {value:hArray1[1], name:''},
+                                ],
+                                itemStyle : {
+                                    normal: {
+                                        label: {
+                                            position : 'center',
+                                            textStyle: {
+                                                align : 'center',
+                                                baseline : 'bottom',
+                                                fontFamily : '微软雅黑',
+                                                fontSize : 24,
+                                                fontWeight : 'bolder'
+                                            },
+                                            //formatter:'{b}%'
+                                        },
+                                        labelLine : {
+                                            show :false,
+                                        }
+                                    }
+                                }
+                                //
+                            },
+                            {
+                                type:'pie',
+                                center:['50%','50%'],
+                                radius : ['65%', '70%'],
+                                x: '60%',
+                                width: '35%',
+                                funnelAlign: 'left',
+                                max: 1048,
+                                startAngle:270,
+                                data:[
+                                    {value:hArray2[0], name:hArray2[0]+'%',itemStyle : labelBottom},
+                                    {value:hArray2[1], name:''},
+                                ],
+                                itemStyle : {
+                                    normal: {
+                                        label: {
+                                            position : 'center',
+                                            textStyle: {
+                                                align : 'center',
+                                                baseline : 'bottom',
+                                                fontFamily : '微软雅黑',
+                                                fontSize : 24,
+                                                fontWeight : 'bolder'
+                                            },
+                                            //formatter:'{b}%'
+                                        },
+                                        labelLine : {
+                                            show :false,
+                                        }
+                                    }
+                                }
+                                //
+                            },
+                            {
+                                type:'pie',
+                                center:['83.3%','50%'],
+                                radius : ['65%', '70%'],
+                                x: '60%',
+                                width: '35%',
+                                funnelAlign: 'left',
+                                max: 1048,
+                                startAngle:270,
+                                data:[
+                                    {value:hArray3[0], name:hArray3[0]+'%',itemStyle : labelBottom},
+                                    {value:hArray3[1], name:''},
+                                ],
+                                itemStyle : {
+                                    normal: {
+                                        label: {
+                                            position : 'center',
+                                            textStyle: {
+                                                align : 'center',
+                                                baseline : 'bottom',
+                                                fontFamily : '微软雅黑',
+                                                fontSize : 24,
+                                                fontWeight : 'bolder'
+                                            },
+                                            //formatter:'{b}%'
+                                        },
+                                        labelLine : {
+                                            show :false,
+                                        }
+                                    }
+                                }
+                                //
+                            }
+                        ]
+                    });
+                },
+                build8:function(){
+                    var option = {pageSize: "dataAnalyzejskqindex", pageNum: 1};
+                    var config = [
+                        {CH: "公司", EN: "comp"},
+                        {CH: "学生", EN: "name"},
+                        {CH: "班级", EN: 'clazz'},
+                        {CH: "导师", EN: "ds"},
+                        {CH: "企业得分", EN: "grade"},
+                        {CH: "满意度(%)", EN: "satisfy"},
+                    ];
+                    var comp=['腾讯','阿里','联和纵道'];
+                    var clazzs=['轨道交通2017级4班','轨道交通2017级3班','轨道交通2017级2班','轨道交通2017级1班'];
+                    var list = new Y.List('', option, config);
+                    var data = [];
+                    for(var i = 0; i < 50; i ++) {
+                        var _data = {
+                            id:i,
+                            time:this.data4.t,
+                            comp:comp[parseInt(Math.random() * 3)],
+                            name:'赵钱孙李周吴郑王'.charAt(parseInt(Math.random() * 9)) + '莉贺平飞云颖比波'.charAt(parseInt(Math.random() * 8)),
+                            clazz:clazzs[parseInt(Math.random() * 4)],
+                            ds:'赵钱孙李周吴郑王'.charAt(parseInt(Math.random() * 9)) + '莉贺平飞云颖比波'.charAt(parseInt(Math.random() * 8)),
+                            dept:dataDic.depts[parseInt(Math.random() * dataDic.depts.length)],
+                            grade:parseInt(Math.random() * 50)+50,
+                            satisfy:parseInt(Math.random() * 50)+50,
+                        };
+                        data.push(_data);
+                    }
+                    list.SQLite = new Y.SQLite(data);
+                    list.listNumTitle = "序号";
+                    list.load();
+                },
+                buildChat:function(){
+                    this.data1.d3=this.data1.d1;
+                    this.openCutomSelect(1)
+                    this.build1();
+                    this.build2();
+                    this.build3();
+                    this.build4();
+                    this.build5();
+                    this.build6();
+                    this.build7();
+                    this.build8();
+                }
+            },
+            mounted:function(){
+                this.buildChat();
+            }
+        });
+    })()
+</script>

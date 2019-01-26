@@ -1,0 +1,57 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="date" class="input" type="text" placeholder="请选择年月"/>
+            <input id="nameStudNo" class="input" type="text" placeholder="姓名/学号"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <input type="button" value="返回" id="cancel" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var date = Y.getUrlParam("date");
+        var option = {pageSize: "classIdList", pageNum: 1,classId:Y.getUrlParam("id"),date:date};
+        var config = [
+            {CH: "姓名", EN: "studName"},
+            {CH: "学号", EN: "studNo"},
+            {CH: "正常", EN: "zhengchang"},
+            {CH: "迟到", EN: "chidao"},
+            {CH: "早退", EN: "zaotui"},
+            {CH: "旷课", EN: "kuangke"},
+            {CH: "罚", EN: "fa"},
+            {CH: "请假", EN: "qingjia"},
+            {CH: "总计", EN: "total"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/classAttend/v0.1/statistic/classId/" + option.classId, option, config);
+        list.listNumTitle = "序号";
+        list.load();
+        $("#downLoadExcel").click(function(){
+            list.toExcel("班级考勤统计详情");
+        })
+        var datecalendar = new Y.Calendar($("#date"),{type:"month",date:date || ''});
+        datecalendar.maxDate = new Date();
+        $("#date").focus(function(){
+            var _this = $(this);
+            datecalendar.open(function(d){
+                _this.val(d);
+                datecalendar.close();
+            });
+        })
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            date:$("#date"),
+            nameStudNo:$("#nameStudNo")
+        });
+    })()
+</script>

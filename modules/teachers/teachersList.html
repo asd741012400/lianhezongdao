@@ -1,0 +1,118 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="keyword" class="input" type="text" placeholder="姓名/工号/部门"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/><span id="advancedSearch_btn">高级查询<img src="images/gjcx.png" /></span>
+        </div>
+        <input id="printBtn" type="button" class="bg_eeeeee" value = "打印" />
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value = "删除" />
+        <input id="addBtn" type="button" value="+ 新增" class="bg_eeeeee"/>
+        <input id="upLoadList" type="button" value="Excel导入" class="bg_eeeeee"/>
+        <input type="button" id="downLoadListModle" value="下载导入模板" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+        <div id="advancedSearch_box">
+            <div class="advancedSearch_data"><input id="name" class="input" type="text" placeholder="姓名"/></div>
+            <div class="advancedSearch_data"><input id="phone" class="input" type="text" placeholder="手机号"/></div>
+            <div class="advancedSearch_data"><input id="cardNo" class="input" type="text" placeholder="身份证号"/></div>
+            <div class="advancedSearch_data"><input id="deptName" class="input" type="text" placeholder="所属部门"/></div>
+            <div class="advancedSearch_data"><input id="roleIds" class="input" type="text" placeholder="角色"/></div>
+            <div class="clear"></div>
+            <div class="advancedSearch_btn"><input type="button" value="搜索" id="advancedSearchBtn" class="bg_00b7ee"/><input type="button" value="取消" id="advancedSearchCancle" class="bg_ffffff"/></div>
+        </div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<div id="planBox" class="boxShadow">
+    <div class="planBoxTitle">当前正在导入</div>
+    <div class="planBoxContent">
+        <div class="planPercent"><font id="percent">0</font>%</div>
+        <div class="planNum">导入<font id="allNum">--</font>/<font id="sumNum">--</font>条，失败<font id="falseNum">--</font>条</div>
+    </div>
+    <div class="planBoxBtns"><span id="cancelPlan"  class="bg_00b7ee">中断导入</span></div>
+</div>
+<style>
+    #print{
+        display: none;
+    }
+</style>
+<style type="text/css" media=print>
+    body{
+        background:#fff;
+    }
+    .header,.left,.footer,.right,#nav,#printBtn,.formBtns,.list_header{
+        display: none;
+    }
+    #print{
+        display: block;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "teachers", pageNum: 1};
+        var config = [
+            {CH: "姓名", EN: "name", Align:"center"},
+            {CH: "性别", EN: "sex", Option: {"0": "女", "1": "男"},OptionExcel:{"0":"女","1":"男"}, Align:"center"},
+            {CH: "手机", EN: "phone", Align:"center"},
+            {CH: "部门名称", EN: "groupName", Align:"center"},
+            {CH: "员工号", EN: "jobNumber", Align:"center"},
+            {CH: "角色", EN: "roleName", Align:"center"}
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/teachers", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                var data = list.data.rows[i - 1];
+                if(data.studentType == 0) $(this).find(".listEdit").hide();
+                //修改学生信息
+                $(this).find(".listEdit").click(function(){
+                    Y.open({url:"modules/teachers/teachersEdit.html",title:"编辑老师信息",data:{id:data.accountId}});
+                })
+                //删除学生信息
+                $(this).find(".listDelete").click(function(){
+                    list.deleteFn([data],ucIP + "/api/uc/v0.1/teachers/","accountId","老师",{vKey:"name",obj:$(this),errHeight:100});
+                })
+            }
+            })
+        });
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/teachers/teachersEdit.html",title:"新增老师"});
+        })
+        $("#downLoadExcel").click(function(){
+            list.toExcel("教师信息");
+        })
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),ucIP + "/api/uc/v0.1/teachers/","accountId","老师",{vKey:"name",errHeight:100});
+        })
+        //Excel信息批量导入
+        Y.excelImport(ucIP + "/api/uc/v0.1/progressbar/teacherImport/0",ucIP + "/api/uc/v0.1/teachers/dataImport?schoolId=" + schoolId,ucIP + "/api/uc/v0.1/teachers/dataImportTemplate?schoolId=" + schoolId + "&accessToken=" + accessToken);
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword"),
+            ril:"L"
+        },ucIP + "/api/uc/v0.1/teachers/preciseresult",{
+            name:$("#name"),
+            phone:$("#phone"),
+            cardNo:$("#cardNo"),
+            deptName:$("#deptName"),
+            roleIds:new Y.OnlySelectBox($("#roleIds"),Y.getSelectBox('groupRole')),
+            ril:"L"
+        });
+        //打印
+        $("#printBtn").click(function(){
+            var table = "<div id='print' class='table'>"+$(".table").html()+"</div>";
+            $('body').append(table);
+            window.print();
+            $("#print").remove();
+        })
+    })()
+</script>

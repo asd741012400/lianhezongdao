@@ -1,0 +1,485 @@
+<form class="form">
+    <div class="list_header_form">
+        <!-- <div style="float:left">
+            <input id="departmentLeader" type="checkbox" /><label for="departmentLeader">需要系部审批</label>
+            <input id="collegeLeader" type="checkbox" /><label for="collegeLeader">需要院部审批</label>
+        </div> -->
+        <input type="button" value="消息推送设置" id="setBtn" class="bg_eeeeee">
+    </div>
+    <div class="workFlow">
+        <div class="workFlowTitle"><b class="workFlowTitleNum">流程一</b><span class="range"><font style="font-size: 18px;background: #f2f7f3;border: 1px solid #ecf3ed;border-radius: 20px;padding: 3px 15px;margin-right: 15px;">不出校</font></span></div>
+        <div class="workFlowBox">
+            <div class="workFlowContent">
+                <div class="workFlowStart"><span class="workFlowStart_text">配置审批人</span><span class="workFlowCircle">学生</span></div>
+                <div class="workFlowEnd"><span class="workFlowCircle">班主任</span></div>
+                <div class="workFlowPerson">
+                    <!-- <select class="input">
+                        <option value="0">选择类型</option>
+                        <option value="1">会审</option>
+                        <option value="2">合审</option>
+                    </select> -->
+                    <div id="approver3"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="workFlow">
+        <div class="workFlowTitle"><b class="workFlowTitleNum">流程二</b><span class="range"><font style="font-size: 18px;background: #fef6eb;border: 1px solid #fdf0d0;border-radius: 20px;padding: 3px 15px;margin-right: 15px;">出校</font>请假天数<=<input class="last-day" id="first_condition" type="text" value="" />天</span></div>
+        <div class="workFlowBox">
+            <div class="workFlowContent">
+                <div class="workFlowStart"><span class="workFlowStart_text">配置审批人</span><span class="workFlowCircle">学生</span></div>
+                <div class="workFlowEnd"><span class="workFlowCircle">班主任</span></div>
+                <div class="workFlowPerson">
+                    <!-- <select class="input">
+                        <option value="0">选择类型</option>
+                        <option value="1">会审</option>
+                        <option value="2">合审</option>
+                    </select> -->
+                    <div id="first_approver1"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>
+                </div>
+                <div class="workFlowPerson">
+                    <!-- <select class="input">
+                        <option value="0">选择类型</option>
+                        <option value="1">会审</option>
+                        <option value="2">合审</option>
+                    </select> -->
+                    <div id="first_approver2"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="workFlow">
+        <div class="workFlowTitle">
+            <b class="workFlowTitleNum">流程三</b>
+            <span class="range"><font style="font-size: 18px;background: #fef6eb;border: 1px solid #fdf0d0;border-radius: 20px;padding: 3px 15px;margin-right: 15px;">出校</font><span class="range_s" id="_first_condition">-</span>天<请假天数<=<input class="last-day" id="secend_condition" type="text" value="" />天</span>
+            <!-- <div class="add-workFlow"><span class="add-btn">+</span> 增加流程</div> -->
+        </div>
+        <div class="workFlowBox">
+            <div class="workFlowContent">
+                <div class="workFlowStart"><span class="workFlowStart_text">配置审批人</span><span class="workFlowCircle">学生</span></div>
+                <div class="workFlowEnd"><span class="workFlowCircle">班主任</span></div>
+                <div class="workFlowPerson">
+                    <!-- <select class="input">
+                        <option value="0">选择类型</option>
+                        <option value="1">会审</option>
+                        <option value="2">合审</option>
+                    </select> -->
+                    <div id="secend_approver1"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>
+                </div>
+                <div class="workFlowPerson">
+                    <!-- <select class="input">
+                        <option value="0">选择类型</option>
+                        <option value="1">会审</option>
+                        <option value="2">合审</option>
+                    </select> -->
+                    <div id="secend_approver2"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="workFlow">
+        <div class="workFlowTitle"><b class="workFlowTitleNum">流程四</b><span class="range"><font style="font-size: 18px;background: #fef6eb;border: 1px solid #fdf0d0;border-radius: 20px;padding: 3px 15px;margin-right: 15px;">出校</font><span class="range_s" id="_secend_condition">-</span>天<请假天数</span></div>
+        <div class="workFlowBox">
+            <div class="workFlowContent">
+                <div class="workFlowStart"><span class="workFlowStart_text">配置审批人</span><span class="workFlowCircle">学生</span></div>
+                <div class="workFlowEnd"><span class="workFlowCircle">班主任</span></div>
+                <div class="workFlowPerson">
+                    <!-- <select class="input">
+                        <option value="0">选择类型</option>
+                        <option value="1">会审</option>
+                        <option value="2">合审</option>
+                    </select> -->
+                    <div class="workFlowPersonList" id="third_approver1"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>
+                </div>
+                <div class="workFlowPerson">
+                    <!-- <select class="input">
+                        <option value="0">选择类型</option>
+                        <option value="1">会审</option>
+                        <option value="2">合审</option>
+                    </select> -->
+                    <div class="workFlowPersonList" id="third_approver2"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+    </div>
+</form>
+<style type="text/css">
+    .list_header_form{
+        margin: 10px;
+        clear: both;
+        overflow: hidden;
+    }
+    .workFlow{
+        margin:10px;
+        border: 1px solid #e4e4e4;
+        overflow: auto;
+    }
+    .workFlowTitle{
+        line-height: 70px;
+        border-bottom: 1px dashed #e4e4e4;
+    }
+    .workFlowTitleNum{
+        margin-left: 20px;
+        color: #77bde6;
+    }
+    .workFlowBox{
+        height: 170px;
+        overflow: auto;
+    }
+    .workFlowStart{
+        float: left;
+        height: 128px;
+        margin-right: 10px;
+    }
+    .workFlowStart_text{
+        float: left;
+        margin-left: 10px;
+        margin-top: 50px;
+        margin-right: 10px;
+    }
+    .workFlowCircle{
+        border: 2px solid #3ec0ef;
+        display: block;
+        width: 60px;
+        height: 60px;
+        border-radius: 60px;
+        text-align: center;
+        line-height: 60px;
+        overflow: hidden;
+        margin-top: 30px;
+    }
+    .workFlowContent{
+        height: 150px;
+        min-width: 100px;
+    }
+    .workFlowEnd{
+        float: left;
+        height: 128px;
+        overflow: hidden;
+        width: 70px;
+        background: url("images/workFlow_arrow.png") left center no-repeat;
+        padding-left: 110px;
+    }
+    .workFlowPerson{
+        height:74px;
+        position:relative;
+        float: left;
+        margin-top: 30px;
+        padding-left: 110px;
+        margin-right: 20px;
+        background: url("images/workFlow_arrow.png") left 25px no-repeat;
+    }
+    .range{
+        margin-left: 30px;
+    }
+    .range input{
+        border: 1px solid #e4e4e4;
+        padding:5px;
+        width: 50px;
+        color: #74cef2;
+        font-size: 16px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    .range_s{
+        color: #74cef2;
+        font-size: 16px;
+        margin: 5px;
+    }
+    select.input{
+        position: absolute;
+        bottom: -45px;
+        right: 0;
+        height:24px;
+        border:1px solid #e3e3e3;
+    }
+    select.input:hover{
+        border:1px solid #e3e3e3;
+    }
+    .add-workFlow,.reduce-workFlow{
+        display:inline-block;
+        border:1px solid #59A9E1;
+        line-height:30px;
+        cursor:pointer;
+        width:100px;
+        text-align:center;
+        border-radius:4px;
+        color:#59A9E1;
+        margin-left:20px;
+    }
+    .add-btn{
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        line-height: 18px;
+        display: inline-block;
+        border: 1px solid #59A9E1;
+        border-radius: 20px;
+        font-size: 16px;
+        font-weight: bold;
+    }
+</style>
+<script>
+    (function() {
+        var numberArray=["一","二","三","四","五","六","七","八","九"];
+        var numberEnArray=["first","secend","third","fourth","fifth","sixth","seventh","eighth","ninth"];
+        function creatSelect(obj,appendFn){
+            var selectBox = new Y.AnySelectBox(obj,obj.next(),{valData:true,maxSize:10,idKey:"accountId",valueString:"<div accountId='{accountId}' class='personData'><img url='{photo}' src='images/headPortrait.png' /><div>{name}</div></div>",
+                    SelectBox:{paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"}
+                })
+            selectBox.appendFn = function(){
+                appendFn.call(selectBox);
+            };
+            return selectBox;
+        }
+        var approver3 = creatSelect($("#approver3"),function(){
+            $("#approver3").parent().parent().width(10000);
+            var width_approver3 = this.value.length * 85 + 75;
+            $("#approver3").parent().width(width_approver3);
+            $("#approver3").parent().parent().width(width_approver3 + 480 + 110);
+        });
+        var first_approver1 = creatSelect($("#first_approver1"),function(){
+            firstWidth(1);
+        });
+        var first_approver2 = creatSelect($("#first_approver2"),function(){
+            firstWidth(2);
+        });
+        function firstWidth(num){
+            $("#first_approver1").parent().parent().width(10000);
+            var approver1 = first_approver1.value.length * 85 + 75;
+            var approver2 = first_approver2.value.length * 85 + 75;
+            if(num == 1 || !num) {
+                $("#first_approver1").parent().width(approver1);
+                $("#first_approver1").parent().parent().width(approver1 + approver2 + 500 + 110);
+            }
+            if(num == 2 || !num) {
+                $("#first_approver2").parent().width(approver2);
+                $("#first_approver2").parent().parent().width(approver1 + approver2 + 500 + 110);
+            }
+        }
+        var secend_approver1 = creatSelect($("#secend_approver1"),function(){
+            secendWidth(1);
+        });
+        var secend_approver2 = creatSelect($("#secend_approver2"),function(){
+            secendWidth(2);
+        });
+        function secendWidth(num){
+            $("#secend_approver1").parent().parent().width(10000);
+            var approver1 = secend_approver1.value.length * 85 + 75;
+            var approver2 = secend_approver2.value.length * 85 + 75;
+            if(num == 1 || !num) {
+                $("#secend_approver1").parent().width(approver1);
+                $("#secend_approver1").parent().parent().width(approver1 + approver2 + 500 + 110);
+            }
+            if(num == 2 || !num) {
+                $("#secend_approver2").parent().width(approver2);
+                $("#secend_approver2").parent().parent().width(approver1 + approver2 + 500 + 110);
+            }
+        }
+
+        var third_approver1 = creatSelect($("#third_approver1"),function(){
+            thirdWidth(1);
+        });
+        var third_approver2 = creatSelect($("#third_approver2"),function(){
+            thirdWidth(2);
+        });
+        function thirdWidth(num){
+            $("#third_approver1").parent().parent().width(10000);
+            var approver1 = third_approver1.value.length * 85 + 75;
+            var approver2 = third_approver2.value.length * 85 + 75;
+            if(num == 1 || !num) {
+                $("#third_approver1").parent().width(approver1);
+                $("#third_approver1").parent().parent().width(approver1 + approver2 + 500 + 110);
+            }
+            if(num == 2 || !num) {
+                $("#third_approver2").parent().width(approver2);
+                $("#third_approver2").parent().parent().width(approver1 + approver2 + 500 + 110);
+            }
+        }
+        //推送设置
+        $("#setBtn").click(function(){
+            Y.open({url:"modules/workflow/studentLeaveSettingList.html",title:"消息推送设置"}/*,data:{}*/);
+        })
+        //增加流程
+        $(".add-workFlow").click(function(){
+            var flowLen = numberEnArray[$(".workFlow").length];
+            var html = '<div class="workFlow"><div class="workFlowTitle">'
+                     +       '<b class="workFlowTitleNum">流程三</b>'
+                     +       '<span class="range"><font style="font-size: 18px;background: #fef6eb;border: 1px solid #fdf0d0;border-radius: 20px;padding: 3px 15px;margin-right: 15px;">出校</font><span class="range_s" id="">-</span>天<请假天数<=<input id="" class="last-day" type="text" value="" />天</span>'
+                     +   '<div class="reduce-workFlow"><span class="add-btn">-</span> 删除流程</div>'
+                     +   '</div>'
+                     +  '<div class="workFlowBox"><div class="workFlowContent">'
+                     +           '<div class="workFlowStart"><span class="workFlowStart_text">配置审批人</span><span class="workFlowCircle">学生</span></div>'
+                     +           '<div class="workFlowEnd"><span class="workFlowCircle">班主任</span></div>'
+                     +           '<div class="workFlowPerson">'
+                     +               '<div class="workFlowPersonList" id="'+flowLen+'_approver1"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>'
+                     +          '</div>'
+                     +           '<div class="workFlowPerson">'
+                     +               '<div class="workFlowPersonList" id="'+flowLen+'_approver2"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+<div style="line-height: 45px;font-size: 14px;color: #666;" class="approverTitle">审批人</div></div>'
+                     +           '</div></div>'
+                     +   '</div></div>'
+            $(this).parents(".workFlow").after(html);
+            sort();
+        })
+        //删除流程
+        $("#right").off().on('click', '.reduce-workFlow', function(event) {
+            event.preventDefault();
+            $(this).parents(".workFlow").remove();
+            sort();
+        });
+        function sort(){
+            var len = $(".workFlow").length;
+            if (len>8) {
+                $(".add-workFlow").hide();
+            }else{
+                $(".add-workFlow").show();
+            };
+            for (var i = 0; i < len; i++) {
+                $(".workFlow").eq(i).find('.workFlowTitleNum').html("流程"+numberArray[i]);
+                $(".workFlow").eq(i+2).find('.range_s').attr("id","_"+numberEnArray[i]+"_condition");
+                $(".workFlow").eq(i+1).find('.last-day').attr("id",numberEnArray[i]+"_condition");
+                $("#_"+numberEnArray[i]+"_condition").html($("#"+numberEnArray[i]+"_condition").val())
+            };
+            $(".last-day").blur(function(){
+                $(this).parents(".workFlow").next().find('.range_s').html($(this).val())
+            })
+        }
+        Y.ajax(bpmIP + "/api/leave/v0.1/leave/users",function(res){
+            if(res && !res.errorMsg){
+                var _approver3 = [],conditions = [];
+                for(var i = 0; i < res.length; i++){
+                    switch(res[i].bz){
+                        case "process 1":
+                            _approver3 = res[i].userIds;
+                            break;
+                        case "process 2":
+                            if(!conditions[0]) conditions[0] = {id:res[i].conditions,approver1:[],approver2:[]};
+                            conditions[0][res[i].taskKey] = res[i].userIds;
+                            break;
+                        case "process 3":
+                            if(!conditions[1]) conditions[1] = {id:res[i].conditions,approver1:[],approver2:[]};
+                            conditions[1][res[i].taskKey] = res[i].userIds;
+                            break;
+                        case "process 4":
+                            if(!conditions[2]) conditions[2] = {id:res[i].conditions,approver1:[],approver2:[]};
+                            conditions[2][res[i].taskKey] = res[i].userIds;
+                            break;
+                        case "process 5":
+                            if(!conditions[3]) conditions[3] = {id:res[i].conditions,approver1:[],approver2:[]};
+                            conditions[3][res[i].taskKey] = res[i].userIds;
+                            break;
+                        case "process 6":
+                            if(!conditions[4]) conditions[4] = {id:res[i].conditions,approver1:[],approver2:[]};
+                            conditions[4][res[i].taskKey] = res[i].userIds;
+                            break;
+                    }
+                }
+                approver3.val(_approver3);
+                console.log(conditions)
+                if(conditions.length > 0){
+                    first_approver1.val(conditions[0].approver1);
+                    first_approver2.val(conditions[0].approver2);
+                }
+                if(conditions.length > 1){
+                    secend_approver1.val(conditions[1].approver1);
+                    secend_approver2.val(conditions[1].approver2);
+                }
+                if(conditions.length > 2){
+                    third_approver1.val(conditions[2].approver1);
+                    third_approver2.val(conditions[2].approver2);
+                }
+
+                /*console.log(conditions)
+                for (var i = 0; i < conditions.length; i++) {
+                    $("#"+numberEnArray[i]+"_condition").blur(function(){
+                        $("#_"+numberEnArray[i]+"_condition").html($("#"+numberEnArray[i]+"_condition").val())
+                    })
+                };*/
+
+                var first_condition = conditions[0] ? conditions[0].id.split(",")[1] : "";
+                var secend_condition = conditions[1] ? conditions[1].id.split(",")[1] : "";
+                $("#first_condition").val(first_condition);
+                $("#_first_condition").html(first_condition);
+                $("#first_condition").focus(function(){
+                    first_condition = this.value;
+                })
+                $("#first_condition").blur(function(){
+                    if(this.value > 0 || this.value == ""){
+                        first_condition = this.value;
+                    }else{
+                        this.value = first_condition;
+                    }
+                    $("#_first_condition").html(first_condition);
+                })
+                $("#secend_condition").val(secend_condition);
+                $("#_secend_condition").html(secend_condition);
+                $("#secend_condition").focus(function(){
+                    secend_condition = this.value;
+                })
+                $("#secend_condition").blur(function(){
+                    if(this.value - first_condition > 0 || this.value == ""){
+                        secend_condition = this.value;
+                    }else{
+                        this.value = secend_condition;
+                    }
+                    $("#_secend_condition").html(secend_condition);
+                })
+
+
+                $("#submit").click(function(){
+                    if (first_condition>=secend_condition) {
+                        Y.alertx("时间节点设置有误，请重新设置");
+                        return false;
+                    }
+                    first_condition = first_condition > 0 ? first_condition : "";
+                    secend_condition = secend_condition > 0 ? secend_condition : "";
+                    var data = [{taskKey:"approver3",userIds:approver3.val(),bz:"process 1"}];
+                    /*data.push({taskKey:"approver1",userIds:first_approver1.val(),conditions:"0," + first_condition,bz:"process 2"});
+                    data.push({taskKey:"approver2",userIds:first_approver2.val(),conditions:"0," + first_condition,bz:"process 2"});
+                    if(first_approver2.val().length > 0 && first_approver1.val().length == 0) {
+                        Y.alertx("流程二第一人审批人不能为空");
+                        return false;
+                    }
+                    data.push({taskKey:"approver1",userIds:!first_condition ? [] : secend_approver1.val(),conditions:first_condition + "," + secend_condition,bz:"process 3"});
+                    data.push({taskKey:"approver2",userIds:!first_condition ? [] : secend_approver2.val(),conditions:first_condition + "," + secend_condition,bz:"process 3"});
+                    if(secend_approver2.val().length > 0 && secend_approver1.val().length == 0 && first_condition) {
+                        Y.alertx("流程三第一人审批人不能为空");
+                        return false;
+                    }
+                    data.push({taskKey:"approver1",userIds:!first_condition || !secend_condition ? [] : third_approver1.val(),conditions:secend_condition + ",",bz:"process 4"});
+                    data.push({taskKey:"approver2",userIds:!first_condition || !secend_condition ? [] : third_approver2.val(),conditions:secend_condition + ",",bz:"process 4"});
+                    if(third_approver2.val().length > 0 && third_approver1.val().length == 0 && first_condition && secend_condition) {
+                        Y.alertx("流程四第一人审批人不能为空");
+                        return false;
+                    }*/
+                    var len = $(".form").find('.workFlow').length;
+                    for (var i = 1; i < len; i++) {
+                        var _this = $(".form").find('.workFlow').eq(i);
+                        var personDataId1 = [];
+                        var personDataId2 = [];
+                        _this.find('.workFlowPerson').eq(0).each(function(){
+                            $(this).find('.personData').each(function(index){
+                                personDataId1.push({accountId:$(this).attr('accountid'),name:$(this).children('div').html(),photo:$(this).children('img').eq(0).attr('url')})
+                            })
+                        })
+                        _this.find('.workFlowPerson').eq(1).each(function(){
+                            $(this).find('.personData').each(function(index){
+                                personDataId2.push({accountId:$(this).attr('accountid'),name:$(this).children('div').html(),photo:$(this).children('img').eq(0).attr('url')})
+                            })
+                        })
+                        data.push({taskKey:'approver1',conditions:(_this.find('.range_s').html()||'0')+','+(_this.find('.last-day').val()||'0'),bz:'process '+(i+1),userIds:personDataId1})
+                        data.push({taskKey:'approver2',conditions:(_this.find('.range_s').html()||'0')+','+(_this.find('.last-day').val()||'0'),bz:'process '+(i+1),userIds:personDataId2})
+                    };
+                    /*console.log(data)
+                    return false;*/
+                    Y.ajax(bpmIP + "/api/leave/v0.1/leave/users",function(res){
+                        Y.alertx(res && res.result ? "设置成功!" : ("设置失败," + res.errorMsg));
+                    },{meth:"POST",data:data,dataJson:false})
+                })
+            }
+        })
+    })()
+</script>

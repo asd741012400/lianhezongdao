@@ -1,0 +1,186 @@
+<form class="form">
+    <div class="form_title"><b>敏感词设置</b></div>
+    <div class="sensitiveConfig">
+        <div><input type="text" id="addSensitiveText" placeholder="添加敏感词" /><input type="button" id="addSensitiveBtn" value="+" /></div>
+        <div id="sensitiveList">获取敏感词列表...</div>
+    </div>
+    <div class="form_title">匿名设置</div>
+    <div class="sdayConfig">
+        <input type="checkbox" id="anonymous" /><label for="anonymous">禁止匿名发布动态</label>
+    </div>
+    <div class="form_title">发布设置</div>
+    <div class="sdayConfig">
+        <input type="checkbox" id="timeline" /><label for="timeline">禁止发布动态</label>
+    </div>
+</form>
+<style type="text/css">
+    #addSensitiveText{
+        border:1px solid #eeeeee;
+        line-height: 30px;
+        height: 28px;
+        padding:0px 5px;
+        float: left;
+        margin-top: 10px;
+    }
+    #addSensitiveBtn{
+        background: #eeeeee;
+        font-weight: bold;
+        font-size: 18px;
+        line-height: 30px;
+        height: 30px;
+        width: 30px;
+        cursor: pointer;
+        text-align: center;
+        border:none;
+        color: #75cd1f;
+        float: left;
+        margin-top: 10px;
+    }
+    #sensitiveList{
+        clear: both;
+        padding: 20px 0px;
+    }
+    .sensitive{
+        padding: 5px 20px;
+        background: #eeeeee;
+        color: #6a6362;
+        border:1px solid #eeeeee;
+        margin-right: 10px;
+        margin-top: 10px;
+        display: inline-block;
+        transition: all 0.2s;
+        cursor: default;
+    }
+    .sensitive:hover{
+        color: #75cd1f;
+        border-color: #75cd1f;
+        background: #fff;
+    }
+    .removeBtn{
+        position: absolute;
+        margin-top: -13px;
+        margin-left: 10px;
+        font-size: 12px;
+        line-height: 16px;
+        border-radius: 16px;
+        color: #fff;
+        background: #ff712b;
+        padding:0px 5px;
+        font-family: "Arial";
+        display: none;
+        cursor: pointer;
+    }
+    .sdayConfig{
+        margin: 10px 20px;
+    }
+</style>
+<script>
+    (function() {
+        var ajaxUrl = sdayIP + "/api/sday/v0.1/timelines/sensitive";
+        $(".sensitive").mouseover(function(){
+            $(this).find(".removeBtn").show();
+        })
+        $(".sensitive").mouseout(function(){
+            $(this).find(".removeBtn").hide();
+        })
+        //敏感词列表
+        getList();
+        function getList(){
+            $("#sensitiveList").html("正在获取敏感词...");
+            Y.ajax(ajaxUrl,function(res){
+                if(res && !res.errorMsg){
+                    var html = "";
+                    res.sort();
+                    for(var i = 0; i < res.length; i ++){
+                        html += "<span class='sensitive'><font>" + res[i] + "</font><font class='removeBtn unSelect'>X</font></span>";  
+                    }
+                    $("#sensitiveList").html(html);
+                    $(".sensitive").mouseover(function(){
+                        $(this).find(".removeBtn").show();
+                    })
+                    $(".sensitive").mouseout(function(){
+                        $(this).find(".removeBtn").hide();
+                    })
+                    $(".removeBtn").click(function(){//删除
+                        var $this = $(this);
+                        Y.confirmx("确定删除?",function(){
+                            Y.ajax(ajaxUrl,function(res){
+                                if(res && res.result){
+                                    $this.parent().remove();
+                                    Y.alertx("删除成功",'',{toast:true,height:70});
+                                }else{
+                                    var msg = "删除失败";
+                                    if(res && res.errorMsg) msg += "," + res.errorMsg;
+                                    Y.alertx(msg,'',{toast:true,height:70});
+                                }
+                            },{meth:"DELETE",data:{list:[$this.prev().text()]},dataJson:false})
+                        })
+                    })
+                }else{
+                    var msg = "获取敏感词失败";
+                    if(res && res.errorMsg) msg += "," + res.errorMsg;
+                    $("#sensitiveList").html(msg);
+                }
+            })
+        }
+        //新增
+        $("#addSensitiveBtn").click(function(){
+            var text = $("#addSensitiveText").val();
+            if(!text){
+                Y.alertx("请填写敏感词",'',{toast:true,height:70});
+                return false;
+            }
+            Y.ajax(ajaxUrl,function(res){
+                if(res && res.result){
+                    $("#addSensitiveText").val("");
+                    getList();
+                    Y.alertx("添加成功",'',{toast:true,height:70});
+                }else{
+                    var msg = "添加失败";
+                    if(res && res.errorMsg) msg += "," + res.errorMsg;
+                    Y.alertx(msg,'',{toast:true,height:70});
+                }
+            },{meth:"POST",data:{list:[text]},dataJson:false})
+        })
+        //权限
+        var anonymous = false,timeline = false;
+        var _ajaxUrl = sdayIP + "/api/sday/v0.1/timelines/permission";
+        getRight();
+        function getRight(){
+            Y.ajax(_ajaxUrl,function(res){
+                $("#anonymous")[0].checked = anonymous = res.anonymous ? true : false;
+                $("#timeline")[0].checked = timeline = res.timeline ? true : false;
+            })
+        }
+        $("#anonymous").change(function(){
+            if(anonymous != this.checked){
+                Y.ajax(_ajaxUrl,function(res){
+                    var msg = "";
+                    if(res && res.result){
+                        msg = anonymous ? "设置为允许匿名发布动态" : "设置为不允许匿名发布动态";
+                    }else{
+                        msg = "设置失败";
+                        if(res && res.errorMsg) msg += "," + res.errorMsg;
+                    }
+                    getRight();
+                    Y.alertx(msg,'',{toast:true,height:70})
+                },{meth:!anonymous ? "POST" : "DELETE",data:{idType:1,type:4,id:schoolId},dataJson:false})
+            }
+        })
+        $("#timeline").change(function(){
+            if(timeline != this.checked){
+                Y.ajax(_ajaxUrl,function(res){
+                    var msg = "";
+                    if(res && res.result){
+                        msg = timeline ? "设置为允许发布动态" : "设置为不允许发布动态";
+                    }else{
+                        msg = "设置失败";
+                        if(res && res.errorMsg) msg += "," + res.errorMsg;
+                    }
+                    getRight();
+                    Y.alertx(msg,'',{toast:true,height:70})
+                },{meth:!timeline ? "POST" : "DELETE",data:{idType:1,type:1,id:schoolId},dataJson:false});
+            }
+        })
+    })()
+</script>

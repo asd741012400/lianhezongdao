@@ -1,0 +1,130 @@
+<form class="form">
+    <div class="form_title"><b>网上报名编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>报名类型</div>
+        <span class="data_error"></span><input class="input" id="data-type" type="text" placeholder="请选择报名类型"/>
+    </div>
+    <div class="data width100">
+        <div class="data_link"><b class="red">*</b>报名/活动主题</div>
+        <span class="data_error"></span><input class="input" maxlength="48" id="data-title" type="text" placeholder="请填写主题"/>
+    </div>
+    <div class="data width50">
+        <div class="data_link"><b class="red">*</b>报名时间</div>
+        <span class="data_error"></span><input class="input" id="data-applyBegDate" type="text" placeholder="开始时间"/><input class="input" id="data-applyEndDate" type="text" placeholder="结束时间"/>
+    </div>
+    <div class="data width100">
+        <div class="data_link"><b class="red">*</b>人数限制<span style="color: #ccc;"><input id="notLimit" type="checkbox" /><label for="notLimit">不限人数(前台不显示)</label></span></div>
+        <span class="data_error"></span><input class="input" id="data-applyLimit" type="text" placeholder="请填写报名人数限制"/>
+    </div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>报名/活动内容</div>
+        <div type="richEdit" class="richEdit" id="data-content"></div>
+    </div>
+    <div class="data width100">
+        <span id="editComponents" style="color: #59a9e1;cursor: pointer;"><img style="position: relative;top:5px;margin-right: 7px;" src="images/i_from.png" />设置报名表</span>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        Y.config(function(){
+            var components = new Y.Components();
+            $('#editComponents').click(function(){
+                components.show();
+            })
+            var fromConfig = {
+                id : Y.getUrlParam("id"),
+                title : {
+                    o:$("#data-title"),
+                    e:"blur",
+                    f:function(v){
+                        if (v == "") {
+                            return [false,"标题不能为空"];
+                        } else {
+                            return [true];
+                        }
+                    }
+                },
+                applyBegDate:{
+                    o:$('#data-applyBegDate'),
+                    i:function(){
+                        var calendar = new Y.Calendar($("#data-applyBegDate"),{date:"",});
+                        calendar.timeType = [00,00,01];
+                        $("#data-applyBegDate").focus(function(){
+                            var _this = $(this);
+                            calendar.open(function(d){
+                                _this.val(d);
+                                calendar.close();
+                            });
+                        })
+                    }
+                },
+                applyEndDate:{
+                    o:$('#data-applyEndDate'),
+                    i:function(){
+                        var calendar = new Y.Calendar($("#data-applyEndDate"),{date:""});
+                        calendar.timeType = [23,00,00];
+                        $("#data-applyEndDate").focus(function(){
+                            var _this = $(this);
+                            calendar.open(function(d){
+                                _this.val(d);
+                                calendar.close();
+                            });
+                        })
+                    }
+                },
+                type:{o:new Y.Select($('#data-type'),{'1':'报名','2':'活动'})},
+                applyLimit:{
+                    o:{val:function(s){
+                        if(s == undefined){
+                            return $('#notLimit')[0].checked ? -1 : $('#data-applyLimit').val();
+                        }else{
+                            if(s > 0){
+                                $('#data-applyLimit').val(s);
+                            }else{
+                                $('#notLimit')[0].checked = true;
+                            }
+                        }
+                    }},
+                    f:function(v){
+                        if(v != -1){
+                            if(Y.Verify.PositiveInt(v)[0]){
+                                return [true];
+                            }else{
+                                return [false,'人数限制必须大于0',true];
+                            }
+                        }else{
+                            return [true];
+                        }
+                    }
+                },
+                content:{o:new Y.RichEdit($("#data-content"))},
+                components:{
+                    o:{
+                        val:function(s){
+                            if(s == undefined){
+                                return components.from;
+                            }else{
+                                components.from = s;
+                            }
+                        }
+                    }
+                }
+            }
+            var from = new Y.From(fromConfig,"id",{getURL:eschoolIP + "/api/cms/mgt/apply/v0.1/{id}",postURL:eschoolIP + "/api/cms/mgt/apply/v0.1",putURL:eschoolIP + "/api/cms/mgt/apply/v0.1",title:"提交报名",dataJson:false});
+            //提交
+            $("#submit").click(function(){
+                from.submit($(this));
+            })
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        })
+    })()
+</script>

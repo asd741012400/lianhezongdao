@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="e智教-二维码" name="Keywords">
+    <meta name="description" content="e智教-二维码,联和纵道科技有限公司"/>
+    <link href="images/iconfont-yunpingtai-2.png" rel="shortcut icon">
+    <link rel="stylesheet" type="text/css" href="css/index.css"/>
+    <link rel="stylesheet" type="text/css" href="css/list.css"/>
+    <link rel="stylesheet" type="text/css" href="css/form.css"/>
+    <link rel="stylesheet" type="text/css" href="css/viewer.css"/>
+    <title>e智教-二维码</title>
+</head>
+<body></body>
+<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="js/jquery.qrcode.min.js"></script>
+<script type="text/javascript" src="js/json2.js"></script>
+<script type="text/javascript" src="js/tool.js"></script>
+<script type="text/javascript" src="js/config.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+    var schoolId = Y.getParam("schoolId");
+    var width = $(window).width(),height = $(window).height();
+    var size = Y.getParam("size") || (Math.min(width,height) - 128);
+    var site = Y.setImgSize({
+        w:size,
+        h:size,
+        _w:width,
+        _h:height
+    });
+    Y.Storage.set('ajaxHeader',[{key:'schoolId',vaule:schoolId}]);
+    $('body').html('<div id="qrcode" style="width:' + site[0] + 'px;height:' + site[1] + 'px;position:fixed;top:' + site[2] + 'px;left:' + site[3] + 'px;line-height:' + site[1] + 'px;text-align:center;font-size:' + (34 * width / 750) + 'px"></div>');
+    (function(){
+        var fn = arguments.callee;
+        Y.ajax(bpmIP + '/api/leave/v0.2/leave/qr/operate',function(ret){
+            if(ret && ret.qrVal){
+                $('#qrcode').html("");
+                $('#qrcode').qrcode({
+                    render: "canvas", //table方式 
+                    width: size, //宽度 
+                    height:size, //高度 
+                    text: ret.qrVal //任意内容 
+                });
+            }
+            setTimeout(function(){
+                fn();
+            },10 * 1000)
+        },{meth:"POST",data:{schoolId:schoolId}})
+    })()
+</script>
+</html>

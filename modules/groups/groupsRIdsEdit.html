@@ -1,0 +1,338 @@
+﻿<form class="form">
+    <div class="data">
+        <div class="data_title" style="border-bottom: 1px dashed #e4e4e4">权限配置</div>
+        <div id="data-rIds"></div>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="返回" class="bg_ffffff"/>
+    </div>
+</form>
+<style type="text/css">
+    .tree{
+        margin: 10px 20px;
+        border:1px solid #e4e4e4;
+    }
+    .nodeData{
+        padding: 5px 0px;
+    }
+    .nodeData:hover{
+        background: #f9f9f9;
+    }
+    .lastNode .nodeData{
+        border:none;
+    }
+    .btn-title{
+        background:#f6f6f6;
+        padding:4px;
+    }
+    .btnList{
+        float:left;
+        width:200px;
+    }
+    .list-title{
+        float:left;
+    }
+    .list-wrap{
+        overflow: hidden;
+        padding:5px 0 0 5px;
+    }
+    .personData{
+        height:35px;
+    }
+</style>
+<script>
+    (function() {
+        var classList = [];
+        var majorList = [];
+        var yearList = [];
+        var html = '<div class="tree">'
+                    +   '<div class="node">'
+                    +   '<div class="list-wrap"><span class="list-title">班级：</span><div class="classId"></div>'
+                    +       '<div style="width: 30px;height: 30px;float:left; line-height: 25px; text-align: center; font-size: 25px; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>'
+                    +   '</div>'
+                    +   '<div class="list-wrap"><span class="list-title">专业：</span><div class="majorId"></div>'
+                    +       '<div style="width: 30px;height: 30px;float:left; line-height: 25px; text-align: center; font-size: 25px; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>'
+                    +   '</div>'
+                    +   '<div class="list-wrap"><span class="list-title">年度：</span><div class="year"></div>'
+                    +       '<div style="width: 30px;height: 30px;float:left; line-height: 25px; text-align: center; font-size: 25px; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>'
+                    +   '</div>'
+                    +   '</div>'
+                    + '</div>'
+        var classId = [];
+        var majorId = [];
+        var year = [];
+        function addList(obj){
+
+            obj.parent().parent().children().removeClass('btnList');
+            obj.parent().after(html);
+            var item = obj.parent().next();
+            classId.push(new Y.AnySelectBox(item.find('.classId'),item.find('.classId').next(),{
+                idKey:"classId",
+                valueString:"<div classId='{classId}' class='personData classData'><div>{className}</div></div>",
+                SelectBox:{
+                    paramet:{key:"keyword"},
+                    url:ucIP + "/api/uc/v0.1/classes",
+                    dataString:"<div title='{className}' class='autoList' vaule='{classId}'>{has_classId}<span>{className}</span></div>"
+                }
+            }))
+            majorId.push(new Y.AnySelectBox(item.find(".majorId"),item.find(".majorId").next(),{
+                idKey:"id",
+                valueString:"<div id='{id}' class='personData majorData'><div>{name}</div></div>",
+                SelectBox:{
+                    title:'请选择专业',
+                    paramet:{key:"keyword"},
+                    url:ucIP + "/api/uc/v0.1/majors",
+                    dataString:"<div title='{name}' class='autoList' vaule='{id}'>{has_id}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span></div>"
+                }
+            }))
+            year.push(new Y.AnySelectBox(item.find(".year"),item.find(".year").next(),Y.getSelectBox('enteryears')))
+        }
+        function menuTree(obj){
+            var menuTree = new Y.Tree(obj,null,"id","children","<div class='nodeData'><input class='checkInp' type='checkbox' id='c_{id}' data-id='{id}' {checked} /><label for='c_{id}'>{title}</label></div>",function(){
+                obj.click(function(e){
+                    clickInput(e.target);
+                })
+            });
+            function clickInput(elem,notChild){
+                if(elem.nodeName == "INPUT" && elem.className.indexOf('checkBtn') < 0 && elem.type == "checkbox"){
+                    if(elem.checked){
+                        if($(elem).parent().parent().parent().prev().find("input").size() != 0)
+                            $(elem).parent().parent().parent().prev().find("input")[0].checked = true;
+                        $(elem).parent().next().find('input').each(function(i){
+                            $(this)[0].checked = true;
+                        })
+                    }else{
+                        $(elem).parent().next().find("input").each(function(i){
+                            $(this)[0].checked = false;
+                        })
+                    }
+                    checkParent(elem,elem.checked);
+                }
+
+                if (elem.className == 'checkBtn' && $(elem).attr('data-type') != '5') {
+                    checkParent(elem,elem.checked);
+                };
+                //按钮权限全选
+                if (elem.className.indexOf('checkBtnAll') > 0) {
+                    if (elem.checked) {
+                        $(elem).parent().parent().prev().find('input')[0].checked = true;
+                        var item = $(elem).parent().parent().prev().find('input')[0];
+                        checkParent(item,item.checked)
+                        $(elem).parent().siblings('.nodeBtn').find('input').each(function(){
+                            if ($(this).attr('data-type') == '5') {
+                                if ($(this)[0].checked != true && $(this).parent().siblings('.tree').length === 0) {
+                                    addList($(this));
+                                }
+                            };
+                            $(this)[0].checked = true;
+                        })
+                    }else{
+                        $(elem).parent().siblings('.nodeBtn').find('input').each(function(){
+                            $(this)[0].checked = false;
+                            $(this).parent().parent().children().addClass('btnList');
+                            $(this).parent().parent().children('.tree').remove();
+                        })
+                    };
+                };
+                if ($(elem).attr('data-type') == '5') {
+                    if (elem.checked) {
+                        if ($(elem).parent().siblings('.tree').length === 0) {
+                            addList($(elem));
+                        };
+                    }else{
+                        $(elem).parent().parent().children().addClass('btnList');
+                        $(elem).parent().parent().children('.tree').remove();
+                    };
+                    checkParent(elem,elem.checked);
+                };
+            }
+            function checkParent(elem,bool){
+                var parent = $(elem).parent().parent().parent();
+                if(parent.prev()){
+                    if(bool){
+                        if(parent.prev().find("input").size() != 0){
+                            var input = parent.prev().find("input")[0];
+                            if(input){
+                                input.checked = true;
+                                checkParent(input,true);
+                            }
+                        }
+                    }else{
+                        var empty = true;
+                        if(parent.prev().find("input").size() != 0){
+                            parent.find("input").each(function(i){
+                                if($(this)[0].checked) empty = false;
+                            })
+                        }
+                        if(empty) {
+                            var input = parent.prev().find("input")[0];
+                            if(input){
+                                input.checked = false;
+                                checkParent(input,false);
+                            }
+                        }
+                    }
+                }
+            }
+            menuTree.val = function(s){
+                if(s){
+                    this.html(s);
+                }else{
+                    var rIds = "";
+                    var isFirst = false;
+                    obj.find(".checkInp").each(function(i){
+                        if($(this)[0].checked) {
+                            if(!isFirst){
+                                rIds += $(this).attr("data-id");
+                                isFirst = true;
+                            }else{
+                                rIds += "," + $(this).attr("data-id");
+                            }
+                        }
+                    })
+                    return rIds;
+                }
+            }
+            return menuTree;
+        }
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var rIds = menuTree($("#data-rIds"));
+        var groupId = Y.getUrlParam("id");
+        var group = Y.User.Get("groupId");
+        var type = Y.getUrlParam("type");
+        if (type=='1') {
+            $("#submit").remove();
+        };
+        var _rIds;
+        Y.ajax(eschoolIP + "/api/security/v0.1/roles/" + groupId + "/withMenuDetails",function(res){
+            if(res){
+                _rIds = res;
+                //非管理员不显示组织管理和角色管理选项
+                if (group!='1') {
+                    res.forEach(function(item,index){
+                        if (item.id=='73') {
+                            item.children.forEach(function(items,indexs){
+                                if (items.id=='67') {
+                                    items.children.forEach(function(itemss,indexss){
+                                        if(itemss.id=='17'||itemss.id=='151'){
+                                            _rIds[index].children[indexs].children.splice(indexss, 1);
+                                        };
+                                    })
+                                };
+                            })
+                        };
+                    })
+                };
+                rIds.val(_rIds);
+
+                find(res)
+
+                $(".nodeBtn").each(function(i){
+                    var n = 0;
+                    $(this).find('.checkBtn').each(function(){
+                        if ($(this)[0].checked) {
+                            n++
+                        }
+                        if ($(this).attr('data-type') == '5') {
+                            $(this).next().html("列表（不限制即为全选）")
+                            if ($(this)[0].checked) {
+                                addList($(this));
+                                classId[i].val(classList[i]);
+                                majorId[i].val(majorList[i]);
+                                year[i].val(yearList[i]);
+                            };
+                        };
+                    })
+                    if (n==$(this).find('.checkBtn').length) {
+                        $(this).siblings('.btn-title').find('.checkBtnAll')[0].checked = true;
+                    };
+                })
+
+            }
+        })
+        function find(data){
+            data.forEach(function(item){
+                if (item.buttons.length > 0) {
+                    item.buttons.forEach(function(itemBtn){
+                        if (itemBtn.buttonType == '5') {
+                            var c = [],
+                            m = [],
+                            y = [];
+                            itemBtn.typeAndValue.forEach(function(itemBtns){
+                                if (itemBtns.type == '1') {
+                                    c.push({classId:itemBtns.value,className:itemBtns.name})
+                                };
+                                if (itemBtns.type == '3') {
+                                    m.push({id:itemBtns.value,name:itemBtns.name})
+                                };
+                                if (itemBtns.type == '2') {
+                                    y.push({enteryear:itemBtns.value})
+                                };
+                            })
+                            classList.push(c);
+                            majorList.push(m);
+                            yearList.push(y);
+                        };
+                    })
+                };
+                if (item.children.length > 0) {
+                    find(item.children)
+                };
+            })
+        }
+        //操作及验证
+        $("#submit").click(function () {
+            var menuButtons = [];
+            //var error = false;
+            $(".nodeBtn").each(function(i){
+                pageResourceId = $(this).attr('id')
+                $(this).find('input').each(function(){
+                    if ($(this)[0].checked) {
+                        var typeValues = [];
+                        var buttonId = $(this).attr('data-id');
+                        var buttontype = $(this).attr('data-type');
+                        if (buttontype == '5') {
+                            var item = $(this).parent().next()
+                            /*if(item.find('.personData').length == "0"){
+                                error = true;
+                            }*/
+                            item.find('.classData').each(function(){
+                                typeValues.push({type:'1',value:$(this).attr('classid')})
+                            })
+                            item.find('.majorData').each(function(){
+                                typeValues.push({type:'3',value:$(this).attr('id')})
+                            })
+                            item.find('.year').children('.personData').each(function(){
+                                typeValues.push({type:'2',value:$(this).attr('classid')})
+                            })
+                        }
+                        menuButtons.push({pageResourceId:pageResourceId,buttonId:buttonId,typeValues:typeValues})
+                    };
+                })
+            })
+            if(_rIds && _rIds != rIds.val()){
+                var array = []
+                array = rIds.val().split(",")
+                /*if (error) {
+                    Y.alertx("列表选项勾选不能为空！");
+                    return false;
+                };*/
+                Y.ajax(eschoolIP + "/api/security/v0.1/roles/" + groupId + "/withButton/detail",function(res){
+                    if(res && res.result){
+                        Y.alertx("<div style='color:#ff0000;font-weight:bold;'>权限配置成功</div>",function(){
+                            Y.back(-1);
+                        });
+                    }else{
+                        Y.alertx("<div style='color:#ff0000;font-weight:bold;'>权限配置失败！</div>");
+                    }
+                },{meth:"PUT",dataJson:false,data:{rIds:array,menuButtons:menuButtons}})
+            }
+        });
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

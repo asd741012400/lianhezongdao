@@ -1,0 +1,105 @@
+<form class="form">
+    <div class="form_title"><b>专题编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>专题名称</div>
+        <span class="data_error">专题名称不能为空</span><input class="input" id="data-name" type="text" placeholder="请填写专题名称"/>
+    </div>
+    <div class="data width100">
+        <div class="data_title">专题标示图</div>
+        <div id="data-image" type="img"></div>
+    </div>
+    <div class="data width50">
+        <div class="data_title">是否推荐</div>
+        <span id="data-recommend" type="radio"><input type="radio" value="0" checked/>否<input type="radio" value="1"/>是 </span>
+    </div>
+    <div class="data width50">
+        <div class="data_title">推荐权重<span style="color: #ccc; margin-left: 10px;">(权重值越大显示越靠前)</span></div>
+        <span class="data_error"></span><input class="input" id="data-recommendOrder" type="text" placeholder="请填写推荐权重"/>
+    </div>
+    <div class="data width50">
+        <div class="data_title">类型</div>
+        <span id="data-contentType" type="radio"><input type="radio" value="0" checked/>文字列表<input type="radio" value="1"/>图片列表<input type="radio" value="2"/>超链接</span>
+    </div>
+    <div class="data width50">
+        <div class="data_title">链接地址</div>
+        <span class="data_error"></span><input class="input" id="data-url" type="text" placeholder="类型为超链接时必填"/>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        Y.config(function(){
+            var imgEditConfig = Y.configs.imgEditConfig.topic || Y.configs.imgEditConfig['topic' + Y.getUrlParam("zIndex")] || {};
+            Y.qiNiouKey(function(upladArgs){
+                var fromConfig = {
+                    id : Y.getUrlParam("id"),
+                    name : {
+                        o:$("#data-name"),
+                        e:"blur",
+                        f:function(v){
+                            if (v == "") {
+                                return [false,"专题名称不能为空"];
+                            } else {
+                                return [true];
+                            }
+                        }
+                    },
+                    image : {
+                        o:new Y.Img($("#data-image"), "<div style='cursor:pointer; width:" + (imgEditConfig.width || 1000) + "px;min-height:" + (imgEditConfig.height || 300) + "px; line-height:" + (imgEditConfig.height || 300) + "px;text-align:center; color:#ccc; background:#F9F9F9;'>本地上传</div>",imgEditConfig,upladArgs)
+                    },
+                    contentType : {o:new Y.Radio($("#data-contentType input"),{changeFn:function(v){
+                        if(v != 2){
+                            $("#data-url").parent().hide();
+                        }else{
+                            $("#data-url").parent().show();
+                        }
+                    }})},
+                    url:{
+                        o:$("#data-url"),
+                        e:"blur",
+                        f:function(v){
+                            if (v == "" && fromConfig.contentType.o.val() == '2') {
+                                return [false,"请输入超链接地址"];
+                            } else {
+                                return [true];
+                            }
+                        }
+                    },
+                    recommend : {o:new Y.Radio($("#data-recommend input"))},
+                    recommendOrder : {
+                        o:$('#data-recommendOrder'),
+                        f:function(v){
+                            if(v == ''){
+                                if(fromConfig.recommend.o.val() == '1'){
+                                    return [false,'推荐内容必须填写权重'];
+                                }else{
+                                    return [true];
+                                }
+                            }else{
+                                if(!Y.Verify.PositiveInt(v)[0]){
+                                    return [false,'权重必须为正整数'];
+                                }else{
+                                    return [true];
+                                }
+                            }
+                        }
+                    }
+                }
+                var from = new Y.From(fromConfig,"id",{getURL:eschoolIP + "/api/cms/topic/v0.1/{id}/detail",postURL:eschoolIP + "/api/cms/mgt/topic/v0.1/save",putURL:eschoolIP + "/api/cms/mgt/topic/v0.1/{id}",title:"提交专题",dataJson:false});
+                //提交
+                $("#submit").click(function(){
+                    from.submit($(this));
+                })
+                //取消
+                $("#cancel").click(function(){
+                    Y.back(-1);
+                });
+            })
+        })
+    })()
+</script>

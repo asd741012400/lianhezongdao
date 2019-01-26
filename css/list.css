@@ -1,0 +1,286 @@
+﻿.list_header{
+    padding:10px 0px;
+}
+.list_btns{
+    text-align: right;
+}
+.list_btns span{
+    padding: 10px 50px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+.list_line{
+    height: 1px;
+    border-bottom: 1px dashed #e4e4e4;
+}
+.table{
+    margin-top: 2px;
+}
+.table table{
+    border-left: 1px solid #e4e4e4;
+    border-top: 1px solid #e4e4e4;
+}
+.table tr:hover{
+    background: #f5f9f0;
+}
+.table th{
+    padding: 10px;
+    background: #efefef;
+    font-weight: normal;
+    border-bottom: 1px solid #e4e4e4;
+    border-right: 1px solid #e4e4e4;
+}
+.table td{
+    padding: 10px;
+    border-bottom: 1px solid #e4e4e4;
+    border-right: 1px solid #e4e4e4;
+}
+.tdBtns span{
+    display:inline-block;
+    margin-right: 5px;
+    cursor: pointer;
+    padding:2px 0px;
+}
+
+.tdBtns span.color_59A9E1{
+    color: #59A9E1;
+    text-decoration: underline;
+}
+.tdBtns span.color_CC2E0E{
+    color: #CC2E0E;
+    text-decoration: underline;
+}   
+.list_footer{
+    margin-top: 10px;
+    padding-bottom:10px;
+}
+#pagaBtns{
+    margin-top: 20px;
+    text-align: right;
+    padding-bottom: 10px;
+}
+.pagaBtn{
+    padding: 3px 9px;
+    border-left: 1px solid #f0efef;
+    border-top: 1px solid #f0efef;
+    border-bottom: 1px solid #f0efef;
+    cursor: pointer;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -o-user-select:none;
+    user-select:none;
+}
+.pagaBtn:hover{
+    background: #f8f8f8;
+}
+.pagaBtnFirst{
+}
+.pagaBtnLast{
+    border-right: 1px solid #f0efef;
+}
+.pagaBtnActive{
+    background: #19b0e0;
+    color: #fff;
+    border-color: #19b0e0;
+}
+.pagaBtnActive:hover{
+    background: #19b0e0;
+    color: #fff;
+    border-color: #19b0e0;
+}
+.listEdit{
+    background: url("../images/icon_edit.png") center center no-repeat;
+    width: 16px;
+    height: 16px;
+    border: none;
+    color: rgba(255,255,255,0);
+    overflow: hidden;
+}
+.listEdit:hover{
+    background: url("../images/icon_edit_active.png") center center no-repeat;
+}
+.listCheck{
+    background: url("../images/icon_check.png") center center no-repeat;
+    width: 16px;
+    height: 16px;
+    border: none;
+    color: rgba(255,255,255,0);
+    overflow: hidden;
+}
+.listCheck:hover{
+    background: url("../images/icon_check_active.png") center center no-repeat;
+}
+.listTreeAction{
+    background: url("../images/icon_treeAction.png") center center no-repeat;
+    width: 16px;
+    height: 16px;
+    border: none;
+    color: rgba(255,255,255,0);
+}
+.listSea{
+    background: url("../images/icon_sea.png") center center no-repeat;
+    width: 16px;
+    height: 16px;
+    border: none;
+    color: rgba(255,255,255,0);
+    overflow: hidden;
+    cursor: pointer;
+}
+.listDelete{
+    background: url("../images/icon_delete.png") center center no-repeat;
+    width: 16px;
+    height: 16px;
+    border: none;
+    color: rgba(255,255,255,0);
+    overflow: hidden;
+}
+.listDelete:hover{
+    background: url("../images/icon_delete_active.png") center center no-repeat;
+}
+.listModulesEdit{
+    background: url("../images/icon_listModules.png") center center no-repeat;
+    width: 16px;
+    height: 16px;
+    border: none;
+    color: rgba(255,255,255,0);
+    overflow: hidden;
+    cursor: pointer;
+}
+.listModulesEdit:hover{
+    background: url("../images/icon_listModules_active.png") center center no-repeat;
+}
+.listUsers{
+    background: url("../images/icon_user.png") center center no-repeat;
+    width: 16px;
+    height: 16px;
+    border: none;
+    color: rgba(255,255,255,0);
+    overflow: hidden;
+}
+.listUsers:hover{
+    background: url("../images/icon_user_active.png") center center no-repeat;
+}
+
+.listLook{
+    display:inline-block;
+    background: url("../images/can1.png") center center no-repeat;
+    width: 17px;
+    height: 16px;
+    border: none;
+    color: rgba(255,255,255,0);
+    overflow: hidden;
+}
+.listLook:hover{
+    background: url("../images/can.png") center center no-repeat;
+}
+.rChange{
+    background: url("../images/xjyd.png") center center no-repeat;
+    width: 16px;
+    height: 16px;
+    border: none;
+    color: rgba(255,255,255,0);
+    overflow: hidden;
+}
+.rChange:hover{
+    background: url("../images/xjyd_active.png") center center no-repeat;
+}
+.listTrAp{
+    background: url("../images/icon_tr_ap.png") center center no-repeat;
+    width: 16px;
+    height: 16px;
+    border: none;
+    color: rgba(255,255,255,0);
+    overflow: hidden;
+    cursor: pointer;
+}
+.listTrAp:hover{
+    background: url("../images/icon_tr_ap_active.png") center center no-repeat;
+}
+.listAddPerson{
+    background: url("../images/icon_addperson.png") center center no-repeat;
+    width: 16px;
+    height: 16px;
+    border: none;
+    color: rgba(255,255,255,0);
+    overflow: hidden;
+    cursor: pointer;
+}
+.listAddPerson:hover{
+    background: url("../images/icon_addperson_active.png") center center no-repeat;
+}
+.listAddPersonWel,.listOfficial,.listSchoolNumber{
+    background: url("../images/wel_Sprite.png") no-repeat;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: none;
+    color: rgba(255,255,255,0);
+    overflow: hidden;
+}
+.tdBtns .listAddPersonWel{
+    background-position: -26px 0;
+    margin-right: 0;
+    margin: 0 8px;
+}
+.listAddPersonWel:hover{
+    background-position: -26px -29px;
+}
+.tdBtns .listOfficial{
+    background-position: -5px 0;
+    margin-right: 0;
+    margin: 0 8px;
+}
+.listOfficial:hover{
+    background-position: -5px -29px;
+}
+.listSchoolNumber{
+    background-position: -5px -59px;
+    cursor: pointer;
+}
+.listSchoolNumber:hover{
+    background-position: -28px -59px;
+}
+.list_header_form{
+    margin-bottom:5px;
+}
+.list_header_form input[type='button']{
+    float:right;
+    padding:10px 20px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+}
+.search{
+    float: left;
+    margin-right: 10px;
+    text-align: left;
+}
+.statusBtns{
+    margin-top: 30px;
+    margin-bottom: 10px;
+    border-top: 1px solid #eeeeee;
+    border-bottom: 1px solid #eeeeee;
+    padding: 20px 0px;
+}
+.statusBtn{
+    padding:10px 30px;
+    border: 1px solid #e4e4e4;
+    background: #f8f8f8;
+    color:#666666;
+    cursor: pointer;
+}
+.statusBtn.active{
+    border: 1px solid #00b7ee;
+    background: #00b7ee;
+    color:#ffffff;
+}
+#status_1{
+    border-right: none;
+    border-radius: 5px 0px 0px 5px;
+}
+#status_2{
+    border-left: none;
+    border-radius: 0px 5px 5px 0px;
+}

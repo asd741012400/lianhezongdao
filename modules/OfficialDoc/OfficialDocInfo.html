@@ -1,0 +1,258 @@
+<div class="form">
+	<div id="printBtn"><img src="images/icon_print.png">打印</div>
+	<div id="print">
+		<div class="form_title" style="text-align: center;line-height: 40px;font-size: 24px;border:none;"><b><font id="_schoolName"></font>公文处理签</b></div>
+		<div style="text-align: right;line-height: 30px;height: 30px;overflow: hidden;border-bottom: 8px solid #97a2ba;font-weight: bold;"><span style="float: left;">收文编号:<font id="receiveDocNo"></font></span>签收人:<font id="assigneeName" style="margin-right: 10px;"></font>签收日期:<font id="assigneeDate"></font></div>
+		<div class="data widthAll">
+			<div class="data_title">来文机关</div>
+			<div class="input" id="inDocOrg"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">来文号</div>
+			<div class="input" id="inDocNo"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">份数</div>
+			<div class="input" id="copies"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">来文标题</div>
+			<div class="input" id="inDoctitle"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">内容摘要</div>
+			<div class="input" id="contentDigest"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">附件</div>
+			<div class="input" id="attachments"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">各级签批</div>
+			<div class="input" id="approvalNodes" style="border:1px solid #d9dbdc;overflow: hidden;padding-left: 10px;"></div>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<div class="formBtns" style="margin-left: 100px;margin-top: 20px;">
+		<input type="button" id="cancel" value="返回" class="bg_00b7ee"/>
+	</div>
+</div>
+<style type="text/css">
+	.data{
+		min-height: 30px;
+		margin: 10px 0px;
+		padding: 0px;
+	}
+	.data_title{
+		width: 90px;
+		height: 30px;
+		overflow: hidden;
+		position: absolute;
+		font-weight: bold;
+	}
+	.input{
+		min-height: 29px;
+		border:none;
+		border-bottom: 1px solid #d9d4d4;
+		margin-left: 90px;
+		line-height: 30px;
+		height: auto;
+		margin-right: 20px;
+		color: #666;
+	}
+	#approvalNodes .input{
+		border: none;
+	}
+	#avatar{
+		width: 100px;
+		height: 100px;
+		border-radius: 50px;
+		margin-left: 205px;
+	}
+	.form_line{
+		padding-top:10px;
+		margin-bottom:10px;
+	}
+	#printBtn{
+		position: absolute;
+		right: 20px;
+		background: #f2fafd;
+		color: #00b7ee;
+		border: 1px solid #e5e5e5;
+		padding:3px 10px 3px 30px;
+		cursor: pointer;
+		top:20px;
+	}
+	#printBtn img{
+		position: absolute;
+		margin-top: 2px;
+		margin-left: -20px;
+	}
+	#print{
+		background: #f8f8f8;
+		border:1px solid #d9dbdc;
+		margin:10px;
+		padding: 20px;
+	}
+</style>
+<style type="text/css" media=print>
+	.header,.left,.footer,#nav,#printBtn,.formBtns{
+		display: none;
+	}
+	#print{
+		position:fixed;
+		z-index: 99999999;
+		left: 0px;
+		top: 0px;
+		width: 100%;
+		border: none;
+		margin:0px;
+		padding: 10px 0px;
+		background: #fff;
+	}
+	.accessory_download{
+		display: none;
+	}
+</style>
+<script>
+	(function() {
+		$("#_schoolName").html($("#schoolName").html());
+		$("#printBtn").click(function(){
+			window.print();
+		})
+		function enumStatus(n){
+			var rc = "";
+			switch(n){
+				case 1:
+					rc = "<font style='color:#666666'>审批中...</font>";
+					break;
+				case 2:
+					rc = "<font style='color:#00b7ee'>完成</font>";
+					break;
+				case 3:
+					rc = "<font style='color:#ff6600'>已撤销</font>";
+					break;
+				default:
+					break;
+			}
+			return rc;
+		}
+		function ApprovalResultEnum(n,bool){
+			var rc = "";
+			switch(n){
+				case 1:
+					rc = !bool ? "待处理" : "<span style='padding:3px 8px; border-radius:15px;background-color:#00b7ee;color:#fff;margin-right:5px;'>...</span><span style='background-color:#00b7ee;color:#fff;border-radius:3px;padding:2px 12px;'>待处理</span>";
+					break;
+				case 2:
+					rc = !bool ? "<font style='color:#62aa49'>已分配</font>" : "<span style='padding:3px 8px; border-radius:15px;background-color:#62aa49;color:#fff;margin-right:5px;'>√</span><span style='background-color:#62aa49;color:#fff;border-radius:3px;padding:2px 12px;'>已分配</span>";
+					break;
+				case 3:
+				rc = !bool ? "<font style='color:#5dbdef'>完成</font>" : "<span style='padding:3px 8px; border-radius:15px;background-color:#5dbdef;color:#fff;margin-right:5px;'>√</span><span style='background-color:#5dbdef;color:#fff;border-radius:3px;padding:2px 12px;'>完成</span>";
+					break;
+				default:
+					break;
+			}
+			return rc;
+		}
+		//绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+		var from = {
+			id : Y.getUrlParam("id"),
+			avatar: $("#avatar"),
+			receiveDocNo: $("#receiveDocNo"),
+			initiatorName : $("#initiatorName"),
+			belongDept: $("#belongDept"),
+			num : $("#num"),
+			assigneeName: $("#assigneeName"),
+			assigneeDate : $("#assigneeDate"),
+			inDocOrg: $("#inDocOrg"),
+			inDocNo : $("#inDocNo"),
+			copies: $("#copies"),
+			inDoctitle : $("#inDoctitle"),
+			contentDigest: $("#contentDigest"),
+			attachments : new Y.Accessory(null,$("#attachments"),{url:"attachermentUrl",name:"attachermentName",type:"attachermentType",size:"attachermentSize"},true),
+			status:$("#status")
+		};
+
+		//修改的时候根据id加载数据
+		if (from.id) {
+			Y.ajax(bpmIP + "/api/dp/v0.1/" + from.id,function(res){
+				for (var key in from) {
+                    if (res[key] != undefined && key != "id") {
+                        var value = res[key];
+                        if(key == "avatar") {
+                            from[key].attr("src", value);
+                        }else if(key == "status"){
+                        	from[key].html(enumStatus(value));
+                        }else if(key == "attachments"){
+                            from[key].val(value);
+                        }else{
+                        	from[key].html(value);
+                        }
+                    }
+                }
+                var approvalNodes = res.approvalNodes;
+                var nodes = "";
+                var attachmentArr = [];
+                for(var i = 0; i < approvalNodes.length; i ++){
+                	var _nodes = "";
+                	var maxStatus = 0;
+                	for(var j = 0; j < approvalNodes[i].length; j++){
+                		var node = !j ? "" : "<div style='height:20px;'></div>";
+                		maxStatus = maxStatus != 2 ? (approvalNodes[i][j].status > maxStatus ? approvalNodes[i][j].status : maxStatus) : 2;
+                		node += !i ? "" : "<div style='border-bottom:1px dashed #cad4db;'></div>";
+                		//单位-人员
+	                	node += "<div class=\"data widthAll\">";
+	                	node += "<div class=\"data_title\">" + approvalNodes[i][j].belongDept + "</div>";
+	                	node += "<div class=\"input\">" + approvalNodes[i][j].approvalUserName + "</div></div>";
+	                	//意见
+	                	if(approvalNodes[i][j].advice){
+	                		node += "<div class=\"data widthAll\">";
+		                	node += "<div class=\"data_title\">审批意见</div>";
+		                	node += "<div class=\"input\">" + approvalNodes[i][j].advice + "</div></div>";
+	                	}
+	                	//时间
+	                	if(approvalNodes[i][j].handleDate){
+	                		node += "<div class=\"data widthAll\">";
+	                		node += "<div class=\"data_title\">审批时间</div>";
+	                		node += "<div class=\"input\">" + approvalNodes[i][j].handleDate + "</div></div>";
+	                	}
+	                	//附件
+	                	if(approvalNodes[i][j].attachment.length > 0){
+	                		node += "<div class=\"data widthAll\">";
+	                		node += "<div class=\"data_title\">附件</div>";
+	                		node += "<div class=\"input\" id='attachment_" + i + "_" + j + "'></div></div>";
+	                		attachmentArr.push({key:[i,j],value:approvalNodes[i][j].attachment});
+	                	}
+	                	//抄送
+	                	if(approvalNodes[i][j].cc.length > 0){
+	                		node += "<div class=\"data widthAll\">";
+	                		node += "<div class=\"data_title\">抄送人</div>";
+	                		node += "<div class=\"input\">";
+	                		for(var m = 0; m < approvalNodes[i][j].cc.length; m++){
+	                			node += "<font style='margin-right:10px;'>" + approvalNodes[i][j].cc[m].ccName + "</font>";
+	                		}
+	                		node += "</div></div>";
+	                	}
+	                	//结果
+	                	node += "<div class=\"data widthAll\">";
+	                	node += "<div class=\"data_title\">审批结果</div>";
+	                	node += "<div class=\"input\">" + ApprovalResultEnum(approvalNodes[i][j].status) + "</div></div></div>";
+	                	node += "<div class='clear'></div>";
+	                	_nodes += node;
+                	}
+                	//nodes += "<div><span style='position:absolute;margin-left:-15px;margin-top:10px;'>" + ApprovalResultEnum(maxStatus,true) + "</span><div class='form_line'><div style='width:150px; text-align:right;margin:10px 0px;color:#00B7EE;font-weight:bold;'></div></div>";
+                	nodes += _nodes;
+                }
+                $("#approvalNodes").html(nodes);
+                for(var i = 0; i < attachmentArr.length; i++){
+                	var accessory = new Y.Accessory(null,$("#attachment_" + attachmentArr[i].key[0] + "_" + attachmentArr[i].key[1]),{url:"attachermentUrl",name:"attachermentName", size:"attachermentSize"},true);
+                	accessory.val(attachmentArr[i].value);
+                }
+			},{data:{id:from.id,dpType:"officialdoc"}})
+		}
+		//取消
+		$("#cancel").click(function(){
+			Y.back(-1);
+		});
+	})()
+</script>

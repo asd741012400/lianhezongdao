@@ -1,0 +1,63 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="name" class="input" type="text" placeholder="输入名称"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "meetingRoom", pageNum: 1};
+        var config = [
+            {CH: "会议室名称", EN: "name"},
+            {CH: "会议室地点", EN: "location"},
+            {CH: "会议室管理员", EN: "responseName"},
+            {CH: "备注", EN: "remark"}
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/meeting", option, config);
+        list.btns = "<span class=\"listEdit\">修改</span><span class=\"listDelete\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            //新生隐藏编辑按钮
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/meetingRoom/meetingRoomEdit.html",title:"编辑会议室",data:{id:data.id}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],ucIP + "/api/uc/v0.1/meeting/","id","会议室",{vKey:"name",obj:$(this)});
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),ucIP + "/api/uc/v0.1/meeting/","id","会议室",{vKey:"name"});
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/meetingRoom/meetingRoomEdit.html",title:"新增会议室"});
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("会议室");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            name:$("#name")
+        });
+    })()
+</script>

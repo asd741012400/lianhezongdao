@@ -1,0 +1,79 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="keyword" class="input" type="text" placeholder="实训室名称"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <input id="upLoadList" type="button" value="Excel导入" class="bg_eeeeee"/>
+        <input type="button" id="downLoadListModle" value="下载导入模板" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<div id="planBox" class="boxShadow">
+    <div class="planBoxTitle">当前正在导入</div>
+    <div class="planBoxContent">
+        <div class="planPercent"><font id="percent">0</font>%</div>
+        <div class="planNum">导入<font id="allNum">--</font>/<font id="sumNum">--</font>条，失败<font id="falseNum">--</font>条</div>
+    </div>
+    <div class="planBoxBtns"><span id="cancelPlan"  class="bg_00b7ee">中断导入</span></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var config = [
+            {CH: "实训室名称", EN: "name"},
+            {CH: "地址", EN: "location"},
+            {CH: "责任人", EN: "responseName"},
+            {CH: "实训室安排", EN: "",htmlFormat:"<span class=\"listTrAp\">----</span>"}
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/tr", {pageSize:"tr",pageNum:1}, config);
+        list.btns = "<span class=\"listEdit\">编辑</span><span class=\"listDelete\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/tr/trEdit.html",title:"编辑实训室信息",data:{id:data.id}});
+                    })
+                    //实训室分配
+                    $(this).find(".listTrAp").click(function(){
+                        Y.open({url:"modules/tr/trAp.html",title:"实训室安排",data:data});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],ucIP + "/api/uc/v0.1/tr/","id","实训室",{vKey:"name",obj:$(this)});
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),ucIP + "/api/uc/v0.1/tr/","id","实训室",{vKey:"name"});
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/tr/trEdit.html",title:"新增实训室"});
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("实训室管理");
+        })
+
+        //Excel信息批量导入
+        var timeStamp = (new Date()).getTime();
+        Y.excelImport(ucIP + "/api/uc/v0.1/progressbar/" + timeStamp,ucIP + "/api/uc/v0.1/tr/dataImport?schoolId=" + schoolId + "&timeStamp=" + timeStamp,ucIP + "/api/uc/v0.1/tr/dataImportTemplate?schoolId=" + schoolId + "&accessToken=" + accessToken,{noBeginGet:true});
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword")
+        });
+    })()
+</script>

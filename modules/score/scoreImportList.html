@@ -1,0 +1,171 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="semesterId" class="input" type="text" placeholder="学期"/>
+            <input id="typeId" class="input" type="text" placeholder="成绩标题类型"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input id="upLoadList" type="button" value="成绩导入" class="bg_eeeeee"/>
+        <input type="button" id="downLoadImportModle" value="下载导入模板" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="indicators" id="indicators"></div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    #indicators{
+        height: 32px;
+        line-height: 32px;
+        overflow: hidden;
+        background: #effbff;
+        overflow: hidden;
+        color:#8e8e8e;
+        padding: 0px 8px;
+        border: 1px solid #dff6fd;
+    }
+    .indicators{
+        position: relative;
+        top:0px;
+    }
+    .indicator{
+        height: 32px;
+        overflow: hidden;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "scoreImport", pageNum: 1};
+        var config = [
+            {CH: "成绩标题类型", EN: "title"},
+            {CH: "学期", EN: "semesterName"},
+            {CH: "班级", EN: "className"},
+            {CH: "专业", EN: "majorName"},
+            {CH: "年级", EN: "grade"},
+            {CH: "科目", EN: "cjmc"},
+            {CH: "人数", EN: "count"},
+            {CH: "上传人", EN: "uploader"},
+            {CH: "上传时间", EN: "createTime"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/examscore/v0.1", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">编辑</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/score/scoreDetailList.html",title:data.title + " 成绩明细",data:{id:data.id}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/examscore/v0.1/","id","成绩",{vKey:"title",obj:$(this)});
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/examscore/v0.1/","id","成绩",{vKey:"title"});
+        })
+        //下载模板
+        $("#downLoadImportModle").click(function(){
+            var selectBox = new Y.SelectBox({showNum:false,paramet:{key:"keyword"},url:ucIP + "/api/uc/v0.1/classes?type=2",dataString:"<div class='autoList' vaule='{classId}'>{has_classId}<span>{className}</span><span style='color:#ccc;display:block;'>班主任:{headTeacherName}</span></div>",action:function(res){
+                if(res.length > 0){
+                    var classId = [];
+                    for(var i = 0; i < res.length; i ++) classId.push(res[i].classId);
+                    Y.download(eschoolIP + "/api/examscore/v0.1/dataImportTemplate?" + "accessToken=" + accessToken + '&classId=' + classId.join(',') + '&schoolId=' + schoolId);
+                }else{
+                    Y.alertx('请先选择班级');
+                }
+            }})
+            selectBox.open();
+        })
+        //Excel信息批量导入
+        $("#upLoadList").click(function(){
+            var html = "<div class='scoreBox'  style='text-align:left;margin-left:20px;'>";
+            html += "<div><b class='red'> </b>学期:<input type='text' class='input' style='width:240px;' id='scoreSemester' /></div>";
+            html += "<div><b class='red'>*</b>类型:<input type='text' class='input' style='width:240px;' id='scoreType' /></div>";
+            html += "<div style='padding-top:15px;'><b class='red'>*</b>文件:<input type='file' class='input' style='border:none;margin-left:8px;' id='scoreFile' /></div>";
+            html += "</div>";
+            var file = "",typeId = '';
+            Y.confirmx(html,function(){
+                var err = [];
+                var _type = typeId.val();
+                if(_type == "") err.push("类型");
+                var _file = file.files;
+                var formData = new FormData();
+                formData.append("upLoadInput", file.files[0]);
+                if(_file.length == 0) err.push("文件");
+                if(err.length > 0) {
+                    Y.alertx(err.join("、") + " 不能为空！");
+                    return false;
+                }
+                var al = new Y.alertx("正在导入成绩......",'',{toast:true,height:70,close:true});
+                Y.ajax(eschoolIP + "/api/examscore/v0.1/dataImport/" + _type,function(res){
+                    al.close();
+                    if(res && res.result){
+                        Y.alertx("导入成功," + res.msg,function(){
+                            list.reLoad();
+                        });
+                    }else{
+                        if(res && res.url){
+                            Y.confirmx("<div style='color: #ff0000;font-weight:bold;'>导入失败!</div>" + res.msg + "<div style='color: #ff0000;'>点击确定下载失败的数据?</div>",function(){
+                                Y.download(res.url);
+                                list.reLoad();
+                            });
+                        }else{
+                            Y.alertx("导入失败，" + res.errorMsg);
+                        }
+                    }
+                },{meth:'POST',data:formData})
+            },{initFn:function(){
+                var scoreSemester = new Y.OnlySelectBox($("#scoreSemester"),Y.getSelectBox('semester'))
+                typeId = new Y.OnlySelectBox($("#scoreType"),Y.getSelectBox('examscoreType',{
+                    prevClickFn:function(o){
+                        o.paramet.semesterId = scoreSemester.val();
+                    }
+                }))
+                file = document.getElementById('scoreFile');
+            },_w:340,_h:260,title:"请填写导入成绩信息"})
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            typeId:new Y.OnlySelectBox($("#typeId"),Y.getSelectBox('examscoreType')),
+            semesterId:new Y.OnlySelectBox($("#semesterId"),Y.getSelectBox('semester'))
+        });
+        var pageId = new Date().only();
+        Y.ajax(eschoolIP + "/api/examscore/v0.1/type?pageSize=10000&pageNum=1&now=true",function(ret){
+            if(ret && ret.rows && ret.rows.length > 0){
+                var html = '';
+                for(var i = 0; i < ret.rows.length; i ++) {
+                    html += '<div class="indicator">{startTime} 至 {endTime} 为{title}成绩录入时间</div>'._eval(ret.rows[i]);
+                }
+                $('#indicators').html('<div class="indicators" id="indicator' + pageId + '">' + html + html + html + '</div>');
+                var indicator = new Y.Indicator({
+                    windowSize:32,
+                    boxSize:32,
+                    count:ret.rows.length,
+                    playCount:1,
+                    timeSpan:3000,
+                    show:function(active,end,next){
+                        if(end){
+                            $('#indicator' + pageId).css({top:'-' + active * 32 + 'px'});
+                        }else{
+                            $('#indicator' + pageId).animate({top:'-' + active * 32 + 'px'},300,next);
+                        }
+                    }
+                })
+                if(ret.rows.length > 1) indicator.play(0);
+            }else{
+                $('#indicators').html('<div class="indicators" id="indicator' + pageId + '">当前不处于考试成绩上传时间~~</div>');
+            }
+        })
+    })()
+</script>

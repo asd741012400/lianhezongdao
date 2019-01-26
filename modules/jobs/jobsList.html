@@ -1,0 +1,83 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="titleOrCompany" class="input" type="text" placeholder="职位/公司名称"/>
+            <input id="county" class="input" type="text" placeholder="地区"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style type="text/css">
+    .showApplyAndHiringNum{
+        background: url("images/icon_sea.png") center center no-repeat;
+        width: 16px;
+        height: 16px;
+        border: none;
+        color: rgba(255,255,255,0);
+        overflow: hidden;
+        cursor: pointer;
+    }
+    .showApplyAndHiringNum:hover{
+        background: url("images/icon_sea_active.png") center center no-repeat;
+    }
+</style>
+
+<script type="text/javascript">
+    (function() {
+        var category = Y.urlQuery('category') || 1;
+        var option = {pageSize: "jobs", pageNum: 1,schoolId:schoolId,category:category};
+        var config = [
+            {CH: "岗位", EN: "title"},
+            {CH: "薪资", EN: "salary",Style:"color:#f33611"},
+            {CH: "地区", EN: 'county'},
+            {CH: "公司名称", EN: "company"},
+            {CH: "截止日期", EN: "deadline"},
+            {CH: "状态", EN: "status",Option:{"1":"有效","2":"关闭"},OptionExcel:{"1":"有效","2":"关闭"}},
+            {CH: "招聘人数", EN: "applyAndHiringNum",htmlFormat: "<span class='applyAndHiringNum'>{applyAndHiringNum}</span><span class='showApplyAndHiringNum'>查看</span>"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/jobs/v0.1/" + category + "/web", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span>";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/jobs/jobsEdit.html",title:"编辑招聘信息",data:{id:data.jobId,category:category}});
+                    })
+                    //查看招聘人员列表
+                    $(this).find(".showApplyAndHiringNum").click(function(){
+                        Y.open({url:"modules/jobs/jobsUserList.html",title:data.title + " 招聘详情",showTitle:true,data:{id:data.jobId,title:data.title}});
+                    })
+                    if(data && data.status == "2") $(this).find(".tdBtns").append("<span class=\"listDelete bg_f11c1c\">删除</span>");
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/jobs/v0.1?jobIds=","jobId","招聘信息",{vKey:"title",obj:$(this)});
+                    })
+                }
+            })
+        });
+
+        var county = new Y.Area({type:2,obj:$("#county")});
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/jobs/jobsEdit.html",title:"新增招聘",data:{id:"",category:category}});
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("招聘信息统计");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            titleOrCompany:$("#titleOrCompany"),
+            county:county
+        });
+    })()
+</script>

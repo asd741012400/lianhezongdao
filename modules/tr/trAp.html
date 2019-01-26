@@ -1,0 +1,353 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <span id="name">--</span><span>学期</span><input type="text" class="input" id="dataSemester" placeholder="当前学期" /><span>班级</span><input type="text" id="dataClass" class="input" placeholder="选择班级" />
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="weeks" id="weeks"></div>
+    <div class="clear"></div>
+</div>
+<div class="table">
+    <table width="100%" border="0" cellpadding="0" cellspacing="0">
+        <thead>
+            <tr>
+                <th width="80">日期/节次</th>
+                <th width="50">周一</th>
+                <th width="50">周二</th>
+                <th width="50">周三</th>
+                <th width="50">周四</th>
+                <th width="50">周五</th>
+                <th width="50">周六</th>
+                <th width="50">周日</th>
+            </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+    </table>
+</div>
+<div class="trApNote">
+    <span class="trApNote_left">备注:</span>
+    <div class="trApNote_right">
+        <div><span style="background: #57c9f9;color: #57c9f9;padding:0px 8px;margin-right: 10px;">-</span>蓝色表示教务处统一安排的实训计划</div>
+        <div><span style="background: #999999;color: #999999;padding:0px 8px;margin-right: 10px;">-</span>灰色表示教师临时申请的实训</div>
+        <div><span style="border:1px solid #57c9f9;color: #57c9f9;border-radius: 12px;padding: 1px 6px;margin-right: 10px;">1</span>数字代表第1周</div>
+    </div>
+    <div class="clear"></div>
+</div>
+<style type="text/css">
+    #name{
+        color: #18bdf6;
+    }
+    .search span{
+        margin:10px;
+        font-size: 16px;
+    }
+    .weeks{
+        border-top: 1px solid #e4e4e4;
+        margin-top: 15px;
+        padding: 10px 0px;
+    }
+    .weeks span{
+        margin-right: 10px;
+        display: block;
+        width: 70px;
+        float: left;
+    }
+    .table tr:hover{
+        background: #fff;
+    }
+    .table th{
+        background: #f8f8f8;
+    }
+    .table td{
+        border-right: 1px solid #f2f2f5;
+    }
+    .table td:hover{
+        background: #fbfbfb;
+    }
+    .cicle{
+        display: block;
+        width: 20px;
+        height: 20px;
+        overflow: hidden;
+        line-height: 20px;
+        text-align: center;
+        border-radius: 20px;
+        border:1px solid #14adf3;
+        color: #14adf3;
+        margin-right: 5px;
+        margin-top: 5px;
+        font-size: 12px;
+        float: left;
+    }
+    .cicle.grey{
+        border:1px solid #9b9b9b;
+        color: #9b9b9b;
+    }
+    .add{
+        font-size: 34px;
+        color: #f4f4f4;
+        text-align: center;
+    }
+    .trApNote{
+        margin-top: 10px;
+        margin-left: 10px;
+        color: #999999;
+    }
+    .trApNote_left,.trApNote_right{
+        float: left;
+        margin-right: 10px;
+    }
+    .trApNote_left{
+        margin-top: 5px;
+    }
+    .trApNote_right div{
+        margin-top: 5px;
+    }
+</style>
+<script>
+    (function() {
+        var trId = Y.getUrlParam("id");
+        var name = Y.getUrlParam("name");
+        $("#name").html(name);
+        var activeSemesterId = ""; 
+        var activeClassId = "";
+        var activeWeeks = [];
+        var dataSemester = new Y.OnlySelectBox($("#dataSemester"),{
+            vKey:"id",
+            sKey:"name",
+            SelectBox:{
+                paramet:{key:"name"},
+                url:ucIP + "/api/uc/v0.1/semester",
+                dataString:"<div class='autoList' vaule='{id}'><b class='listStyle_cicle icon_img'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{begdate}至{enddate}</span></div>"
+            },
+            selectedFn:function(res){
+                activeSemesterId = res.id;
+                getWeeks(activeSemesterId);
+            }
+        });
+        var dataClass = new Y.OnlySelectBox($("#dataClass"),{
+            vKey:"classId",
+            sKey:"className",
+            SelectBox:{
+                paramet:{key:"keyword"},
+                url:ucIP + "/api/uc/v0.1/classes",
+                dataString:"<div class='autoList' vaule='{classId}'><b class='listStyle_cicle icon_img'>{listStyle_className}</b><span>{className}</span><span style='color:#ccc;display:block;'>班主任:{headTeacherName} {majorName}</span></div>"
+            },
+            selectedFn:function(res){
+                activeClassId = res.classId;
+                getData(activeWeeks);
+            }
+        });
+        getWeeks();
+        function getWeeks(id){
+            Y.ajax(ucIP + "/api/uc/v0.1/semester/current",function(res){
+                if(res && res.length > 0){
+                    var html = "<span><input type='checkBox' data='' />全部周</span>";
+                    for(var i = 0; i < res.length; i++){
+                        html += "<span><input type='checkBox' data='" + JSON.stringify(res[i]) + "' />第" + (i + 1) + "周</span>";
+                    }
+                    $("#weeks").html(html);
+                    activeWeeks = [];
+                    $("#weeks").find("input").click(function(){
+                        var checked = this.checked;
+                        if(!$(this).attr("data")){
+                            $("#weeks").find("input").each(function(i){
+                                this.checked = checked ? true : false;
+                            })
+                        }
+                        activeWeeks = [];
+                        $("#weeks").find("input").each(function(i){
+                            var data = this.getAttribute("data");
+                            if(i > 0 && data){
+                                data = JSON.parse(data);
+                                data.weekIndex = i;
+                                if(this.checked){
+                                    activeWeeks.push(data);
+                                }
+                            }
+                        })
+                        getData(activeWeeks);
+                    })
+                }
+                getData(activeWeeks);
+            },{data:{semesterId:id}})
+        }
+        function getData(weeks){
+            var startDate = "";
+            var endDate = "";
+            var weekIndex = [];
+            var last = weeks.length - 1;
+            var html = "";
+            var map = [];
+            var maxIndex = 12;
+            for(var i = 0; i < weeks.length; i ++){
+                if(i == 0){
+                    startDate = weeks[i].timeArr[0];
+                }
+                if(i == last){
+                    endDate = weeks[i].timeArr[6];
+                }
+                weekIndex.push(weeks[i].weekIndex);
+            }
+            Y.ajax(bpmIP + "/api/tr/v0.1/" + trId + "/weeks",function(res){
+                if(res && res.length > 0){
+                    for(var i = 0; i < res.length; i++){
+                        maxIndex = res[i].index > maxIndex ? res[i].index : maxIndex;
+                        if(!map[res[i].weekDay]) map[res[i].weekDay] = [];
+                        if(!map[res[i].weekDay][res[i].index]) map[res[i].weekDay][res[i].index] = [];
+                        map[res[i].weekDay][res[i].index].push(weekIndex.length == 1 && res[i].className ? "<span style='display:block;text-align:center;' data='" + JSON.stringify(res[i]) + "'>" + res[i].className + "</span>" : "<span data='" + JSON.stringify(res[i]) + "' class='cicle" + (res[i].type == 2 ? " grey" : "") + "'>" + res[i].weekIndex + "</span>");
+                    }
+                }
+                for(i = 1; i <= maxIndex; i ++){
+                    html += "<tr><td style='background: #f8f8f8;" + (i % 3 == 0 ? "border-bottom:10px solid #f2f2f5;" : "") + "' align='center'>第" + i + "节</td>";
+                    for(var j = 1; j < 8; j ++){
+                        if(!map[j]){
+                            html += "<td" + (i % 3 == 0 ? " style='border-bottom:10px solid #f2f2f5;'" : "") + " class='add'>+</td>";
+                        }else{
+                            html += !map[j][i] ? "<td" + (i % 3 == 0 ? " style='border-bottom:10px solid #f2f2f5;'" : "") + " class='add'>+</td>" : "<td" + (i % 3 == 0 ? " style='border-bottom:10px solid #f2f2f5;'" : "") + ">" + map[j][i].join("") + "</td>";
+                        }
+                    }
+                    html += "</tr>";
+                }
+                $("#tbody").html(html);
+                $("#tbody td").click(function(){
+                    var spans = $(this).find("span");
+                    var index = $(this).parent().prevAll().size() + 1;
+                    var weekDay = $(this).prevAll().size();
+                    if(!activeClassId){
+                        Y.alertx("请选择班级");
+                        return false;
+                    }
+                    if(activeWeeks.length == 0){
+                        Y.alertx("请选择周次");
+                        return false;
+                    }
+
+                    var data = [];
+                    for(var i = 0; i < activeWeeks.length; i ++){
+                        var dateString = activeWeeks[i].timeArr[weekDay - 1].split("-");
+                        var date = new Date();
+                        var now = new Date();
+                        date.setFullYear(dateString[0],parseInt(dateString[1]) - 1,dateString[2]);
+                        date.setHours(1,1,1,1);
+                        now.setHours(1,1,1,1);
+                        var unEdit = date < now ? true : false;
+                        var o = {checked:false,weekIndex:activeWeeks[i].weekIndex,date:dateString.join("-"),section:index,trsId:"",unEdit:unEdit};
+                        spans.each(function(j){
+                            var spanData = JSON.parse(this.getAttribute("data"));
+                            if(activeWeeks[i].weekIndex == spanData.weekIndex) {
+                                o.checked = true;
+                                o.classId = spanData.classId;
+                                o.className = spanData.className;
+                                o.type = spanData.type;
+                                o.trsId = spanData.trsId;
+                            }
+                        })
+                        data.push(o);
+                    }
+                    var listBox = new ListBox();
+                    listBox.data = data;
+                    listBox.open(function(res){
+                        if(res){
+                            Y.alertx("排课成功",function(){
+                                getData(activeWeeks);
+                            });
+                        }
+                    });
+                })
+            },{data:{ril:"M",trId:trId,startDate:startDate,endDate:endDate,weekIndex:weekIndex.join(",")}})
+        }
+        function ListBox(){
+            var _this = this;
+            this.id = (new Date()).only();
+            this.data = [];
+            this.open = function(fn){
+                var html = "<div id='ListBox' class='boxShadow' style='width:300px; position:fixed; left:50%; margin-left:-150px;top:50%;margin-top:-200px;z-index:9999;background:#f8f8f8;border-radius:5px;'><div style='text-align:center;border-bottom:1px dashed #e4e4e4;padding:5px;color:#ccc;'>共<span style='margin:5px;color:#00b7ee'>" + this.data.length + "</span>条数据</div><div id='ListBox_select' style='min-height:30px;max-height:300px;overflow:auto;background:#fff'>";
+                if(this.data.length > 0){
+                    for(var i = 0; i < this.data.length; i++){
+                        var className = "未分配";
+                        if(this.data[i].classId){
+                            className = this.data[i].className ? this.data[i].className : getClassName(this.data[i].classId);
+                        }
+                        html += "<div style='height:45px;line-height:45px;overflow:hidden;border-bottom:1px solid #f4f4f4;'>";
+                        //选择框
+                        if(this.data[i].type == 2 || this.data[i].unEdit){
+                            html += "<div data='" + JSON.stringify(this.data[i]) + "' style='color:#e4e4e4;font-size:12px;margin:0px 5px;margin-top:15px;margin-left:15px;border:1px solid #" + (this.data[i].checked ? "e4e4e4" : "ffffff") + ";width:15px;height:15px;line-height:15px; text-align:center; border-radius:2px; float:left;font-weight:bold;font-size:12px;font-family:Berlin Sans FB;'>" + (this.data[i].checked ? "√" : "") + "</div>";
+                            html += "<div><span style='color:#e4e4e4;margin:10px;'>第" + this.data[i].weekIndex + "周</span>";
+                            html += "<span style='color:#e4e4e4'>" + className + "</span></div>";
+                        }else{
+                            html += "<div data='" + JSON.stringify(this.data[i]) + "' class='ListBoxChecked' style='color:#00b7ee;font-size:12px;margin:0px 5px;margin-top:15px;margin-left:15px;border:1px solid #e4e4e4;width:15px;height:15px;line-height:15px; text-align:center; border-radius:2px; cursor:pointer;float:left;font-weight:bold;font-size:12px;font-family:Berlin Sans FB;'>" + (this.data[i].checked ? "√" : "") + "</div>";
+                            html += "<div><span style='margin:10px;'>第" + this.data[i].weekIndex + "周</span>";
+                            html += "<span>" + className + "</span></div>";
+                        }
+                        html += "</div>";
+                    }
+                }else{
+                    html += "<div style='text-align:center;margin-top:10px;'>无数据...</div>";
+                }
+                html += "</div><div style='line-height:40px; cursor:pointer;text-align:center;'><span id='ListBox_ok' style='padding:3px 15px;border-radius:2px;' class='bg_45b6af'>确定</span><span id='ListBox_cancle' style='padding:3px 15px;border-radius:2px;margin-left:10px;' class='bg_ffffff'>取消</span></div></div>";
+                Y.creatCover({id:"ListBox_cover",obj:window,zIndex:9998,opacity:0.1,background:"#000000",position:"fixed",unScroll0:true});
+                $("body").append(html);
+                $("#ListBox_cancle,#ListBox_cover").click(function(){
+                    _this.close();
+                })
+                $("#ListBox_select").children().each(function(i){
+                    $(this).find(".ListBoxChecked").click(function(){
+                        var _data = JSON.parse($(this).attr("data"));
+                        if(!_data.checked){
+                            $(this).html("√");
+                            $(this).css("border-color","#00b7ee");
+                        }else{
+                            $(this).html("");
+                            $(this).css("border-color","#e4e4e4");
+                        }
+                        _data.checked = !_data.checked;
+                        $(this).attr("data",JSON.stringify(_data));
+                        var changed = $(this).attr("changed");
+                        $(this).attr("changed",changed == "true" ? "false" : "true");
+                    })
+                })
+                $("#ListBox_ok").click(function(){
+                    var data = [];
+                    var changed = false;
+                    $(".ListBoxChecked").each(function(i){
+                        var _data = JSON.parse($(this).attr("data"));
+                        data.push({trsId:_data.trsId,classId:_data.checked ? (_data.classId ? _data.classId : activeClassId) : "",date:_data.date,section:_data.section,weekIndex:_data.weekIndex});
+                        changed = $(this).attr("changed") == "true" ? true : changed;
+                    })
+                    if(data.length == 0 || !changed){
+                        _this.close();
+                    }else{
+                        Y.ajax(bpmIP + "/api/tr/v0.1/" + trId + "/weeks/sections",function(res){
+                            if(res && res.result){
+                                if(fn) fn(true);
+                                _this.close();
+                            }else{
+                                Y.alertx("排课失败<br/>" + res.errorMsg);
+                            }
+                        },{meth:"POST",data:data,dataJson:false})
+                    }
+                })
+            }
+            this.close = function(){
+                $("#ListBox").remove();
+                $("#ListBox_cover").remove();
+            }
+        }
+        var classData = [];
+        Y.ajax(ucIP + "/api/uc/v0.1/classes",function(res){
+            if(res && res.rows) classData = res.rows;
+        },{data:{pageSize: 100000, pageNum: 1}})
+        function getClassName(id){
+            var name = "";
+            for(var i = 0; i < classData.length; i++){
+                if(id == classData[i].classId){
+                    name = classData[i].className;
+                    break;
+                }
+            }
+            return name;
+        }
+    })()
+</script>

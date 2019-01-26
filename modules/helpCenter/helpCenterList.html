@@ -1,0 +1,50 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value = "删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function(){
+        var option = {pageNum:1, clientTypeEnum:3};
+        var config = [
+            {CH: "标题", EN: "title"},
+            {CH: "类型", EN: "type", Option:{"1":"功能介绍","2":"使用说明"}},
+            {CH: "发布端", EN: "clientSupport"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/helpCenter/v0.1", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/helpCenter/helpCenterEdit.html",title:"编辑帮助信息",data:{id:data.helpId}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/helpCenter/v0.1/","helpId","帮助信息",{vKey:"title",obj:$(this)});
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/helpCenter/v0.1/","helpId","帮助信息",{vKey:"title"});
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/helpCenter/helpCenterEdit.html",title:"新增帮助"});
+        })
+    })()
+</script>

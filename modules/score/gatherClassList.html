@@ -1,0 +1,48 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="semesterId" class="input" type="text" placeholder="学期"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="EXCEL导出" class="bg_eeeeee"/>
+        <input id="cancel" type="button" class="bg_eeeeee" value="返回" />
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = Y.getUrlParam("data");
+        option.pageSize = 'gatherClassList';
+        option.pageNum = 1;
+        var list = new Y.List(eschoolIP + "/api/examscore/v0.1/gather/class/detail", option, [],'listTitle');
+        list.listNumTitle = "序号";
+        list.editAPI = function(key,data,next){
+            var _data = [];
+            for(var i = 0; i < this.th.length; i ++){
+                var th = this.th[i];
+                if(th.Edit) _data.push({title:th.CH,value:data[th.EN]});
+            }
+            Y.ajax(eschoolIP + "/api/examscore/v0.1/gatherdetail/" + data.id,function(ret){
+                if(ret && ret.errorMsg) Y.alertx('修改失败,' + ret.errorMsg);
+                next();
+            },{meth:'PUT',data:_data,dataJson:false})
+        }
+        list.load();
+        //取消
+        $("#downLoadExcel").click(function () {
+            list.toExcel("成绩");
+        })
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            semesterId:new Y.OnlySelectBox($("#semesterId"),Y.getSelectBox('semester'))
+        });
+    })()
+</script>

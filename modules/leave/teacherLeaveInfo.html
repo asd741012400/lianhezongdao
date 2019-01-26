@@ -1,0 +1,315 @@
+<div class="form">
+	<div class="form_title"><img class="form_title_img" src="images/headPortrait.png"><b>查看请假详情</b></div>
+	<div style="border-left:4px solid #f2f2f2;margin-left: 150px;">
+		<div class="data widthAll" style="margin-top: 30px; margin-bottom: 10px;  text-align: right;">
+			<div class="data_title" style="margin-top: 45px;">头像</div>
+			<img id="avatar" src="images/headPortrait.png" style="float: left;" />
+			<span style="margin-right: 20px; color: #5dbdef; cursor: pointer;" id="btnCourses">查看调课详情<img src="images/iconCourses.png" style="margin-left: 5px; position: absolute;margin-top: 3px;" /></span>
+			<div style="position: absolute;border:1px solid #dedede; margin-top: 5px;width: 340px; text-align: left;background-color: #fff;right: 20px;padding:10px 0px;line-height: 30px;" id="courses">
+				<div><b style="margin-left: 20px;padding-bottom: 5px;">调课安排</b></div>
+			</div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">姓名</div>
+			<div class="input" id="name"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">工号</div>
+			<div class="input" id="num"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">所属部门</div>
+			<div class="input" id="belongDept"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">请假时长</div>
+			<div class="input" id="duration"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">开始时间</div>
+			<div class="input" id="startTime"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">结束时间</div>
+			<div class="input" id="endTime"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">类型</div>
+			<div class="input" id="leaveType"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">请假理由</div>
+			<div class="input" id="reason"></div>
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">附件</div>
+			<img id="attachment" title="点击放大" src="" width="50" height="50" />
+		</div>
+		<div class="data widthAll">
+			<div class="data_title">最终状态</div>
+			<div class="input" id="finalResult"></div>
+		</div>
+		<div class="clear"></div>
+		<div id="approvalNodes"></div>
+		<div class="clear"></div>
+	</div>
+	<div class="formBtns" style="margin-left: 100px;margin-top: 20px;">
+		<input type="button" id="cancel" value="返回" class="bg_00b7ee"/>
+	</div>
+</div>
+<style type="text/css">
+	.data{
+		min-height: 30px;
+		margin: 0px;
+		padding: 0px;
+	}
+	.data_title{
+		width: 165px;
+		position: absolute;
+		text-align: right;
+	}
+	.input{
+		border: none;
+		margin-left: 180px;
+		line-height: 30px;
+		height: auto;
+		margin-right: 20px;
+	}
+	#avatar{
+		width: 100px;
+		height: 100px;
+		border-radius: 50px;
+		margin-left: 205px;
+	}
+	#attachment{
+		margin-left: 170px;
+		cursor: pointer;
+		display: none;
+	}
+	.form_line{
+		position: relative;
+		padding-top:10px;
+		margin-bottom:10px;
+	}
+</style>
+<script>
+	(function() {
+		function TeacherLeaveTypeEnum(n){
+			var rc = "";
+			switch(n){
+				case 1:
+					rc = "公事";
+					break;
+				case 2:
+					rc = "事假";
+					break;
+				case 3:
+					rc = "病假";
+					break;
+				case 4:
+					rc = "产假";
+					break;
+				case 5:
+					rc = "婚假";
+					break;
+				case 6:
+					rc = "丧假";
+					break;
+				case 7:
+					rc = "年假";
+					break;
+				case 8:
+					rc = "调休";
+					break;
+				case 9:
+					rc = "探亲假";
+					break;
+				default:
+					break;
+			}
+			return rc;
+		}
+		function enumLeaveFinalResult(n){
+			var rc = "";
+			switch(n){
+				case 1:
+					rc = "<font style='color:#ff0000'>正在处理</font>";
+					break;
+				case 2:
+					rc = "审核完成";
+					break;
+				case 3:
+					rc = "驳回";
+					break;
+				case 4:
+					rc = "撤回";
+					break;
+				case 5:
+					rc = "过期";
+					break;
+				default:
+					break;
+			}
+			return rc;
+		}
+		function teacherLeaveApprovalResultEnum(n,bool){
+			var rc = "";
+			switch(n){
+				case 0:
+					rc = !bool ? " " : "<span style='padding:3px 8px; border-radius:15px;background-color:#f2f2f2;color:#f2f2f2;margin-right:5px;'>...</span>";
+					break;
+				case 1:
+					rc = !bool ? "通过" : "<span style='padding:3px 8px; border-radius:15px;background-color:#00b7ee;color:#fff;margin-right:5px;'>√</span><span style='background-color:#00b7ee;color:#fff;border-radius:3px;padding:2px 12px;'>通过</span>";
+					break;
+				case 2:
+					rc = !bool ? "<font style='color:#ff0000'>拒绝</font>" : "<span style='padding:3px 8px; border-radius:15px;background-color:#ff0000;color:#fff;margin-right:5px;'>X</span><span style='background-color:#ff0000;color:#fff;border-radius:3px;padding:2px 12px;'>拒绝</span>";
+					break;
+				case 3:
+					rc = !bool ? "审批中..." : "<span style='padding:3px 8px; border-radius:15px;background-color:#e8ab47;color:#fff;margin-right:5px;'>...</span><span style='background-color:#e8ab47;color:#fff;border-radius:3px;padding:2px 12px;'>审批中</span>";
+					break;
+				default:
+					break;
+			}
+			return rc;
+		}
+		function courseSectionEnum(n){
+			var rc = "";
+			switch(n){
+				case 1:
+					rc = "上午 第一节";
+					break;
+				case 2:
+					rc = "上午 第二节";
+					break;
+				case 3:
+					rc = "上午 第三节";
+					break;
+				case 4:
+					rc = "上午 第四节";
+					break;
+				case 5:
+					rc = "下午 第一节";
+					break;
+				case 6:
+					rc = "下午 第二节";
+					break;
+				case 7:
+					rc = "下午 第三节";
+					break;
+				case 8:
+					rc = "下午 第四节";
+					break;
+				case 9:
+					rc = "晚上 第一节";
+					break;
+				case 10:
+					rc = "晚上 第二节";
+					break;
+				case 11:
+					rc = "晚上 第三节";
+					break;
+				case 12:
+					rc = "晚上 第四节";
+					break;
+				default:
+					break;
+			}
+			return rc;
+		}
+		//绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+		var from = {
+			leaveId : Y.getUrlParam("id"),
+			leaveInfo : {
+				name: $("#name"),
+				belongDept: $("#belongDept"),
+				num: $("#num"),
+				duration: $("#duration"),
+				startTime: $("#startTime"),
+				endTime: $("#endTime"),
+				type: $("#leaveType"),
+				reason: $("#reason"),
+				avatar: $("#avatar"),
+				attachment: $("#attachment"),
+				finalResult : $("#finalResult")
+			}
+		};
+
+		//修改的时候根据id加载数据
+		if (from.leaveId) {
+			Y.ajax(bpmIP + "/api/leave/teacher/v0.1/detailIds/" + from.leaveId,function(res){
+				for (var key in from.leaveInfo) {
+                    if (res.leaveInfo[key] != undefined) {
+                        var value = res.leaveInfo[key];
+                        if (key == "type") {
+                            value = TeacherLeaveTypeEnum(value);
+                        }
+                        if (key == "attachment"&&res.leaveInfo.attachment) {
+							from.leaveInfo[key].show().attr("src", value);
+						};
+                        if (key == "avatar") {
+                            from.leaveInfo[key].attr("src", value);
+                        } else if(key == "finalResult"){
+                        	from.leaveInfo[key].html(enumLeaveFinalResult(value));
+                        }else{
+                            from.leaveInfo[key].html(value);
+                        }
+                    }
+                }
+                var courses = res.leaveInfo.courses;
+                var course = "";
+                var showCourse = false;
+                for(var i = 0; i < courses.length; i++){
+                	showCourse = true;
+                	course += "<div style=\"border-top:1px solid #dedede;\"><div style=\"width: 25%;height:30px;overflow:hidden;float:left;\"><span style='margin-left:20px;'>" + courses[i].teacherLeaveName + "</span></div><div style=\"width: 50%;height:30px;overflow:hidden;float:left;\">" + courses[i].coursesDate + " " + courseSectionEnum(courses[i].coursesSection) + "</div><div style=\"width: 25%;height:30px;overflow:hidden;float:left;\">" + courses[i].coursesName + "</div></div>";
+                	course += courses[i].substituteCoursesDate ? "<div><div style=\"width: 25%;height:30px;overflow:hidden;float:left;\"><span style='margin-left:20px;'>" + courses[i].substituteTeacherName + "</span></div><div style=\"width: 50%;height:30px;overflow:hidden;float:left;\">" + courses[i].substituteCoursesDate + " " + courseSectionEnum(courses[i].substituteCoursesSection) + "</div><div style=\"width: 25%;height:30px;overflow:hidden;float:left;\">" + courses[i].substituteCoursesName + "</div></div>" : "";
+                }
+                $("#courses").append(course + "<div class='clear:both;'></div>");
+                if(showCourse){
+                	$("#btnCourses").click(function(){
+                		if(showCourse){
+                			$("#courses").hide();
+                			$(this).find("img").css({transform:"rotate(-90deg)"});
+                		}else{
+                			$("#courses").show();
+                			$(this).find("img").css({transform:"rotate(0deg)"});
+                		}
+                		showCourse = !showCourse;
+					})
+                }else{
+                	$("#btnCourses,#courses").hide();
+                }
+                var approvalNodes = res.approvalNodes;
+                var nodes = "";
+                for(var i = 0; i < approvalNodes.length; i ++){
+                	var node = "<div><div class=\"form_line\"><div style='width:150px; text-align:right;margin:10px 0px;color:#00B7EE;font-weight:bold;'></div><span style='position:absolute;margin-left:-15px;top:8px;left:0'>" + teacherLeaveApprovalResultEnum(approvalNodes[i].result,true) + "</span></div>";
+                	node += "<div class=\"data widthAll\">";
+                	node += "<div class=\"data_title\">" + approvalNodes[i].nodeName + "</div>";
+                	node += "<div class=\"input\">" + approvalNodes[i].name + "</div></div>";
+                	node += "<div class=\"data widthAll\">";
+                	node += "<div class=\"data_title\">审批时间</div>";
+                	node += "<div class=\"input\">" + (approvalNodes[i].approvalTime ? approvalNodes[i].approvalTime : "") + "</div></div>";
+                	node += "<div class=\"data widthAll\">";
+                	node += "<div class=\"data_title\">审批理由</div>";
+                	node += "<div class=\"input\">" + approvalNodes[i].reason + "</div></div>";
+                	node += "<div class=\"data widthAll\">";
+                	node += "<div class=\"data_title\">审批结果</div>";
+                	node += "<div class=\"input\">" + teacherLeaveApprovalResultEnum(approvalNodes[i].result) + "</div></div></div>";
+                	node += "<div class='clear'></div>";
+                	nodes += node;
+                }
+                $("#approvalNodes").html(nodes);
+                $("#attachment").click(function(){
+                	var src = $(this).attr('src');
+                	Y.confirmx("<img width='100%' height='100%' src="+src+"/>",'',{
+                		_w:'600',_h:'600',title:'放大图片',imgBox:true,noBtns:true
+                	})
+                })
+			})
+		}
+
+		//取消
+		$("#cancel").click(function(){
+			Y.back(-1);
+		});
+	})()
+</script>

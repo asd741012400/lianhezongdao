@@ -1,0 +1,60 @@
+<div class="list_header">
+    <form class="form">
+        <div class="data width50">
+            <div class="data_title">按标题查询</div>
+            <span class="data_error">格式错误</span><input id="title" class="input" type="text" placeholder="请输入关键字"/></div>
+        <div class="data width50">
+            <div class="data_title">按日期查询</div>
+            <span class="data_error">格式错误</span><input id="date" class="input" type="text" placeholder="请输入日期"/></div>
+        <div class="data widthAll">
+            <div class="formBtns alignLeft"><input type="submit" value="搜索" class="bg_45b6af"/><input type="button"  value="全选" class="bg_f11c1c"/><input type="button" value="新增" class="bg_dfba49"/></div>
+        </div>
+        <div class="clear"></div>
+    </form>
+</div>
+<div class="list_line"></div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    function load() {
+        var option = {pageSize: 10, pageNum: 1};
+        var config = [
+            {CH: "标题", EN: "title"},
+            {CH: "摘要", EN: "digest"},
+            {CH: "轮播位置", EN: "carouselPos",Option:{"null":"无","1":"首页"}},
+            {
+                CH: "创建时间",
+                EN: "createDate",
+                Align: "center"
+            },
+            {CH: "发布者", EN: "publisherId"},
+            {
+                CH: "状态",
+                EN: "status",
+                Option:{"null":"<input type='checkbox' checked />启用","1":"<input type='checkbox' checked />启用","2":"<input type='checkbox' />停用"}
+            },
+            {CH:"发布人",EN:'publisherName'}
+        ];
+        var list = new List("http://192.168.1.100:8083/api/ad/v0.1/widelist", option, config);
+        list.btns = "<span class=\"bg_dfba49\">修改</span><span class=\"bg_f11c1c\">删除</span>";
+        list.listNumTitle = "序号";
+        list.load(function () {
+        });
+        //日历
+        var c = new Calendar($("#date"));
+        $("#date").focus(function () {
+            var _this = $(this);
+            c.open(function (d) {
+                _this.val(d);
+                c.close();
+            });
+        });
+        var title = new AutoComple($("#title"),"http://192.168.1.100:8083/api/ad/v0.1/widelist",{pageSize: 10, pageNum: 1},"<div class='autoList' style='padding:0px 10px;border-bottom:1px solid #e4e4e4;height:30px;line-height:30px;overflow:hidden;cursor: pointer;'>${title}</div>",function(res){
+            $("#title").val(res.html());
+        })
+    }
+</script>

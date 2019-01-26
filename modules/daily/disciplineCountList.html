@@ -1,0 +1,83 @@
+<div class="_user">
+    <span id="data-userPhoto"></span>
+    <span id="data-userName">姓名:</span>
+    <span id="data-studNo">学号:</span>
+    <span id="data-majorName">专业:</span>
+    <span id="data-className">班级:</span>
+</div>
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="dicId" class="input" type="text" placeholder="选择操行类型"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <input id="cancel" type="button" value="返回" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    ._user{
+        line-height: 48px;
+        height: 48px;
+        overflow: hidden;
+    }
+    ._user span{
+        margin-right: 16px;
+        float: left;
+    }
+    #data-userPhoto img{
+        width:48px;
+        height:48px;
+        border-radius:24px;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var data = Y.getUrlParam("data");
+        for(var key in data) $('#data-' + key).append(data[key]);
+        var config = [
+            {CH: "时间", EN: "checkTime"},
+            {CH: "操行类型", EN: 'dicLevel1Name'},
+            {CH: "操行项", EN: "dicLevel2Name"},
+            {CH: "分值", EN: "score",htmlFormat:function(s,v,o){
+                return -(-o.fuScore) + -(-o.zhScore);
+            }},
+            {CH: "提交人角色", EN: "type",Option: {"1":"学生","2": "老师"},OptionExcel:{"1":"学生","2": "老师"}},
+            {CH: "提交人", EN: "createUserName"}
+        ];
+        var option = {pageSize: "disciplineCountList", pageNum: 1,userId:data.userId,startTime:Y.getUrlParam("startTime"),endTime:Y.getUrlParam("endTime"),status:1};
+        var list = new Y.List(eschoolIP + "/api/daily/v0.1/mgt/discipline", option, config);
+        list.listNumTitle = "序号";
+        list.load(function(){
+            if(list.data && list.data.rows && list.data.rows[0] && list.data.rows[0].userPhoto) {
+                $('#data-userPhoto').html('<img src="' + list.data.rows[0].userPhoto + '" />');
+                $('#data-majorName').html('专业:' + list.data.rows[0].majorName);
+            }
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel(data.userName + "操行检查记录");
+        })
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+        var dicId = new Y.OnlySelectBox($("#dicId"),{
+            vKey:"id",
+            sKey:"value",
+            SelectBox:{
+                showNum:false,
+                paramet:{parentId:0,level:1,pageSize: 10, pageNum: 1,type:2},
+                url:eschoolIP + "/api/daily/v0.1/mgt/dic",
+                dataString:"<div class='autoList' vaule='{id}'><span>{value}</span></div>"
+            }
+        });
+        var listSearch = new Y.ListSearch(list,{
+            dicId:dicId
+        });
+    })()
+</script>

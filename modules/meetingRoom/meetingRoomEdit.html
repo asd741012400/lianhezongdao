@@ -1,0 +1,82 @@
+<form class="form">
+    <div class="form_title"><b>会议室编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>会议室名称</div>
+        <span class="data_error">会议室名称不能为空</span><input class="input" id="data-name" type="text" placeholder="请填写会议室名称" maxlength="20" />
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>地点</div>
+        <span class="data_error">地点不能为空</span><input class="input" id="data-location" type="text" placeholder="请填写地点" />
+    </div>
+    <div class="data width100">
+        <div class="data_title">备注</div>
+        <input class="input" id="data-remark" type="text" />
+    </div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>会议室管理员</div>
+        <div id="data-response"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            id : Y.getUrlParam("id"),
+            name : {
+                o:$("#data-name"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"会议室名称不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            location : {
+                o:$("#data-location"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"地点不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            response:{
+                o:new Y.AnySelectBox($("#data-response"),$("#data-response").next(),{
+                    idKey:"accountId",
+                    valueString:"<div accountId='{accountId}' class='personData'><div style='width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #e4e4e4;color:#00b7ee;font-size:20px;margin:7px auto;border-radius:50px;' imgUrl='{photo}' class='icon_img'>{listStyle_name}</div><div>{name}</div></div>",
+                    SelectBox:{
+                        paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},
+                        url:ucIP + "/api/uc/v0.1/teachers",
+                        dataString:"<div title='{name}' class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}<font style='color:#3ec0ef;margin-left:5px;'>{birthday}</font></span><span style='color:#ccc;display:block;'>组织:{groupName}</span></div>"
+                    }
+                }),
+                f:function(v){
+                    if (v == "") {
+                        return [false,"管理员不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            remark : {o:$("#data-remark")}
+        }
+        var from = new Y.From(fromConfig,"id",{getURL:ucIP + "/api/uc/v0.1/meeting/{id}",postURL:ucIP + "/api/uc/v0.1/meeting",putURL:ucIP + "/api/uc/v0.1/meeting",title:"提交会议室信息",dataJson:false});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

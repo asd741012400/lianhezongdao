@@ -1,0 +1,208 @@
+<form class="form">
+    <div class="form_title"><img class="form_title_img" src="images/headPortrait.png"/><font>招录信息编辑</font>
+    <span class="red">(*为必填项)</span>
+        <!--<span class="red" id="xzx" style="margin-left: 16px;background:#efefef;color:#8e8e8e;padding: 3px 10px; border-radius: 3px;"></span>-->
+    </div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width50">
+            <div class="data_title">照片</div>
+            <div style="margin-left: 50px;">
+                <div id="data-portrait" type="img"></div>
+                <span style="color: #ccc">建议尺寸295x413</span>
+            </div>
+        </div>
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>
+                姓名
+            </div>
+            <span class="data_error">姓名不能为空</span>
+            <input class="input" id="data-name" type="text" placeholder="请填写姓名"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">
+                <b class="red">*</b>
+                性别
+            </div>
+            <span id="data-sex" type="radio">
+                <input type="radio" value="1" checked/>
+                男
+                <input type="radio" value="0" />
+                女
+            </span>
+        </div>
+        <div class="data width50">
+            <div class="data_title">
+                <b class="red">*</b>
+                入学年度
+            </div>
+            <span class="data_error">入学年度不能为空</span>
+            <input class="input" id="data-rxnd" type="text" placeholder="请输入入学年度"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">
+                <b class="red">*</b>
+                专业
+            </div>
+            <span class="data_error">专业不能为空</span>
+            <input class="input" id="data-majorId" type="text" placeholder="请选择专业"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>手机号码</div>
+            <span class="data_error">手机号码不能为空</span>
+            <input class="input" id="data-phone" type="text" maxlength="11" placeholder="请填写手机号码"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>身份证号码</div>
+            <span class="data_error">身份证号码不能为空</span>
+            <input class="input" id="data-cardId" type="text" placeholder="请填写身份证号码"/>
+        </div>
+        <div id="customAtt"></div>
+        <div class="data width50" style="display: none;">
+            <div class="data_title">是否录取</div>
+            <span id="data-admit" type="radio"><input type="radio" value="0" checked />否<input type="radio" value="1" />是</span>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="返回" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    #data-portrait{
+        height:100px;
+        width:140px;
+        margin-right:10px;
+        overflow: hidden;
+    }
+    #data-portrait img{
+        width: 100px;
+    }
+</style>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段必须提供val()方法来设置值和获取值,
+        var id = Y.getUrlParam("id"),enrollId = Y.getUrlParam('enrollId'),readOnly = Y.getUrlParam("readOnly"),interview = Y.getUrlParam("interview");
+        if(!enrollId) {
+            Y.alertx('请先选择招生项目!');
+            Y.back(-1);
+            return false;
+        }
+        if(id && !interview) $('#data-admit').parent().show();
+        Y.ajax(ucIP + '/api/uc/v0.1/enroll/template/' + enrollId,function(ret){
+            var _majors = JSON.parse(ret.major),majors = {};
+            for(var i = 0; i < _majors.length; i ++) majors[_majors[i].id] = _majors[i].name;
+            console.log(majors)
+            Y.qiNiouKey(function(upladArgs){
+                var fromConfig = {
+                    id : id,
+                    portrait : {
+                        o:new Y.Img($("#data-portrait"),"<img style='cursor: pointer;' src='images/headPortrait.png' />",{width:295,height:413,radius:0,scale:[5,7]},upladArgs)
+                    },
+                    name : {
+                        o:$("#data-name"),
+                        e:"blur",
+                        f:function(v){
+                            if (v == "") {
+                                return [false,"姓名不能为空"];
+                            } else {
+                                return [true];
+                            }
+                        }
+                    },
+                    sex : {o:new Y.Radio($("#data-sex input"))},
+                    rxnd:{
+                        o:$("#data-rxnd"),
+                        i:function(){
+                            var calendar = new Y.Calendar($("#data-rxnd"),{date:new Date().Format('yyyy')});
+                            calendar.maxDate = new Date();
+                            $("#data-rxnd").focus(function(){
+                                var _this = $(this);
+                                //_this.prev().hide();
+                                calendar.open(function(d){
+                                    _this.val(d);
+                                    calendar.close();
+                                });
+                            })
+                        }
+                    },
+                    majorId : {
+                        o:new Y.Select($("#data-majorId"),majors),
+                        s:"majorName",
+                        _o:$("#data-majorId"),
+                        f:function(v){
+                            if (v == "") {
+                                return [false,"专业不能为空"];
+                            } else {
+                                return [true];
+                            }
+                        },
+                    },
+                    phone : {
+                        o:$("#data-phone"),
+                        e:"blur",
+                        f:function(v){
+                            if (v == "") {
+                                return [false,"手机号码不能为空"];
+                            } else {
+                                return [true];
+                            }
+                        }
+                    },
+                    cardId:{
+                        o:$("#data-cardId"),
+                        e:"blur",
+                        f:function(v){
+                            if(v == ""){
+                                return [false,"身份证号码不能为空"];
+                            }else{
+                                var b = Y.Verify.IDCard(v)[0];
+                                if(b){
+                                    $("#data-birthday").val(b[0]);
+                                    $("#age").html((new Date()).age(b[1],b[2],b[3]) + "岁");
+                                    return [true];
+                                }else{
+                                    return [false,"身份证号码格式错误，请输入正确的身份证号码"];
+                                }
+                            }
+                        }
+                    },
+                    admit : {o:new Y.Radio($("#data-admit input"))},
+                    enrollId:enrollId,
+                    customAttValue:''
+                }
+                if(ret && !ret.errorMsg){
+                    fromConfig.customAttValue = {
+                        o:{
+                            val:function(){
+                                return JSON.stringify(ret.components)
+                            }
+                        }
+                    }
+                    var components = new Y.ComponentAnalysis(ret.components);
+                    components.init($('#customAtt'));
+                    if(readOnly){
+                        $("#submit").hide();
+                    }
+                    fromConfig.customAttKey = {
+                        o:components,
+                        f:function(){
+                            return components.verify();
+                        }
+                    }
+                }
+                if(readOnly) Y.disabled(fromConfig);
+                var from = new Y.From(fromConfig,"id",{getURL:ucIP + '/api/uc/v0.1/enroll/student/{id}/detail',postURL:ucIP + "/api/uc/v0.1/enroll/student",putURL:ucIP + "/api/uc/v0.1/enroll/student/{id}",title:"提交报名学生信息",dataJson:false});
+                //提交
+                $("#submit").click(function(){
+                    from.submit($(this));
+                })
+            })
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

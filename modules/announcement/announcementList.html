@@ -1,0 +1,88 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="title" class="input" type="text" placeholder="输入标题"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    .viewOrNot_i{
+        background:url("images/icon_user_d0.png") center center no-repeat;
+        width:15px;
+        height:14px;
+        display:inline-block;
+        vertical-align:middle;
+        cursor:pointer;
+    }
+    .viewOrNot_i:hover{
+        background:url("images/icon_user_d0_active.png") center center no-repeat;
+    }
+    .viewOrNot{
+        display:inline-block;
+        vertical-align:middle;
+        margin-right:3px;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "announcement", pageNum: 1};
+        var config = [
+            {CH: "标题", EN: "title"},
+            {CH: "摘要", EN: "digest"},
+            {CH: "创建时间", EN: "createDate"},
+            {CH: "类型", EN: "type",Option:{"1":"通知","2":"公告"},OptionExcel:{"1":"通知","2":"公告"}},
+            {CH: "状态", EN: "status",Option:{"null":"启用","1":"启用","2":"未启用"},OptionExcel:{"1":"启用","2":"未启用"}},
+            {CH: "发布组织",EN:'name'},
+            {CH: "浏览量", EN: 'readCount'},
+            {CH: "查阅统计", EN:'viewOrNot',htmlFormat:"<span class='viewOrNot'>{viewOrNot}</span><span title='查看' class='viewOrNot_i'></span>"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/announcement/v0.1/announcements", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/announcement/announcementEdit.html",title:"编辑通知公告",data:{id:data.id}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/announcement/v0.1/announcements/","id","通知公告",{vKey:"title",obj:$(this)});
+                    })
+                    //查看
+                    $(this).find(".viewOrNot_i").click(function(){
+                        Y.open({url:"modules/announcement/announcementStatistic.html",title:data.title + " 统计",data:{id:data.id}});
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/announcement/v0.1/announcements/","id","通知公告",{vKey:"title"});
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/announcement/announcementEdit.html",title:"新增通知公告"});
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("通知公告");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            title:$("#title")
+        });
+    })()
+</script>

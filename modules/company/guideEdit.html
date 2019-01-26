@@ -1,0 +1,89 @@
+<form class="form">
+    <div class="form_title"> <b><font id="_title"></font>编辑</b>
+        <span class="red">(*为必填项)</span>
+    </div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>标题</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-title" type="text" placeholder="请填写标题"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>发布人</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-pusher" type="text" placeholder="请填写发布人"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title">内容</div>
+            <span class="data_error"></span>
+            <div type="richEdit" class="richEdit" id="data-content"></div>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b class="red">*</b>接收人</div>
+            <span class="data_error"></span>
+            <div id="data-postIds"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+        </div>
+        <div class="data width100">
+            <div class="data_title">是否开启学生确认</div>
+            <span class="data_error"></span>
+            <span id="data-trainStatus" type="radio"><input type="radio" value="1" id="graduateType0"/><label for="graduateType0">否</label><input type="radio" id="graduateType1" checked value="2"/><label for="graduateType1">是</label></span>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var type = Y.getUrlParam("type") || 1;
+        if(type == 1) $('#data-trainStatus').parent().hide();
+        Y.qiNiouKey(function(upladArgs){
+            var fromConfig = {
+                id : Y.getUrlParam("id"),
+                title:{
+                    o:$('#data-title'),
+                    e:'blur',
+                    f:{NotNull:'标题不能为空'}
+                },
+                postIds : {
+                    o:new Y.AnySelectBox($("#data-postIds"),$("#data-postIds").next(),{
+                        idKey:"id",
+                        valueString:"<div id='{postId}' class='personData'><div style='width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #e4e4e4;color:#00b7ee;font-size:20px;margin:7px auto;border-radius:50px;'>{listStyle_companyName}</div><div>{postName}</div></div>",
+                        SelectBox:{
+                            paramet:{pageNum:1,pageSize:10,key:"companyName"},
+                            url:eschoolIP + "/api/company/v0.1/post",
+                            dataString:"<div class='autoList' vaule='{id}'>{has_id}<b class='listStyle_cicle icon_img'>{listStyle_postName}</b><span>{postName}</span><span style='color:#ccc;display:block;'>{companyName}</span></div>"
+                        },
+                        valArr:true
+                    }),
+                    f:{NotNull:'请选择接收人所在学校'},
+                    v:function(data){
+                        var rc = [];
+                        for(var i = 0; i < data.length; i ++) rc.push({id:data[i].postId,postName:data[i].postName,companyName:data[i].companyName});
+                        this.o.val(rc);
+                    }
+                },
+                pusher:{
+                    o:$("#data-pusher"),
+                    e:'blur',
+                    f:{NotNull:'请选择发布人'}
+                },
+                trainStatus:{o:new Y.Radio($("#data-trainStatus input"))},
+                content : {o:new Y.RichEdit($("#data-content"),true,upladArgs)},
+                type:type
+            }
+            var from = new Y.From(fromConfig,"id",{getURL:eschoolIP + '/api/company/v0.1/guide/{id}/detail',postURL:eschoolIP + "/api/company/v0.1/guide",putURL:eschoolIP + "/api/company/v0.1/guide",title:"提交" + (type == 1 ? '实习计划' : '岗前培训'),dataJson:false});
+            //提交
+            $("#submit").click(function(){
+                from.submit($(this));
+            })
+            //取消
+            $("#cancel").click(function(){
+                Y.back(-1);
+            });
+        })
+    })()
+</script>

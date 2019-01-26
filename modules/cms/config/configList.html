@@ -1,0 +1,41 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "cmsConfigList", pageNum: 1,type: 2};
+        var config = [
+            {CH: "编码", EN: "fields"},
+            {CH: "值", EN: "value"},
+            {CH: "描述", EN: "des"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/cms/config", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span>";
+        list.checkBtn = false;
+        list.listNumTitle = '序号';
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/cms/config/configEdit.html",title:"编辑",data:{id:data.fields}});
+                    })
+                }
+            })
+        });
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/cms/config/configEdit.html",title:"新增配置项"});
+        });
+    })()
+</script>

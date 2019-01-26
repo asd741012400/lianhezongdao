@@ -1,0 +1,506 @@
+<div class="dataAnalyzePage" id="jskqIndex">
+    <div style="display: flex;">
+        <div class="_div1" style="width: 220px;">
+            <div @click="openPick(1,$event)" style="display: flex;justify-content:space-between;">
+                <span>{{computT(1)}}</span>
+                <img src="images/icon_calendar.png" width="14" height="14" />
+            </div>
+            <div>{{!type ? '考勤全勤 (人)' : '考勤打卡（次）'}}<span style="font-size: 24px;color: #F5A623;margin:12px;">{{data1.d2}}</span><span style="font-size: 12px;color: #AAAAAA;">同比</span><span style="font-size: 12px;color:#88E91D;">{{data1.d3}}%</span></div>
+        </div>
+        <div class="_div2" v-for="d in data1.d4">
+            <div class="_div2_1">{{d[0]}}</div>
+            <div class="_div2_2">{{d[1]}}</div>
+        </div>
+    </div>
+    <div class="dataAnalyzeBox" style="margin-right: 0px;">
+        <div class="dataAnalyzeBox_t">
+            <div class="dataAnalyzeBox_title">{{type ? '个人考勤数据汇总趋势图' : '教师考勤数据汇总趋势图'}}</div>
+            <div class="dataAnalyzeBox_t_right">
+                <input type="text" @click="openPick(2,$event)" class="dataAnalyzeTime" :value="computT(2)" />
+                <!-- <span class="dataAnalyzeSearchBtn">搜索</span> -->
+            </div>
+        </div>
+        <div class="dataAnalyzeBox_c" id="jskqIndex1" style="height: 370px;"></div>
+    </div>
+    <div style="display: flex;">
+        <div class="dataAnalyzeBox">
+            <div class="dataAnalyzeBox_t">
+                <div class="dataAnalyzeBox_title">{{type ? '个人出勤情况统计' : '全校各部门出勤情况'}}</div>
+                <div class="dataAnalyzeBox_t_right">
+                    <input type="text" @click="openPick(3,$event)" class="dataAnalyzeTime" :value="computT(3)" />
+                    <input type="text" v-if="!type" @click="openDept(3,$event)" class="dataAnalyzeTime" :value="data3.dept" />
+                </div>
+            </div>
+            <div class="dataAnalyzeBox_c" style="height: 370px;">
+                <div style="display: flex;margin-top: 16px;">
+                    <div v-for="d in data3.d" style="flex:1;padding-left: 30px;">
+                        <div style="font-size: 12px;color: #A7A7A7;">{{d[0]}}</div>
+                        <div style="font-size: 17px;color: #7D7D7D;">{{d[1]}}</div>
+                        <div style="font-size: 12px;color: #AAAAAA;">同比<span style="color: #FF9800;margin-left: 12px;" v-if="d[2]">{{d[2]}}</span></div>
+                    </div>
+                </div>
+                <div style="display: flex;margin:0px 30px;">
+                    <div class="_div3" id="jskqIndex2"></div>
+                    <div class="_div3" id="jskqIndex3"></div>
+                    <div class="_div3" id="jskqIndex4"></div>
+                </div>
+            </div>
+        </div>
+        <div class="dataAnalyzeBox">
+            <div class="dataAnalyzeBox_t">
+                <div class="dataAnalyzeBox_title">{{type ? '个人考勤占比统计' : '教师考勤占比统计'}}</div>
+                <div class="dataAnalyzeBox_t_right">
+                    <input type="text" @click="openPick(4,$event)" class="dataAnalyzeTime" :value="data4.t" />
+                </div>
+            </div>
+            <div class="dataAnalyzeBox_c" style="height: 370px;">
+                <div style="display: flex;margin-top: 16px;">
+                    <div v-for="d in data4.d" style="flex:1;padding-left: 30px;">
+                        <div style="font-size: 12px;color: #A7A7A7;">{{d[0]}}</div>
+                        <div style="font-size: 17px;color: #7D7D7D;">{{d[1]}}</div>
+                        <div style="font-size: 12px;color: #AAAAAA;">同比<span style="color: #FF9800;margin-left: 12px;" v-if="d[2]">{{d[2]}}</span></div>
+                    </div>
+                </div>
+                <div style="margin-top: 32px;">
+                    <div class="_div3" id="jskqztzb5" style="height: 250px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="dataAnalyzeBox" style="margin-right: 0px;">
+        <div class="dataAnalyzeBox_t">
+            <div class="dataAnalyzeBox_title">{{type ? '个人考勤综合统计' : '教师考勤综合统计'}}</div>
+            <div class="dataAnalyzeBox_t_right">
+                <input type="text" @click="openPick(5,$event)" class="dataAnalyzeTime" :value="computT(2)" />
+                <input type="text" v-if="!type" @click="openDept(5,$event)" class="dataAnalyzeTime" :value="data5.dept" />
+            </div>
+        </div>
+        <div class="dataAnalyzeBox_c">
+            <div class="table">
+                <div id="table"></div>
+            </div>
+            <div class="list_footer">
+                <div id="pagaBtns"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<style type="text/css">
+    ._div1{
+        background: #fff;
+        border: 1px solid #E6EAEE;
+        border-radius: 4px;
+        overflow: hidden;
+        padding:20px 10px;
+        height: 63px;
+    }
+    ._div2{
+        background: #fff;
+        border: 1px solid #E6EAEE;
+        border-radius: 4px;
+        overflow: hidden;
+        padding:22px 10px;
+        height: 60px;
+        flex: 1;
+        margin-left: 10px;
+    }
+    ._div2_1{
+        font-size: 14px;
+        color: #666666;
+        text-align: center;
+    }
+    ._div2_2{
+        font-size: 16px;
+        color: #F5A623;
+        text-align: center;
+    }
+    ._div3{
+        flex: 1;
+        height: 250px;
+    }
+    .dataAnalyzeBox .table table{
+        border: none;
+    }
+</style>
+<script src="js/echarts.min.js"></script>
+<script type="text/javascript">
+    (function(){
+        $('.rightContent').css('background','none');
+        var type = Y.urlQuery('type');
+        var vue = new Vue({
+            el:'#jskqIndex',
+            data:{
+                type:type,
+                data1:{
+                    type:'month',
+                    t:'2018-01',
+                    d2:25,
+                    d3:-1,
+                    d4:!type ? [['考勤最优的部门','教务处'],['异常考勤最多部门','就业处'],['异常考勤最多一天','2018.03.18'],['异常考勤最多教师','张伟 22次'],['异常考勤次数','224次']] : [['考勤最优的月份','3/6/8'],['异常考勤最多月份','2/4'],['异常考勤最多一天','2018.03.18'],['勤次数（年）','486次'],['异常考勤次数（年','35次']]
+                },
+                data2:{
+                    t:'2018-04',
+                    type:'month'
+                },
+                data3:{
+                    t:'2018-04',
+                    type:'month',
+                    d:!type ? [
+                        ['教师总数',159,1],
+                        ['出勤人数',124,1],
+                        ['请假人数',12,2],
+                        ['专职教师/兼职教师（人）','127/32',0]
+                    ] : [
+                        ['出勤总数（天）',159,1],
+                        ['正常出勤（天）',124,1],
+                        ['请假（天）',12,2]
+                    ],
+                    dept:'全部'
+                },
+                data4:{
+                    t:'2018-04',
+                    type:'month',
+                    d:[
+                        ['迟到',159,1],
+                        ['旷工',124,1],
+                        ['请假',12,2],
+                        ['早退',2,0],
+                        ['范围外',3,-1]
+                    ]
+                },
+                data5:{
+                    t:'2018-04',
+                    type:'month',
+                    d:[
+                        {id:1}
+                    ],
+                    dept:'全部'
+                }
+            },
+            methods:{
+                computT:function(flog){
+                    return this['data' + flog].type == 'week' ? '第' + this['data' + flog].t + '周' : this['data' + flog].t;
+                },
+                openPick:function(flog,e){
+                    var _this = this;
+                    Y.dataAnalyzePick(function(type,value){
+                        _this['data' + flog].type = type;
+                        _this['data' + flog].t = value;
+                        _this['build' + flog]();
+                    },this['data' + flog].type,$(e.target))
+                },
+                openDept:function(flog,e){
+                    var _this = this;
+                    Y.dataAnalyzePickDept(function(value){
+                        _this['data' + flog].dept = value;
+                        _this['build' + flog]();
+                    },$(e.target))
+                },
+                build1:function(){
+                    var total = type ? 30 : 200;
+                    var p = 0;
+                    switch(this.data1.type){
+                        case 'year':
+                            p = 0.4;
+                            break;
+                        case 'month':
+                            p = 0.8;
+                            break;
+                        case 'week':
+                            p = 0.9;
+                            break;
+                        default:
+                            break;
+                    }
+                    this.data1.d2 = parseInt(total * p * (Math.random() + 0.5));
+                    this.data1.d3 = parseInt(Math.random() * 20 - 10);
+                },
+                build2:function(){
+                    var myChart = echarts.init(document.getElementById('jskqIndex1'));
+                    var xAxis = [],total = 0,dayNum = 1;
+                    function buildArray(max){
+                        var rc = [];
+                        for(var i = 1; i <= max; i ++) rc.push(i);
+                        return rc;
+                    }
+                    switch(this.data2.type){
+                        case 'year':
+                            xAxis = buildArray(12);
+                            total = 3000;
+                            dayNum = 30;
+                            break;
+                        case 'month':
+                            var months = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],d = this.data2.t.split('-');
+                            d[1] = d[1].charAt(0) == 0 ? d[1].charAt(1) : d[1];
+                            months[1] = (d[0] % 4 == 0 && d[0] % 100 != 4) || d[0] % 400 == 0 ? 29 : 28;
+                            xAxis = buildArray(months[d[1] - 1]);
+                            total = 100;
+                            break;
+                        case 'week':
+                            xAxis = ['周一','周二','周三','周四','周五'];
+                            total = 100;
+                            break;
+                        default:
+                            break;
+                    }
+                    if(type) total = total / 3;
+                    var data1 = [],data2 = [];
+                    for(var i = 0; i < xAxis.length; i ++){
+                        var err = parseInt(Math.random() * 9 + 1) * dayNum;
+                        data2.push(err);
+                        data1.push(total - err);
+                    }
+                    myChart.setOption({
+                        color:['#64BBFB','#F5A623'],
+                        tooltip : {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data:['正常','异常'],
+                            y:'15'
+                        },
+                        calculable : true,
+                        xAxis : [
+                            {
+                                type : 'category',
+                                boundaryGap : false,
+                                data : xAxis
+                            }
+                        ],
+                        yAxis : [
+                            {
+                                type : 'value'
+                            }
+                        ],
+                        series : [
+                            {
+                                name:'正常',
+                                type:'line',
+                                smooth:true,
+                                data:data1
+                            },
+                            {
+                                name:'异常',
+                                type:'line',
+                                smooth:true,
+                                data:data2
+                            }
+                        ]
+                    });
+                },
+                build3:function(){
+                    var total = parseInt((type ? 20 : 200) + (Math.random() * 5)),zz = parseInt(total * 0.9),jz = total - zz,r = parseInt(Math.random() * total * 0.2),rq = parseInt(Math.random() * total * 0.1);
+                    this.data3.d[0][1] = total;
+                    this.data3.d[1][1] = total - r;
+                    this.data3.d[2][1] = r;
+                    if(this.data3.d[3]) this.data3.d[3][1] = zz + '/' + jz;
+                    var myChart = echarts.init(document.getElementById('jskqIndex2'));
+                    myChart.setOption({
+                        color:['#64BBFB','#F1F4FB'],
+                        calculable : true,
+                        title:{
+                            x : 'center',
+                            y : 'center',
+                            text:'异常打卡率\n' + parseInt(rq / total * 100) + '%',
+                            textStyle:{
+                                fontWeight: 'normal',
+                                fontSize: 16
+                            }
+                        },
+                        series : [
+                            {
+                                type:'pie',
+                                radius : ['60%', '70%'],
+                                startAngle:'180',
+                                itemStyle : {
+                                    normal : {
+                                        label : {
+                                            show : false
+                                        },
+                                        labelLine : {
+                                            show : false
+                                        }
+                                    }
+                                },
+                                data:[rq,total - rq]
+                            }
+                        ]
+                    });
+                    myChart = echarts.init(document.getElementById('jskqIndex3'));
+                    myChart.setOption({
+                        color:['#64BBFB','#F1F4FB'],
+                        calculable : true,
+                        title:{
+                            x : 'center',
+                            y : 'center',
+                            text:'教师请假率\n' + parseInt(r / total * 100) + '%',
+                            textStyle:{
+                                fontWeight: 'normal',
+                                fontSize: 16
+                            }
+                        },
+                        series : [
+                            {
+                                type:'pie',
+                                radius : ['60%', '70%'],
+                                startAngle:'180',
+                                itemStyle : {
+                                    normal : {
+                                        label : {
+                                            show : false
+                                        },
+                                        labelLine : {
+                                            show : false
+                                        }
+                                    }
+                                },
+                                data:[r,total - r]
+                            }
+                        ]
+                    });
+                    myChart = echarts.init(document.getElementById('jskqIndex4'));
+                    myChart.setOption({
+                        color:['#64BBFB','#F1F4FB'],
+                        calculable : true,
+                        title:{
+                            x : 'center',
+                            y : 'center',
+                            text:'教师出勤率\n' + parseInt((total - r) / total * 100) + '%',
+                            textStyle:{
+                                fontWeight: 'normal',
+                                fontSize: 16
+                            }
+                        },
+                        series : [
+                            {
+                                type:'pie',
+                                radius : ['60%', '70%'],
+                                startAngle:'180',
+                                itemStyle : {
+                                    normal : {
+                                        label : {
+                                            show : false
+                                        },
+                                        labelLine : {
+                                            show : false
+                                        }
+                                    }
+                                },
+                                data:[total - r,r]
+                            }
+                        ]
+                    });
+                },
+                build4:function(){
+                    var myChart = echarts.init(document.getElementById('jskqztzb5'));
+                    var total = 0;
+                    switch(this.data4.type){
+                        case 'year':
+                            total = 360000;
+                            break;
+                        case 'month':
+                            total = 3000;
+                            break;
+                        case 'week':
+                            total = 700;
+                            break;
+                        default:
+                            break;
+                    }
+                    var data = [
+                        {value:310, name:'迟到'},
+                        {value:234, name:'早退'},
+                        {value:135, name:'缺卡'},
+                        {value:1048, name:'范围外'},
+                        {value:251, name:'旷工'},
+                        {value:147, name:'请假'}
+                    ]
+                    var err = parseInt(Math.random() * 20) / 100 * total;
+                    for(var i = 0; i < 5; i ++){
+                        data[i].value = parseInt(err * 0.166);
+                        err -= data[i].value;
+                    }
+                    if(err > 0){
+                        data[5].value = err;
+                    }
+                    this.data4.d[0][1] = data[0].value;
+                    this.data4.d[1][1] = data[4].value;
+                    this.data4.d[2][1] = data[5].value;
+                    this.data4.d[3][1] = data[1].value;
+                    this.data4.d[4][1] = data[3].value;
+                    myChart.setOption({
+                        color:['#9CDA58','#64BBFB','#E88E6D','#EBEBEB','#FDB55E','#e91e63','#607d8b'],
+                        tooltip : {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        legend: {
+                            data:['迟到','早退','缺卡','范围外','旷工','请假'],
+                            y:'bottom',
+                            x: 'right'
+                        },
+                        calculable : false,
+                        series : [
+                            {
+                                type:'pie',
+                                radius : [50, 80],
+                                x: 'left',
+                                y:'1%',
+                                width: '35%',
+                                funnelAlign: 'left',
+                                max: 1048,
+                                data:data
+                            }
+                        ]
+                    });
+                },
+                build5:function(){
+                    var option = {pageSize: "dataAnalyzejskqindex", pageNum: 1};
+                    var config = [
+                        !type ? {CH: "教师姓名", EN: "name"} : {CH: "时间", EN: "time"},
+                        {CH: "正常", EN: "t1"},
+                        {CH: "异常", EN: 't2'},
+                        {CH: "请假", EN: "t3"},
+                        {CH: "迟到", EN: "t4"},
+                        {CH: "早退", EN: "t5"},
+                        {CH: "旷工", EN: "t6"},
+                        {CH: "范围外", EN: "t7"},
+                        {CH: "全勤", EN: "t8"}
+                    ];
+                    var list = new Y.List('', option, config);
+                    var data = [];
+                    for(var i = 0; i < 50; i ++) {
+                        var _data = {
+                            id:i,
+                            time:this.data4.t,
+                            name:'赵钱孙李周吴郑王'.charAt(parseInt(Math.random() * 9)) + '莉贺平飞云颖比波'.charAt(parseInt(Math.random() * 8)),
+                            dept:dataDic.depts[parseInt(Math.random() * dataDic.depts.length)],
+                            t1:parseInt(Math.random() * 1000),
+                            t2:parseInt(Math.random() * 10),
+                            t3:parseInt(Math.random() * 10),
+                            t4:parseInt(Math.random() * 10),
+                            t5:parseInt(Math.random() * 10),
+                            t6:parseInt(Math.random() * 10),
+                            t7:parseInt(Math.random() * 10),
+                            t8:parseInt(Math.random() * 10)
+                        };
+                        data.push(_data);
+                    }
+                    list.SQLite = new Y.SQLite(data);
+                    list.listNumTitle = "序号";
+                    list.load();
+                },
+                buildChat:function(){
+                    this.build1();
+                    this.build2();
+                    this.build3();
+                    this.build4();
+                    this.build5();
+                }
+            },
+            mounted:function(){
+                this.buildChat();
+            }
+        });
+    })()
+</script>

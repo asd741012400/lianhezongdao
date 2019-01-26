@@ -1,0 +1,267 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="statusBtns"><!-- <span class="statusBtn active" id="status_0">活动</span> --><span class="statusBtn" id="status_1">e职购</span><span class="statusBtn" id="status_2">e职享</span></div>
+        <div class="search" id="searchBox"></div>
+        <!-- <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/> -->
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style type="text/css">
+    .searchBox{
+        display: none;
+    }
+    .statusBtns{
+        margin-bottom: 10px;
+        border-bottom: 1px solid #eeeeee;
+        padding: 20px 0px;
+        text-align: left;
+    }
+    .statusBtn{
+        padding:10px 30px;
+        border: 1px solid #e4e4e4;
+        background: #f8f8f8;
+        color:#666666;
+        cursor: pointer;
+    }
+    .statusBtn.active{
+        border: 1px solid #00b7ee;
+        background: #00b7ee;
+        color:#ffffff;
+    }
+    #status_1{
+        border-right: none;
+        border-radius: 5px 0px 0px 5px;
+    }
+    #status_2{
+        border-left: none;
+        border-radius: 0px 5px 5px 0px;
+    }
+    .orderBtn{
+        cursor: pointer;
+        margin-right: 10px;
+        padding:2px 10px;
+        border-radius: 2px;
+        display: inline-block;
+        margin-bottom: 8px;
+    }
+</style>
+<script type="text/javascript">
+    (function(){
+        var orderStatusEmun = {
+            text:{
+                '0':'全部',
+                '10':'待确认',
+                '20':'已确认',
+                '30':'未支付',
+                '40':'已支付',
+                '50':'支付失败',
+                '60':'待发货',
+                '70':'已发货',
+                '80':'待收货',
+                '90':'确认收货',
+                '100':'申请退货',
+                '110':'已退货',
+                '115':'退款中',
+                '120':'已退款',
+                '130':'已取消',
+                '131':'已过期',
+                '140':'已完成'
+            },
+            html:{
+                '0':'<span>全部</span>',
+                '10':'<span>待确认</span>',
+                '20':'<span>已确认</span>',
+                '30':'<span>未支付</span>',
+                '40':'<span>已支付</span>',
+                '50':'<span>支付失败</span>',
+                '60':'<span>待发货</span>',
+                '70':'<span>已发货</span>',
+                '80':'<span>待收货</span>',
+                '90':'<span>确认收货</span>',
+                '100':'<span>申请退货</span>',
+                '110':'<span>已退货</span>',
+                '115':'<span>退款中</span>',
+                '120':'<span>已退款</span>',
+                '130':'<span>已取消</span>',
+                '131':'<span>已过期</span>',
+                '140':'<span>已完成</span>'
+            }
+        }
+        var orderStatusEmunShare = {
+            text:{
+                '0':'全部',
+                '1':'未支付',
+                '10': '待确认',
+                '20': '已确认',
+                '60':'待领取',
+                '70':'使用中',
+                '140':'已完成',
+                '130':'已取消',
+                '150':'欠款中',
+            },
+            html:{
+                '0':'<span>全部</span>',
+                '1':'<span>未支付</span>',
+                '10': '<span>待确认</span>',
+                '20': '<span>已确认</span>',
+                '60':'<span>待领取</span>',
+                '70':'<span>使用中</span>',
+                '140':'<span>已完成</span>',
+                '130':'<span>已取消</span>',
+                '150':'<span>欠款中</span>'
+            }
+        }
+
+        var orderStatusEmunShareCopy = {
+            text: {
+                '0': '全部',
+                '10': '待确认',
+                '20': '已确认',
+                '30': '未支付',
+                '40': '已支付',
+                '50': '支付失败',
+                '60': '待领取',
+                '70': '使用中',
+                '115': '退款中',
+                '120': '已退款',
+                '130': '已取消',
+                '131': '已过期',
+                '140': '已完成',
+                '150': '欠款中',
+            },
+            html: {
+                '0': '<span>全部</span>',
+                '10': '<span>待确认</span>',
+                '20': '<span>已确认</span>',
+                '30': '<span>未支付</span>',
+                '40': '<span>已支付</span>',
+                '50': '<span>支付失败</span>',
+                '60': '<span>待领取</span>',
+                '70': '<span>使用中</span>',
+                '115': '<span>退款中</span>',
+                '120': '<span>已退款</span>',
+                '130': '<span>已取消</span>',
+                '131': '<span>已过期</span>',
+                '140': '<span>已完成</span>',
+                '150': '<span>欠款中</span>',
+            }
+        }
+        change(Y.Storage.get('shopOrderActive') || 1);
+        $('#status_1').click(function(){
+            change(1);
+        })
+        $('#status_2').click(function(){
+            change(2);
+        })
+        function change(i){
+            $('.statusBtn.active').removeClass('active');
+            $('#status_' + i).addClass('active');
+            Y.Storage.set('shopOrderActive',i);
+            switch(i){
+                case 2:
+                    $('#searchBox').html('<input id="orderStatus" class="input" type="text" placeholder="选择订单状态"/>\r<input id="userId" class="input" type="text" placeholder="购买人"/>\r<input id="schoolId" class="input" type="text" placeholder="学校"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>');
+                    var config = [
+                        {CH: "商品图", EN: "images",htmlFormat:function(k,v,o){
+                            return '<img src="' + v[0].imageUrl + '" width="100" height="100" />'
+                        }},
+                        {CH: "订单编号", EN: "id"},
+                        {CH: "创建时间", EN: "createTime"},
+                        {CH: "规格", EN: "property"},
+                        {CH: "租金(元)", EN: "price"},
+                        {CH: "押金(元)", EN: "deposit"},
+                        {CH: "已使用时间", EN: "consumes",htmlFormat:function(k,v){
+                            return v ? v.useTime : '';
+                        }},
+                        {CH: "总费用(元)", EN: "totalPrice"},
+                        {CH: "领取地址", EN: "address"},
+                        {CH: "备注", EN: "mark"},
+                        {CH: "状态", EN: "orderStatus",Option:orderStatusEmunShareCopy.html,OptionExcel:orderStatusEmunShareCopy.text}
+                    ];
+                    var args = {pageSize:"shopOrderProduct",pageNum:1,orderType:2};
+                    var list = new Y.List(eschoolIP + "/api/shop/v0.1/mgt/orders/list", args, config);
+                    list.btns = '<span class=\"listLook bg_dfba49\">查看</span>';
+                    list.checkBtn = false;
+                    list.listNumTitle = '';
+                    list.load(function () {
+                        //查看
+                        $("tr").each(function(j){
+                            if(j > 0 && list.data.rows.length > 0){
+                                var data = list.data.rows[j - 1];
+                                //查看
+                                $(this).find(".listLook").click(function(){
+                                    Y.open({url:"modules/shop/order/shareInfo.html",title:"共享订单详情",data:{data:data,type:i,orderStatusEmun:orderStatusEmunShareCopy}});
+                                })
+                            }
+                        })
+                    });
+                    var orderStatus = new Y.Select($('#orderStatus'),orderStatusEmunShareCopy.text);
+                    var userId = new Y.OnlySelectBox($("#userId"),{vKey:"accountId", sKey:"name",SelectBox:{paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword"},url:ucIP +
+                        "/api/uc/v0.1/students",dataString:"<div class='autoList' vaule='{accountId}'><b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{majorName}</span><span style='color:#ccc;display:block;margin-left:35px;'>{className}</span></div>"}});
+                    var _schoolId = new Y.OnlySelectBox($("#schoolId"),{
+                        vKey:"schoolId",
+                        sKey:"name",
+                        SelectBox:{
+                            paramet:{pageNum:1,pageSize:10,key:"name"},
+                            url:ucIP + "/api/uc/v0.1/schools",
+                            dataString:"<div class='autoList' vaule='{code}'><b class='listStyle_cicle icon_img' imgUrl='{logo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>编码 {code}</span></div>"
+                        }
+                    })
+                    //搜索
+                    new Y.ListSearch(list,{
+                        orderStatus:orderStatus,
+                        userId:userId,
+                        schoolId:_schoolId
+                    });
+                    break;
+                default:
+                    $('#searchBox').html('<input id="status" class="input" type="text" placeholder="选择状态"/>\r<input id="title" class="input" type="text" placeholder="标题"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>');
+                    var config = [
+                        {CH: "商品", EN: "title"},
+                        {CH: "商品图", EN: "image",htmlFormat:'<img src="{image}" width="100" height="100" />'},
+                        {CH: "指导价(元)", EN: "originalPrice"},
+                        {CH: "折扣价(元)", EN: "discountPrice"},
+                        {CH: "开团时间", EN: "begTime"},
+                        {CH: "结束时间", EN: "endTime"},
+                        {CH: "规格", EN: "item",htmlFormat:function(k,v){
+                            return getItem(v,'property');
+                        }},
+                        {CH: "销量", EN: "item",htmlFormat:function(k,v){
+                            var rc = 0;
+                            for(var i = 0; i < v.length; i ++) rc += v[i].count;
+                            return rc;
+                        }}
+                    ];
+                    var args = {pageSize:"shopOrderProduct",pageNum:1,type:1,client:0,status:0};
+                    var status = new Y.Select($('#status'),['全部','团购中','即将开团','已下架','已上架']);
+                    status.val(0);
+                    var list = new Y.List(eschoolIP + "/api/shop/groups/v0.1/products", args, config);
+                    list.btns = '<span class=\"listLook bg_dfba49\">查看</span>';
+                    list.load(function () {
+                        //查看
+                        $("tr").each(function(j){
+                            if(j > 0 && list.data.rows.length > 0){
+                                var data = list.data.rows[j - 1];
+                                //查看
+                                $(this).find(".listLook").click(function(){
+                                    Y.open({url:"modules/shop/order/orderProductList.html",title:"订单列表",data:{data:data,type:i,orderStatusEmun:orderStatusEmun}});
+                                })
+                            }
+                        })
+                    });
+                    new Y.ListSearch(list,{status:status,title:$('#title')});
+                    break;
+            }
+        }
+        function getItem(items,key,join){
+            var rc = [];
+            for(var i = 0; i < items.length; i ++) rc.push(items[i][key]);
+            return rc.join(join || '<br />');
+        }
+    })()
+</script>

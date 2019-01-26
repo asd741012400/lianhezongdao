@@ -1,0 +1,172 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="bg_eeeeee" id="goBack" type="button" value="返回"/>
+        </div>
+        <input id="printBtn" type="button" value="打印" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div class="table-head">
+        <div class="head-l">
+            教师教学日志统计表
+        </div>
+        <div class="head-r">
+        </div>
+    </div>
+    <div class="table-list">
+    </div>
+</div>
+<div id="print"></div>
+<style>
+    #print{
+        display: none;
+    }
+    .table{
+        border:1px solid #ccc;
+        padding:35px;
+    }
+    .table-head{
+        padding-bottom:10px;
+        border-bottom:2px solid #ccc;
+        clear:both;
+        overflow:hidden;
+    }
+    .head-l{
+        float:left;
+        font-size:18px;
+    }
+    .head-l span{
+        font-size:12px;
+    }
+    .head-r{
+        float:right;
+    }
+    .table-list,.summary{
+        margin-top:20px;
+    }
+    .table-list-head{
+        margin-bottom:8px;
+    }
+    .table-list-head span{
+        display:inline-block;
+        font-size:12px;
+        color:#fff;
+        background:#999;
+        width: 20px;
+        height: 20px;
+        line-height:20px;
+        border-radius:10px;
+        text-align:center;
+    }
+    .table-list-sec{
+        margin-top:5px;
+    }
+    .table-list-table{
+        margin-bottom:15px;
+    }
+</style>
+<style type="text/css" media=print>
+    body{
+        background:#fff;
+    }
+    .header,.left,.footer,#nav,#printBtn,.formBtns,.list_header{
+        display: none;
+    }
+    #print{
+        display: block;
+        position:fixed;
+        z-index: 99999999;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        margin:0px;
+        background: #fff;
+    }
+    #right > .table{
+        display:none;
+    }
+</style>
+<script type="text/javascript">
+    $(function(){
+        var teacherId = Y.getUrlParam("enrollI"),
+        begDate = Y.getUrlParam("begDate"),
+        endDate = Y.getUrlParam("endDate");
+
+        Y.ajax(eschoolIP + "/api/teachingLog/v0.1/singleStatistic/teacher/{teacherId}",function(res){
+
+            $('.head-l').append(res.date == "~" ? "" : "<span>" + res.date + "</span>");
+            $('.head-r').html("教师：" + res.teacherName);
+            if (res.statisticResult.length == '0') {
+                $(".table-list").html("暂无数据").css('text-align','center')
+                return false
+            };
+            var colspan = res.statisticResult[0].classAndJxxgzp[0].jxxgzp.length + 1
+            var html = "";
+            res.statisticResult.forEach(function(item,index){
+                var htmllogCount = '',
+                logn = 0,
+                countTot = '',
+                list = '';
+                html += '<div class="table-list-head"><span>' + (index+1) + '</span>【' + item.course + '】</div>';
+                html += '<table class="table-list-table" width="100%" border="0" cellpadding="0" cellspacing="0">';
+                html += '<tr><th>班级</th>';
+                item.classAndLogCount.forEach(function(items){
+                    html += '<th>' + items.className + '</th>';
+                    htmllogCount += '<td align="center">' + items.logCount + '</td>';
+                    logn += items.logCount;
+                })
+                html += '<th>合计</th></tr>';
+                html += '<tr><td align="center">日志提交次数</td>';
+                html += htmllogCount;
+                html += '<td align="center">' + logn + '</td></tr>';
+                html += '</table>';
+                html += '<table class="table-list-table table-zp-table" width="100%" border="0" cellpadding="0" cellspacing="0">';
+                html += '<tr><td colspan="' + colspan + '" style="font-weight:bold">教学效果自评</td></tr><tr><th>班级</th>';
+                item.classAndJxxgzp.forEach(function(items,indexs){
+                    var count = '';
+                    items.jxxgzp.forEach(function(itemss,indexss){
+                        count += '<td align="center">' + itemss.count + '</td>';
+                    })
+                    if (indexs=='0') {
+                        items.jxxgzp.forEach(function(itemss,indexss){
+                            html += '<th>' + itemss.name + '</th>';
+                            countTot += '<td align="center"></td>';
+                        })
+                    };
+                    list += '<tr><td align="center">' + items.className + '</td>' + count;
+                })
+                html += '</tr>';
+                html += list;
+                html += '<tr><td align="center">合计</td>' + countTot + '</tr>'
+                html += '</table>';
+            })
+            $(".table-list").html(html);
+            $(".table-zp-table").each(function(){
+                var len = $(this).find('tr').length;
+                var a = [];
+                var $total = $(this).find('tr').eq(len - 1)
+                var _len = $total.children().length;
+                for (var j = 1; j <= _len - 1; j++) {
+                    var tot = 0;
+                    for (var i = 2; i <= len - 2; i++) {
+                        tot += Number($(this).find('tr').eq(i).find('td').eq(j).html());
+                    };
+                    $(this).find('tr').eq(len-1).find('td').eq(j).html(tot);
+                };
+            })
+
+        },{data:{'teacherId':teacherId,'begDate':begDate,'endDate':endDate}})
+
+
+        $("#printBtn").click(function(){
+            $('#print').html($('#right').html());
+            window.print();
+        })
+        //返回
+        $("#goBack").click(function(){
+            Y.back(-1);
+        });
+    })
+</script>

@@ -1,0 +1,83 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="groupId" type="text" placeholder="选择部门"/>
+            <input id="month" class="input" type="text" placeholder="选择月份"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="printBtn" type="button" class="bg_eeeeee" value = "打印" />
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    #print{
+        display: none;
+    }
+</style>
+<style type="text/css" media=print>
+    body{
+        background:#fff;
+    }
+    .header,.left,.footer,.right,#nav,#printBtn,.formBtns,.list_header{
+        display: none;
+    }
+    #print{
+        display: block;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "statistics", pageNum: 1};
+        var config = [
+            {CH: "部门", EN: "groupName",ROWS:true},
+            {CH: "姓名", EN: "name"},
+            {CH: "正常打卡(次)", EN: "normal"},
+            {CH: "迟到(次)", EN: "late"},
+            {CH: "早退(次)", EN: "leaveEarlier"},
+            {CH: "范围外(次)", EN: "limitRange"},
+            {CH: "缺卡(次)", EN: "miss"},
+            {CH: "旷工(次)", EN: "away"},
+            {CH: "请假(次)", EN: "onLeave"}
+        ];
+
+        var list = new Y.List(eschoolIP + "/api/attn/v0.1/statistics", option, config);
+        list.listNumTitle = "";
+        list.rowspanSortKey = 'groupId';
+        list.load();
+
+        $("#downLoadExcel").click(function(){
+            list.toExcel("教师考勤统计");
+        })
+        //自动匹配班级信息
+        var groupId = new Y.OnlySelectBox($("#groupId"),{vKey:"groupId",sKey:"name",SelectBox:{showNum:false,paramet:{key:"name"},url:ucIP + "/api/uc/v0.1//groups/org/simple",dataString:"<div class='autoList' vaule='{groupId}'><span>{name}</span></div>"}});
+        var keywordCalendar = new Y.Calendar($("#month"),{date:""});
+        keywordCalendar.type = "month";
+        keywordCalendar.maxDate = new Date();
+        $("#month").focus(function(){
+            var _this = $(this);
+            keywordCalendar.open(function(d){
+                _this.val(d);
+                keywordCalendar.close();
+            });
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            month:$("#month"),
+            groupId:groupId
+        });
+        //打印
+        $("#printBtn").click(function(){
+            var table = "<div id='print' class='table'>"+$(".table").html()+"</div>";
+            $('body').append(table);
+            window.print();
+            $("#print").remove();
+        })
+
+   })()
+</script>

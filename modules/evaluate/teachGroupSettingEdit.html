@@ -1,0 +1,103 @@
+<div class="form">
+    <div class="info-head">
+        <h1>小组成员编辑</h1>
+        <span class="info-btn info-btn_bg_00B7EE align-right" id="submit">保存设置</span>
+        <span class="info-btn info-btn_bg_eeeeee align-right" id="cancel">取消编辑</span>
+    </div>
+    <div class="info-body">
+        <div class="info-body-list">
+            <h2 class="list-title">基本信息</h2>
+            <ul class="info-body-list-main">
+                <li class="data">
+                    <span class="col_999">评课小组名称</span>
+                    <input placeholder="请输入小组名称" id="title" class="info-body-list-input" type="text" value="" />
+                    <span class="data_error">名称不能为空</span>
+                </li>
+            </ul>
+        </div>
+        <div class="info-body-list data">
+
+            <h2 class="list-title list-title-border">评课组长</h2>
+            <div id="data-leaderList"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+            <span class="data_error">评课组长不能为空</span>
+        </div>
+        <div class="info-body-list data">
+            <h2 class="list-title list-title-border">小组成员</h2>
+            <div id="data-userList"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+            <span class="data_error">小组成员不能为空</span>
+        </div>
+    </div>
+</div>
+<style type="text/css">
+#right{
+    overflow:hidden;
+}
+.col_999{
+    color:#999;
+}
+
+.info-body{
+    padding:40px 25px;
+}
+
+.list-title{
+    font-size:18px;
+    margin-bottom:32px;
+}
+
+.info-body-list{
+    margin-top:64px;
+    clear:both;
+    overflow:hidden;
+}
+.info-body-list:first-child{
+    margin:0;
+}
+.info-body-list-input{
+    display:block;
+    width:35%;
+    border:none;
+    border-bottom:1px solid #eee;
+    font-size:16px;
+    padding: 16px 0 8px 0;
+}
+.data{
+    float:none;
+}
+</style>
+<script>
+    (function() {
+        var groupId = Y.getUrlParam("groupId"),
+        type = Y.getUrlParam("type");
+        var fromConfig = {
+            groupId : groupId,
+            title : {
+                o:$("#title"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"小组名称不能为空"];
+                    }else if(v.length>10){
+                        return [false,"小组名称不能超过10个字"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            userIds : {
+                o:new Y.AnySelectBox($("#data-userList"),$("#data-userList").next(),Y.getSelectBox('teachers')),
+            },
+            leaderIds : {
+                o:new Y.AnySelectBox($("#data-leaderList"),$("#data-leaderList").next(),Y.getSelectBox('teachers')),
+            }
+        }
+        var from = new Y.From(fromConfig,"groupId",{getURL:eschoolIP + "/api/teachingEvaluation/v0.1/group/{groupId}/detail",postURL:eschoolIP + "/api/teachingEvaluation/v0.1/group",putURL:eschoolIP + "/api/teachingEvaluation/v0.1/group",title:"提交小组成员信息"});
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //返回
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

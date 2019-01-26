@@ -1,0 +1,117 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="keyword" type="text" placeholder="请输入部门/姓名"/>
+            <input id="beg" class="input" type="text" placeholder="开始时间"/>
+            <input id="end" class="input" type="text" placeholder="结束时间"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+            <span id="advancedSearch_btn">高级查询<img src="images/gjcx.png" /></span>
+        </div>
+        <input id="downLoadExcel" type="button" value="EXCEL导出" class="bg_eeeeee"/>
+        <div class="clear"></div>
+        <div id="advancedSearch_box">
+            <div class="advancedSearch_data"><input id="deptName" class="input" type="text" placeholder="部门"/></div>
+            <div class="advancedSearch_data"><input id="name" class="input" type="text" placeholder="姓名"/></div>
+            <div class="advancedSearch_data"><input id="begDate" class="input" type="text" placeholder="开始时间"/></div>
+            <div class="advancedSearch_data"><input id="endDate" class="input" type="text" placeholder="结束时间"/></div>
+            <div class="advancedSearch_data"><input id="className" class="input" type="text" placeholder="班级"/></div>
+            <div class="advancedSearch_data"><select id="status" class="input"><option value="">提交教学日志</option><option value="1">已提交</option><option value="2">未提交</option></select></div>
+            <div class="clear"></div>
+            <div class="advancedSearch_btn"><input type="button" value="搜索" id="advancedSearchBtn" class="bg_00b7ee"/><input type="button" value="取消" id="advancedSearchCancle" class="bg_ffffff"/></div>
+        </div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "teacherAttendance", pageNum: 1};
+        var config = [
+            {CH: "部门", EN: "deptName"},
+            {CH: "姓名", EN: "name"},
+            {CH: "工号", EN: "num"},
+            {CH: "课时日期", EN: "dateAndWeek"},
+            {CH: "班级", EN: "className"},
+            {CH: "节次", EN: "sectionName"},
+            {CH: "提交教学日志", EN: "sectionName",Option:{"1":"已提交", "2":"未提交"}, OptionExcel:{"1":"已提交", "2":"未提交"}},
+            {CH: "提交时间", EN: "subTime"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/attendance/v0.1/ct/fuzzyresult", option, config);
+        list.load(function () {})
+        //开始日期
+        var beg = new Y.Calendar($("#beg"),{date:""});
+        $("#beg").focus(function () {
+            var _this = $(this);
+            beg.open(function (d) {
+                if ($("#end").val() != "" && $("#end").val() < d) {
+                    Y.alertx("开始日期不能大于结束日期");
+                    return false;
+                }
+                _this.val(d);
+                beg.close();
+            });
+        });
+
+        //结束日期
+        var end = new Y.Calendar($("#end"),{date:""});
+        $("#end").focus(function () {
+            var _this = $(this);
+            end.open(function (d) {
+                if ($("#beg").val() != "" && d != "" &&$("#beg").val() > d) {
+                    Y.alertx("结束日期不能小于开始日期");
+                    return false;
+                }
+                _this.val(d);
+                end.close();
+            });
+        });
+
+
+        //精确搜索开始日期
+        var begDate = new Y.Calendar($("#begDate"),{date:""});
+        $("#begDate").focus(function () {
+            var _this = $(this);
+            begDate.open(function (d) {
+                if ($("#endDate").val() != "" && $("#endDate").val() < d) {
+                    Y.alertx("开始日期不能大于结束日期");
+                    return false;
+                }
+                _this.val(d);
+                begDate.close();
+            });
+        });
+
+        //精确搜索结束日期
+        var endDate = new Y.Calendar($("#endDate"),{date:""});
+        $("#endDate").focus(function () {
+            var _this = $(this);
+            endDate.open(function (d) {
+                if ($("#begDate").val() != "" && d != "" && $("#begDate").val() > d) {
+                    Y.alertx("结束日期不能小于开始日期");
+                    return false;
+                }
+                _this.val(d);
+                endDate.close();
+            });
+        });
+
+        $("#downLoadExcel").click(function () {
+            list.toExcel("课时记录");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword"),
+            begDate:$("#beg"),
+            endDate:$("#end")
+        },eschoolIP + "/api/attendance/v0.1/ct/preciseresult",{
+            deptName:$("#deptName"),
+            name:$("#name"),
+            begDate:$("#begDate"),
+            endDate:$("#endDate"),
+            className:$("#className")
+        });
+    })()
+</script>

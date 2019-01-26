@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="e智教管理平台" name="Keywords">
+    <meta name="description" content="e智教管理平台" />
+    <link href="images/iconfont-yunpingtai-2.png" rel="shortcut icon">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/enrollPC.css">
+    <title>e智教管理平台</title>
+</head>
+
+<body>
+    <div class="b_content">
+        <div class="b_continer">
+            <h4 style="font-size: 25px;font-weight: bold;" id="_title">填写报名表</h4>
+            <span style=" margin:0 auto; display:block;">报名须知：身份证号、姓名将引用到报名信息中，以下信息属实，如有虚假，责任自负。</span>
+            <hr>
+            <div class="pat1">
+                <b>基本信息</b>
+                <div class="from">
+                <ul class="bm_box" id="components">
+
+                </ul>
+                <div class="shangc">
+                    <div class="shangc_1" id="imgUrl" style="cursor: pointer;"><span>1寸照片</span></div>
+                </div>
+             </div>
+            </div>
+            <div style="clear:both;"></div>
+            <div>
+            </div>
+            <div class="btn"><a style="cursor: pointer;display: none;" id="submit">提交</a></div>
+            <div style="clear:both;"></div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/MD5.js"></script>
+    <script type="text/javascript" src="js/tool.js"></script>
+    <script type="text/javascript" src="js/config.js"></script>
+    <script type="text/javascript" src="js/common.js"></script>
+    <script type="text/javascript">
+        var enrollId = Y.getParam('enrollId'),teacherId = Y.getParam('teacherId');
+    teacherId = /\d/.test(teacherId) ? teacherId : '';
+    var user = Y.User.Get();
+    var accessToken = user.accessToken;
+
+    Y.ajax(ucIP + '/api/uc/v0.1/enroll/template/' + enrollId,function(res){
+      if(res && !res.errorMsg){
+        var schoolId = res.schoolId;
+        Y.Storage.set('ajaxHeader',[{key:"accessToken",vaule:accessToken},{key:"schoolId",vaule:schoolId}]);
+        $('#submit').show();
+        $('#_title').html(res.title + '报名入口');
+        var customAttValue = JSON.stringify(res.components);
+        var components = [
+          {
+            attr:{label:'姓名',maxlength:20,placeholder:'请填写姓名(必填)',defaultValue:''},
+            rule:{NotNull:true},
+            type:'input',
+            id:'name',
+            label:'姓名'
+          },
+          {
+            attr:{label:'性别',placeholder:'请选择性别(必填)',defaultValue:'',actions:[
+              {name:'男',selected:true,value:1},
+              {name:'女',selected:false,value:0}
+            ]},
+            rule:{NotNull:true},
+            type:'radio',
+            id:'sex',
+            label:'性别'
+          },
+          {
+            attr:{label:'电话号码',placeholder:'请填写电话号码(必填)',defaultValue:''},
+            rule:{NotNull:true,Phone:true},
+            type:'input',
+            id:'phone',
+            label:'电话号码'
+          },
+          {
+            attr:{label:'身份证',maxlength:20,placeholder:'请填写身份证号码(必填)',defaultValue:''},
+            rule:{NotNull:true,IDCard:true},
+            type:'input',
+            id:'cardId',
+            label:'身份证'
+          }
+        ]
+        var now = new Date().getFullYear();
+        components.push({
+          attr:{label:'入学年份',placeholder:'请选择填写入学年份(必填)',actions:[
+            /*{name:now - 1,selected:false,value:now - 1},*/
+            {name:now,selected:true,value:now},
+            /*{name:now + 1,selected:false,value:now + 1},
+            {name:now + 2,selected:false,value:now + 2}*/
+          ]},
+          rule:{NotNull:true},
+          type:'radio',
+          id:'rxnd',
+          label:'入学年份'
+        })
+        var actions = [];
+        res.major = JSON.parse(res.major);
+        for(var i = 0; i < res.major.length; i ++) actions.push({selected:false,value:res.major[i].id,name:res.major[i].name});
+        components.push({
+          attr:{label:'专业',placeholder:'请选择专业(必填)',actions:actions},
+          rule:{NotNull:true},
+          type:'radio',
+          id:'majorId',
+          label:'专业'
+        });
+        var values = {};
+        var doms = {},dom = $('#components');
+        /*res.components.sort(function(a,b){
+          return a.parentId - b.parentId;
+        })*/
+        for(var i = 0; i < res.components.length; i ++) components.push(res.components[i]);
+        for(var i = 0; i < components.length; i ++){
+          (function(i){
+            var c = components[i];
+            if(c.type != 'container') values[c.id] = {label:c.label,rule:c.rule,attr:c.attr};
+            var html = '';
+            switch(c.type){
+              case 'container':
+                html = '<div style="position:relative"><b style="position:absolute;top:0;left:-170px;" id="containerTitle{id}">{label}</b><form><ul class="bm_box" id="container{id}"></ul></form><div class="clear"></div></div>'._eval(c.attr)._eval(c);
+                break;
+              case 'name':
+                html = '<li><span>{_canNotFlag}姓名</span><input id="name{id}" type="text" class="text_b" maxlength="{maxlength}" placeholder="{placeholder}" /><div class="clear"></div></li>'._eval(c.attr)._eval(c);
+                values[c.id].val = function(){
+                  return $('#name' + c.id).val();
+                }
+                break;
+              case 'input':
+                html = '<li><span>{_canNotFlag}{label}</span><input id="input{id}" type="{type}" class="text_b" maxlength="{maxlength}" placeholder="{placeholder}" value="{defaultValue}" /><div class="clear"></div></li>'._eval(c.attr)._eval(c);
+                values[c.id].val = function(){
+                  return $('#input' + c.id).val();
+                }
+                break;
+              case 'textarea':
+                html = '<li><span>{_canNotFlag}{label}</span><textarea id="textarea{id}" class="text_b" maxlength="{maxlength}" placeholder="{placeholder}" rows="{rows}">{defaultValue}</textarea><div class="clear"></div></li>'._eval(c.attr)._eval(c);
+                values[c.id].val = function(){
+                  return $('#textarea' + c.id).val();
+                }
+                break;
+              case 'radio':
+                var fn = function(s,k,v,o){
+                  return s.replace(new RegExp('{_' + k + '}'),function(){
+                      var options = '';
+                      for(var i = 0; i < v.length; i ++) options += '<label style="display:inline-block;" for="radio' + c.id + '"><input style="width:12px;" ' + (v[i].selected ? 'checked' : '') + ' value="' + v[i].value + '" type="radio" name="radio' + c.id + '" id="radio' + c.id + '_' + i + '" /><i>' + v[i].name + '</i></label>';
+                      return options;
+                  })
+                }
+                html = '<li id="radio{id}"><span>{_canNotFlag}{label}</span><div style="margin-left:130px;">{_actions}</div><div class="clear"></div></li>'._eval(c.attr,fn)._eval(c,fn);
+                values[c.id].val = function(){
+                  var rc;
+                  $('#radio' + c.id).find('input').each(function(){
+                    if(this.checked) rc = this.value;
+                  })
+                  return rc;
+                }
+                values[c.id]._val = function(val){
+                  for(var i = 0; i < c.attr.actions.length; i ++) if(val == c.attr.actions[i].value) return c.attr.actions[i].name;
+                }
+                break;
+              case 'select':
+                var fn = function(s,k,v,o){
+                  return s.replace(new RegExp('{_' + k + '}'),function(){
+                      var options = '',id = new Date().only();
+                      for(var i = 0; i < v.length; i ++) options += '<option ' + (v[i].selected ? 'selected' : '') + ' value="' + v[i].value + '">' + v[i].name + '</option>';
+                      return options;
+                  })
+                }
+                html = '<li><span>{_canNotFlag}{label}</span><select class="text_b" id="select{id}">{_actions}</select><div class="clear"></div></li>'._eval(c.attr,fn)._eval(c,fn);
+                values[c.id].val = function(){
+                  return $('#select' + c.id).val();
+                }
+                break;
+              case 'checkbox':
+                var fn = function(s,k,v,o){
+                  return s.replace(new RegExp('{_' + k + '}'),function(){
+                      var options = '';
+                      for(var i = 0; i < v.length; i ++) options += '<label style="display:inline-block;" for="checkbox' + c.id + '"><input style="width:15px;" ' + (v[i].selected ? 'checked' : '') + ' value="' + v[i].value + '" type="checkbox" name="checkbox' + c.id + '" id="checkbox' + c.id + '_' + i + '" /><i>' + v[i].name + '</i></label>';
+                      return options;
+                  })
+                }
+                html = '<li><span>{_canNotFlag}{label}</span><div style="width:720px;" id="checkbox{id}"><div style="margin-left:130px;">{_actions}</div></div><div class="clear"></div></li>'._eval(c.attr,fn)._eval(c,fn);
+                values[c.id].val = function(){
+                  var rc = [];
+                  $('#checkbox' + c.id).find('input').each(function(){
+                    if(this.checked) rc.push(this.value);
+                  })
+                  return rc.join(',');
+                }
+                /*values[c.id]._val = function(val){
+                  val = '|' + val.join('|') + '|',rc = [];
+                  for(var i = 0; i < c.attr.actions.length; i ++) {
+                    if(val.indexOf('|' + c.attr.actions[i].value + '|') > -1) rc.push(c.attr.actions[i].name);
+                  }
+                  return rc.join('/');
+                }*/
+                break;
+              default:
+                break;
+            }
+            html = html.replace('{_canNotFlag}',function(){
+              return c.rule.NotNull ? '<font style="color:#ff0000;">*</font>' : '';
+            })
+            if(doms['_' + c.parentId]){
+              doms['_' + c.parentId].append(html);
+            }else{
+              dom.append(html);
+              doms['_' + c.id] = $('#container' + c.id);
+            }
+          })(i)
+        }
+        var imgUrl = '';
+        /*$('#imgUrl').click(function(){
+          var $this = $(this);
+          Y.upload('http://upload.qiniu.com/', function (ret, filesData) {
+              if(ret.key && ret.domain){
+                imgUrl = ret.key;
+                $this.html("<img width='100' src='" + (ret.domain + '/' + ret.key) + "' style='cursor: pointer;' />");
+              }else{
+                Y.alertx('上传失败,' + ret.errorMsg);
+              }
+          },{imgEdit:{width:295,height:413},maxSize:10 * 1024 * 1024,canIframe:true})
+        })*/
+
+        Y.qiNiouKey(function(upladArgs){
+            imgUrl = new Y.Img($("#imgUrl"),"<span>1寸照片</span>",{width:295,height:413},upladArgs)
+        })
+
+        var submitIng = false;
+        $('#submit').click(function(){
+          var err = [];
+          for(var key in values){
+            var isOk = true,value = values[key].val(),_value = values[key]._val ? values[key]._val(value) : undefined;
+            if(values[key].rule){
+              if(!values[key].rule.NotNull && !Y.Verify.NotNull(value)[0]){
+                //无需验证为空 但为空的情况
+              }else{
+                for(var k in values[key].rule){
+                  var _rule = values[key].rule[k];
+                  if(_rule != false){
+                    var v = Y.Verify[k](value,_rule);
+                    if(!v[0]) {
+                      isOk = false;
+                      err.push(values[key].attr.label + v[1]);
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+            if(values[key].verify){
+              var v = values[key].verify(value);
+              if(!v[0]) {
+                isOk = false;
+                err.push(values[key].attr.label + v[1]);
+              }
+            }
+          }
+
+
+          if(err.length > 0){
+            Y.alertx(err.join('，'));
+          }else{
+            var data = {portrait:imgUrl.val(),customAttKey:{},enrollId:enrollId,teacherId:teacherId,customAttValue:customAttValue};
+            for(var i = 0; i < components.length; i ++){
+              if(/\d/.test(components[i].id)){
+                if(values[components[i].id]) data.customAttKey[components[i].id] = values[components[i].id].val();
+              }else{
+                data[components[i].id] = values[components[i].id].val();
+              }
+            }
+            if(submitIng) {
+              return false;
+            }else{
+              submitIng = true;
+            }
+            Y.ajax(ucIP + '/api/uc/v0.1/enroll/student',function(ret){
+              submitIng = false;
+              var msg = '';
+              if(ret && !ret.errorMsg){
+                msg = '报名成功！';
+              }else{
+                msg = '报名失败，' + ret.errorMsg;
+              }
+              Y.alertx(msg);
+            },{meth:'POST',data:data,dataJson:false})
+          }
+        })
+      }else{
+        Y.alertx(res.errorMsg);
+      }
+    })
+    </script>
+</body>
+
+</html>

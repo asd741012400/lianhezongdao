@@ -1,0 +1,177 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="keyword" type="text" placeholder="姓名/专业"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/><span id="advancedSearch_btn">高级查询<img src="images/gjcx.png" /></span>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input id="addBtn" type="button" value="+ 新增" class="bg_eeeeee"/>
+        <input id="upLoadList" type="button" value="Excel导入" class="bg_eeeeee"/>
+        <input type="button" id="downLoadListModle" value="下载导入模板" class="bg_eeeeee"/>
+        <a target="_blank"><input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/></a>
+        <input id="setReport" type="button" class="bg_eeeeee" value="设为已报到" />
+        <input id="setUnReport" type="button" class="bg_eeeeee" value="设为未报到" />
+        <div class="clear"></div>
+        <div id="advancedSearch_box">
+            <div class="advancedSearch_data"><input id="name" class="input" type="text" placeholder="姓名"/></div>
+            <div class="advancedSearch_data"><input id="major" class="input" type="text" placeholder="专业"/></div>
+            <div class="advancedSearch_data"><input id="rxnd" class="input" type="text" placeholder="入学年份"/></div>
+            <div class="advancedSearch_data"><input id="phone" class="input" type="text" placeholder="手机号"/></div>
+            <div class="advancedSearch_data"><input id="cardNo" class="input" type="text" placeholder="身份证"/></div>
+            <div class="advancedSearch_data"><select id="reportStatu" class="input"><option value="">全部报名状态</option><option value="0">未报到</option><option value="1">已报到</option></select></div>
+            <div class="clear"></div>
+            <div class="advancedSearch_btn"><input type="button" value="搜索" id="advancedSearchBtn" class="bg_00b7ee"/><input type="button" value="取消" id="advancedSearchCancle" class="bg_ffffff"/></div>
+        </div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<div id="planBox" class="boxShadow">
+    <div class="planBoxTitle">当前正在导入</div>
+    <div class="planBoxContent">
+        <div class="planPercent"><font id="percent">0</font>%</div>
+        <div class="planNum">导入<font id="allNum">--</font>/<font id="sumNum">--</font>条，失败<font id="falseNum">--</font>条</div>
+    </div>
+    <div class="planBoxBtns"><span id="cancelPlan"  class="bg_00b7ee">中断导入</span></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "welcome_reports", pageNum: 1};
+        var config = [
+            {CH: "姓名", EN: "name"},
+            {CH: "入学年份", EN: "rxnd"},
+            {CH: "性别", EN: "sex", Option: {"0": "女", "1": "男"},OptionExcel:{"0":"女","1":"男"}},
+            {CH: "专业", EN: "major"},
+            {CH: "手机号码", EN: 'phone'},
+            {CH: "身份证号", EN: "cardId"},
+            {CH: "报到状态", EN: "reportStatu", Option: {"0": "<div class='reportStatu'><span style='color:#ff0000;'>未报到</span><div style='color:#ccc;font-size:12px;'>(双击报到)</div></div>", "1": "<div class='reportStatu'><span>已报到</span><div style='color:#ccc;font-size:12px;'>(双击取消)</div></div>"},OptionExcel:{"0":"未报到","1":"已报到"}}
+            /*{CH: "报到状态", EN: "reportStatu", Option: {"0": "<input class='reportStatu' type='checkbox' />", "1": "<input class='reportStatu' type='checkbox' checked />"},OptionExcel:{"0":"未报到","1":"已报到"}}*/
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/welcome/report", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            //新生隐藏编辑按钮
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/welcome/reportsEdit.html",title:"新生信息编辑",data:{id:data.accountId,type:"report"}});
+                    })
+                    if(data.source == 2) $(this).find(".listDelete").hide();
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],ucIP + "/api/uc/v0.1/welcome/report/","accountId","新生",{vKey:"name",obj:$(this)});
+                    })
+                    //修改报到状态
+                    $(this).find(".reportStatu").dblclick(function(){
+                        var _this = this;
+                        var checked = data.reportStatu != 1;
+                        Y.confirmx("确定该生" + (checked ? "已报到?" : "未报到?"),function(){
+                            Y.ajax(ucIP + "/api/uc/v0.1/welcome/report/" + data.accountId,function(res){
+                                if(res){
+                                    res.reportStatu = checked ? 1 : 0;
+                                    Y.ajax(ucIP + "/api/uc/v0.2/welcome/report",function(res){
+                                        var msg = res && res.result ? "修改报到状态成功!" : ("修改报到状态失败," + res.errorMsg);
+                                        list.load();
+                                        Y.alertx(msg,'',{toast:true,height:70});
+                                    },{meth:"PUT",data:res,dataJson:false})
+                                }else{
+                                    Y.alertx("修改失败",'',{toast:true,height:70});
+                                }
+                            })
+                        },{titleHeight:0,styles:{
+                            bottom:'border-top:none;',
+                            center:'border-top:none;',
+                            box:'left:' + ($(this).offset().left - 150) + 'px;top:' + ($(this).offset().top - 110) + 'px;'
+                        },_h:110,_w:200})
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),ucIP + "/api/uc/v0.1/welcome/report/","accountId","新生",{vKey:"name"});
+        })
+        //批量设置为报到
+        $("#setReport").click(function(){
+            //list.deleteFn(list.getChecked(),ucIP + "/api/uc/v0.1/welcome/report/status/1/{accountId}","accountId","新生",{vKey:"name"});
+            console.log(list.getChecked());
+            var checkedList = list.getChecked();
+            if(checkedList.length==0){
+                Y.alertx("请至少选择一个学生");
+                return;
+            }
+            var idArray=new Array();
+            for(var k in checkedList)
+                idArray.push(checkedList[k].accountId);
+            var url=ucIP + "/api/uc/v0.1/welcome/report/status/1/"+idArray.join(",");
+            Y.confirmx("确定要将‘"+checkedList[0].name+"’等<br>"+checkedList.length+"个学生设置为已报到吗?",function(){
+                Y.ajax(url,function(ret){
+                    Y.alertx(ret.errorMsg ? '操作失败，' + ret.errorMsg : '操作成功！',function(){
+                        if(ret.result) list.reLoad();
+                    });
+                },{meth:'PUT',data:{}/*{ids:admits.join(',')}*/})
+            })
+        })
+        //批量设置为未报到
+        $("#setUnReport").click(function(){
+            //list.deleteFn(list.getChecked(),ucIP + "/api/uc/v0.1/welcome/report/status/0/{accountId}","accountId","新生",{vKey:"name"});
+            console.log(list.getChecked());
+            var checkedList = list.getChecked();
+            if(checkedList.length==0){
+                Y.alertx("请至少选择一个学生");
+                return;
+            }
+            var idArray=new Array();
+            for(var k in checkedList)
+                idArray.push(checkedList[k].accountId);
+            var url=ucIP + "/api/uc/v0.1/welcome/report/status/0/"+idArray.join(",");
+            Y.confirmx("确定要将‘"+checkedList[0].name+"’等<br>"+checkedList.length+"个学生设置为未报到吗？",function(){
+                Y.ajax(url,function(ret){
+                    Y.alertx(ret.errorMsg ? '操作失败，' + ret.errorMsg : '操作成功！',function(){
+                        if(ret.result) list.reLoad();
+                    });
+                },{meth:'PUT',data:{}/*{ids:admits.join(',')}*/})
+            })
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/welcome/reportsEdit.html",title:"新增新生"});
+        })
+        $("#downLoadExcel").click(function(){
+            //list.toExcel("新生信息");
+            var $par=$(this).parent();
+            $par.attr("href",ucIP+"/api/uc/v0.1/welcome/exportStudent?schoolId="+schoolId);
+        })
+        var rxnd = new Y.Calendar($("#rxnd"),{date:""});
+        rxnd.type = "year"
+        rxnd.maxDate = new Date();
+        $("#rxnd").focus(function () {
+            var _this = $(this);
+            rxnd.open(function (d) {
+                _this.val(d);
+                rxnd.close();
+            });
+        });
+
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword")
+        },ucIP + "/api/uc/v0.1/welcome/report/preciseresult",{
+            name:$("#name"),
+            major:$("#major"),
+            reportStatu:$("#reportStatu"),
+            rxnd:$("#rxnd"),
+            phone:$("#phone"),
+            cardNo:$("#cardNo")
+        });
+        //Excel信息批量导入
+        Y.excelImport(ucIP + "/api/uc/v0.1/progressbar/newStudentImport/0",ucIP + "/api/uc/v0.2/welcome/report/dataImport?schoolId=" + schoolId,ucIP + "/api/uc/v0.2/welcome/report/dataImportTemplate?schoolId=" + schoolId + "&accessToken=" + accessToken);
+    })()
+</script>

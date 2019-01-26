@@ -1,0 +1,52 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="groupId" type="text" placeholder="选择部门"/>
+            <input id="date" class="input" type="text" placeholder="选择月份"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "eveningStatistics", pageNum: 1};
+        var config = [
+            {CH: "部门", EN: "groupName",ROWS:true},
+            {CH: "姓名", EN: "name"},
+            {CH: "正常打卡(次)", EN: "normal"},
+            {CH: "范围外(次)", EN: "limitRange"}
+        ];
+        var groupId = new Y.OnlySelectBox($("#groupId"),{vKey:"groupId",sKey:"name",SelectBox:{showNum:false,paramet:{key:"name"},url:ucIP + "/api/uc/v0.1//groups/org/simple",dataString:"<div class='autoList' vaule='{groupId}'><span>{name}</span></div>"}});
+        var keywordCalendar = new Y.Calendar($("#date"),{date:"",type:'month'});
+        keywordCalendar.maxDate = new Date();
+        $("#date").focus(function(){
+            var _this = $(this);
+            keywordCalendar.open(function(d){
+                _this.val(d);
+                keywordCalendar.close();
+            });
+        })
+        var list = new Y.List(eschoolIP + "/api/attn/evening/mgt/v0.1/statistics", option, config);
+        list.listNumTitle = "";
+        list.rowspanSortKey = 'groupId';
+        list.load();
+
+        $("#downLoadExcel").click(function(){
+            list.toExcel("教师晚自习考勤统计");
+        })
+        //自动匹配班级信息
+        
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            date:$("#date"),
+            groupId:groupId
+        });
+
+   })()
+</script>

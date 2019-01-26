@@ -1,0 +1,267 @@
+<div class="form">
+    <div class="info-head">
+        <h1>巡查次数管理</h1>
+        <span class="info-btn info-btn_bg_00B7EE align-right" id="submit">保存设置</span>
+    </div>
+    <div class="info-body">
+        <div class="info-body-list" id="questionnaireFrom">
+            <h2 class="list-title"><span class="list-title-title">扫码设置</span></h2>
+            <div class="list-setting">
+                <a>每日需扫码巡查次数</a>
+                <div class="select-wrap"><span class="select-content"></span><span class="arrow-i"></span>
+                    <ul class="select-list-warp"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+
+    </div>
+</div>
+<style type="text/css">
+
+.inline-block{
+    display:inline-block;
+}
+.col_999{
+    color:#999;
+}
+
+.info-body{
+    padding:40px 25px;
+}
+
+.list-title{
+    font-size:18px;
+    margin-bottom:32px;
+}
+.title-s{
+    font-size:12px;
+}
+.info-body-list{
+    margin-top:64px;
+}
+.info-body-list:first-child{
+    margin:0;
+}
+.info-body-list-input{
+    display:block;
+    width:35%;
+    border:none;
+    border-bottom:1px solid #eee;
+    font-size:16px;
+    height:42px;
+    line-height:42px;
+}
+.list-grid{
+    display:inline-block;
+    margin-right:80px;
+}
+.list-grid input{
+    width:100%;
+}
+.add-reduce-wrap{
+    width:90px;
+    text-align:right;
+}
+.add-reduce-wrap span{
+    color:#59A9E1;
+    width:20px;
+    height:20px;
+    text-align:center;
+    line-height:18px;
+    display:inline-block;
+    border:1px solid #59A9E1;
+    border-radius:20px;
+    font-size:16px;
+    cursor:pointer;
+    margin-left:20px;
+    font-weight:bold;
+}
+.info-body-list-detailed-inline .info-body-list-num{
+    margin-right:20px;
+    width:46px;
+}
+.info-body-list-detailed-inline .info-body-list-describe{
+    width:calc(100% - 192px);
+}
+.info-body-list-describe input{
+    border:none;
+    width:86%;
+    line-height:40px;
+    height:40px;
+}
+.info-body-list-notes input{
+    width:calc(100% - 48px);
+}
+.info-body-list-describe span{
+    color:#999;
+}
+.info-body-list-score-wrap{
+    margin-left:66px;
+}
+.info-body-list-classify-wrap span{
+    cursor:pointer;
+    transition:all .2s;
+}
+.info-body-list-classify-wrap span:hover{
+    background:#00B7EE;
+    border-top-color: #00B7EE;
+    border-bottom-color: #00B7EE;
+    color:#fff;
+}
+.info-body-list-score-wrap-ps{
+    margin:0;
+    margin-left:24px;
+    text-indent:0;
+    display:inline-block;
+    color:#999;
+    font-size:12px;
+}
+.info-body-list-score-min{
+    margin-top:16px;
+}
+.info-body-list-score-min-item{
+    float:left;
+    width:275px;
+    margin-right:8px;
+    margin-bottom:10px;
+}
+.item-input{
+    width:241px;
+    border:1px solid #eee;
+    border-radius:5px;
+    height:40px;
+    line-height:40px;
+    padding:0 16px;
+}
+.down-arrow{
+    display:block;
+    margin:10px;
+    width:13px;
+    height:19px;
+    background:url('images/down_arrow.png') no-repeat;
+}
+
+
+.select-wrap{
+    position:relative;
+    border-bottom:1px solid #eee;
+    height:40px;
+    width: 400px;
+}
+
+.select-content{
+    position:absolute;
+    display:block;
+    height:40px;
+    line-height:40px;
+    cursor:pointer;
+    width:calc(100% - 16px);
+    z-index:6;
+}
+.arrow-i{
+    position:absolute;
+    width:16px;
+    height:16px;
+    background:url('images/arrow.png');
+    top:50%;
+    margin-top:-8px;
+    right:5px;
+    transform:rotate(90deg);
+    z-index:5;
+}
+.select-list-warp{
+    display:none;
+    max-height:171px;
+    overflow-y:auto;
+    border:1px solid #eee;
+    width:100%;
+    position:absolute;
+    top:40px;
+    left:-1px;
+    background:#fff;
+    z-index:1000;
+}
+.select-list-warp li{
+    height:42px;
+    line-height:42px;
+    border-bottom:1px solid #eee;
+    cursor:pointer;
+    padding: 0 16px;
+}
+.select-list-warp li:hover{
+    background:#eee;
+}
+.select-list-warp li:last-child{
+    border-bottom:none;
+}
+.title-r-59A9E1{
+    float:right;
+    font-size:14px;
+    font-weight: normal;
+    color:#59A9E1;
+    background:url('images/icon_delete_59A9E1.png') no-repeat;
+    padding-left:20px;
+    cursor:pointer;
+    background-position:0 center;
+}
+</style>
+<script>
+    (function() {
+      
+        for (var index = 0; index < 50; index++) {
+            $('.select-list-warp').append("<li data='"+(index+1)+"'>"+(index+1)+"次</li>")
+        }
+        
+        $('.select-wrap').click(function (ev) {
+            $('.select-list-warp').show()
+            ev.stopPropagation();
+        })
+        $('body').click(function () {
+            $('.select-list-warp').hide()
+        })
+
+        $('.select-list-warp li').click(function (ev) {
+            $('.select-content').attr("data",$(this).attr("data"))
+            $('.select-content').html($(this).attr("data")+"次")
+            $('.select-list-warp').hide();
+            ev.stopPropagation();
+        })
+
+        Y.ajax(httpIp + "/sys/getConfigDetail",function(ret){
+            var id = "";
+            if(ret.rows == null)
+            {
+                $('.select-content').attr("data",null)
+                $('.select-content').html("暂未设置")
+            }
+            else
+            {
+                $('.select-content').attr("data",ret.rows.scan_count)
+                $('.select-content').html(ret.rows.scan_count+"次")
+                id = ret.rows.id;
+
+            }
+            
+            $('#submit').click(function () {
+                Y.ajax(httpIp + "/sys/getConfigEdit",function(ret){
+                    Y.alertx(ret.errorMsg);
+                },{meth:'POST',data:{
+                    scan_count:$(".select-content").attr("data"),
+                    id:id
+                }})
+            })
+
+            
+        },{meth:'GET'})
+        
+
+        
+
+        //返回
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

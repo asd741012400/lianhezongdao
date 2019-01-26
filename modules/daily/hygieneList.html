@@ -1,0 +1,119 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="statusBtns" id="typeBtns"></div>
+        <div class="search">
+            <input id="classId" class="input" type="text" placeholder="班级"/>
+            <input id="startDate" class="input" type="text" placeholder="开始时间"/>
+            <input id="endDate" class="input" type="text" placeholder="结束时间"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style>
+    .statusBtns{
+        border-bottom: 1px solid #eeeeee;
+        padding: 20px 0px;
+        text-align: left;
+    }
+    .statusBtn{
+        padding:10px 30px;
+        margin-bottom: 8px;
+        border: 1px solid #e4e4e4;
+        margin-right:8px;
+        background: #f8f8f8;
+        color:#666666;
+        cursor: pointer;
+        display: inline-block;
+    }
+    .statusBtn.active{
+        border: 1px solid #00b7ee;
+        background: #00b7ee;
+        color:#ffffff;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var config = [
+            {CH: "班级", EN: "className"},
+            {CH: "班主任", EN: 'teacherName'},
+            {CH: "扣分", EN: "deScore"},
+            {CH: "检查人", EN: "userName"},
+            {CH: "时间", EN: "createTime"}
+        ];
+        var active = '',title = '';
+        Y.ajax(eschoolIP + '/api/daily/v0.1/mgt/dic',function(ret){
+            if(ret && ret.rows){
+                var html = '';
+                for(var i = 0; i < ret.rows.length; i ++) html += '<span class="statusBtn">{value}</span>'._eval(ret.rows[i]);
+                $('#typeBtns').html(html);
+                var defaultI = Y.Storage.get('hygieneListActive') || 0;
+                changeType(ret.rows[defaultI].id,defaultI);
+                title = ret.rows[defaultI].value;
+                $('.statusBtn').each(function(i){
+                    $(this).click(function(){
+                        changeType(ret.rows[i].id,i);
+                        title = ret.rows[i].value;
+                    })
+                })
+            }
+        },{data:{type:1,parentId:0}})
+        var list = '';
+        var classId = new Y.OnlySelectBox($("#classId"),{vKey:"classId",sKey:"className",SelectBox:{showNum:false,paramet:{key:"keyword"},url:ucIP + "/api/uc/v0.1/classes",dataString:"<div class='autoList' vaule='{classId}'><b class='listStyle_cicle'>{listStyle_className}</b><span>{className}</span><span style='color:#ccc;display:block;'>{headTeacherName} {classAddress}</span></div>"}});
+        var startDateCalendar = new Y.Calendar($("#startDate"),{date:"",timeType:[12,00,00]});
+        startDateCalendar.maxDate = new Date();
+        $("#startDate").focus(function(){
+            var _this = $(this);
+            startDateCalendar.open(function(d){
+                _this.val(d);
+                startDateCalendar.close();
+            });
+        })
+        var endDateCalendar = new Y.Calendar($("#endDate"),{date:"",timeType:[12,00,00]});
+        endDateCalendar.maxDate = new Date();
+        $("#endDate").focus(function(){
+            var _this = $(this);
+            endDateCalendar.open(function(d){
+                _this.val(d);
+                endDateCalendar.close();
+            });
+        })
+        function changeType(dicId,i){
+            if(active) active.removeClass('active');
+            active = $('.statusBtn').eq(i);
+            Y.Storage.set('hygieneListActive',i);
+            active.addClass('active');
+            classId.val('','');
+            $("#classId,#endDate,#startDate").val('');
+            var option = {pageSize: "hygieneList" + dicId, pageNum: 1,dicId:dicId};
+            list = new Y.List(eschoolIP + "/api/daily/v0.1/hygiene", option, config);
+            list.btns = "<span class=\"listLook bg_dfba49\">查看</span>";
+            list.listNumTitle = "序号";
+            list.load(function () {
+                $("tr").each(function(i){
+                    if(i > 0 && list.data && list.data.rows && list.data.rows.length > 0){
+                        var data = list.data.rows[i - 1];
+                        //查看
+                        $(this).find(".listLook").click(function(){
+                            Y.open({url:"modules/daily/hygieneEdit.html",title:title + "卫生检查信息",data:{data:data,title:title}});
+                        })
+                    }
+                })
+            });
+            var listSearch = new Y.ListSearch(list,{
+                classId:classId,
+                startTime:$('#startDate'),
+                endTime:$('#endDate')
+            });
+        }
+        $("#downLoadExcel").click(function(){
+            list.toExcel(title + "卫生检查记录");
+        })
+    })()
+</script>

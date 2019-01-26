@@ -1,0 +1,173 @@
+<form class="form">
+    <div class="form_title"><b>学校信息编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width50"><div class="data_title">学校logo</div>
+            <div style="margin-left: 50px;">
+                <div id="data-logo" type="img"></div>
+                <span style="color: #ccc">建议尺寸300x300</span>
+            </div>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>校名</div>
+            <span class="data_error">学校名称不能为空</span><input class="input" id="data-name" type="text" placeholder="请填写校名"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>编码</div>
+            <span class="data_error">学校编码不能为空</span><input class="input" id="data-code" type="text" placeholder="请填写编码"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><b class="red">*</b>所在地区</div>
+            <span class="data_error">学校所在地区不能为空</span><input class="input" id="data-areaName" type="text" placeholder="请填写所在地区" readonly="readonly"/><input class="area area1" style="display: none;"/>
+            <input class="area area2" style="display: none;"/>
+        </div>
+        <div class="data width50"><div class="data_title">后台系统logo</div>
+            <div style="margin-right: 40px;">
+                <div style="background: #eee;" id="data-logoB" type="img"></div>
+                <span style="color: #ccc">建议尺寸275x77</span>
+            </div>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>客户端是否展示</div>
+            <span id="data-isShow" type="radio"><input type="radio" value="1" checked/>显示<input type="radio" value="0"/>不显示</span>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>是否同步到高级云平台</div>
+            <span id="data-isSync" type="radio"><input type="radio" value="0" checked/>不同步<input type="radio" value="1"/>同步</span>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>手机端能否修改手机号</div>
+            <span id="data-phoneChange" type="radio"><input type="radio" value="1" checked/>可以<input type="radio" value="0"/>不可以</span>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>仅可使用联通号码</div>
+            <span id="data-unicomOnly" type="radio"><input type="radio" value="0" checked/>否<input type="radio" value="1"/>是</span>
+        </div>
+        <div class="data width100">
+            <div class="data_title">高级云平台地址</div>
+            <input class="input" id="data-szhxy" type="text" placeholder="请填写高级云平台地址"/>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    #data-logo{
+        width: 100px;
+        height:100px;
+        border-radius: 100px;
+        overflow: hidden;
+    }
+    #data-logo img{
+        width: 100px;
+    }
+</style>
+<script>
+    (function() {
+        var userType = Y.User.Get('adminType');
+        var accountType = Y.User.Get('accountType');
+        var userProvince = Y.User.Get('province');
+        var userAreaName = Y.User.Get('areanName');
+        var area = "";
+
+        if (userType=='3') {
+            area = new Y.Area({type:2,obj:$("#data-areaName"),readonly:true});
+            $("#data-areaName").val(userProvince+userAreaName).attr('readonly','readonly');
+            $(".area2").val(userAreaName);
+            $(".area1").val(userProvince);
+        }else if(userType=='1'){
+            area = new Y.Area({type:2,obj:$("#data-areaName")});
+            $(".area1").val(userProvince);
+        }else{
+            $("#data-areaName").val(userProvince).attr('readonly','readonly');
+            area = new Y.Area({type:1,obj:$("#data-areaName")});
+        }
+        area.load(function(data){
+            for(var k in data){
+                if (userProvince == data[k][0]) {
+                    area.Province = k;
+                    area.ProvinceT = userProvince;
+                };
+            }
+        })
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            schoolId : Y.getUrlParam("id"),
+            logo : {o:new Y.Img($("#data-logo"), "<div style='cursor:pointer; background:#e4e4e4; border-radius:100px;height:100px; width:100px; line-height:100px;text-align:center; color:#ccc;'>上传图标</div>",{width:300,height:300,radius:150,scale:[1,1]})},
+            logoB : {o:new Y.Img($("#data-logoB"), "<div style='cursor:pointer; background:#e4e4e4; height:77px; width:275px; line-height:77px;text-align:center; color:#ccc;'>上传图标</div>",{width:275,height:77,radius:0,scale:[1,1]})},
+            name : {
+                o:$("#data-name"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"校名不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            code : {
+                o:$("#data-code"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"编码不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            province : {
+                o:$(".area1"),
+            },
+            areaName : {
+                o:$(".area2"),
+            },
+            isShow : {o:new Y.Radio($("#data-isShow input"))},
+            isSync : {o:new Y.Radio($("#data-isSync input"))},
+            phoneChange : {o:new Y.Radio($("#data-phoneChange input"))},
+            unicomOnly : {o:new Y.Radio($("#data-unicomOnly input"))},
+            szhxy : {o:$('#data-szhxy')}
+        }
+        var from = new Y.From(fromConfig,"schoolId",{getURL:ucIP + "/api/uc/v0.1/schools/{schoolId}/detail",postURL:ucIP + "/api/uc/v0.1/schools",putURL:ucIP + "/api/uc/v0.1/schools/{schoolId}",title:"提交学校信息",fn:function(res){
+                area.provinceT = res.province;
+                area.townT = res.areaName;
+                $("#data-areaName").val(res.province+res.areaName);
+        }});
+        //提交
+        $("#submit").click(function(){
+            if ($(".area2").val()) {
+                from.submit($(this),function(){
+                    Y.ajax(ucIP + '/api/uc/v0.1/schools/change',function(ret){
+                        if (accountType == '6') {
+                            var user = Y.User.Get()
+                            user.schoolInfo = ret;
+                            Y.User.Set(user)
+                        };
+                        Y.alertx("<div style='color:#ff0000;font-weight:bold;'>提交学校信息成功</div>",function(){
+                            Y.back(-1);
+                            if (accountType == '6') {
+                                var script = document.createElement("script");
+                                script.type = "text/javascript";
+                                script.src = "js/index.js";
+                                document.body.appendChild(script);
+                                location.reload()
+                            }
+                        });
+                    })
+                },{
+                    province:$(".area1").val(),
+                    areaName:$(".area2").val()
+                });
+            }else{
+                Y.alertx("请选择所在地区")
+            };
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

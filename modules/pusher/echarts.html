@@ -1,0 +1,410 @@
+<form class="form">
+    <div class="form_title"><b>推送统计</b></div>
+    <div class="formBox">
+        <div class="timeSeach"><input id="time1" class="input" type="text" placeholder="选择时间"/><input type="button" value="" id="searchBtn1" class="timeSeachBtn"/></div>
+        <div id="main" style="height:400px;"></div>
+    </div>
+    <div class="form_title"></div>
+    <div class="formBox">
+        <div class="timeSeach">
+            <input id="time2" class="input" type="text" placeholder="开始时间"/>
+            <input id="time3" class="input" type="text" placeholder="结束时间"/><input type="button" value="" id="searchBtn2" class="timeSeachBtn"/>
+        </div>
+        <div class="pusherBox">
+            <div class="pusherBoxTop">应用推送统计</div>
+            <div class="pusherBoxCenter">
+                <div id="main1" class="mains"></div>
+                <div class="mainsTips"></div>
+            </div>
+            <div class="pusherBoxBottom">
+                <div class="table">
+                    <div id="table1"></div>
+                </div>
+                <div class="list_footer">
+                    <div id="pagaBtns1"></div>
+                </div>
+            </div>
+        </div>
+        <div class="pusherBox">
+            <div class="pusherBoxTop">不同推送方式次数统计</div>
+            <div class="pusherBoxCenter">
+                <div id="main2" class="mains"></div>
+                <div class="mainsTips"></div>
+            </div>
+            <div class="pusherBoxBottom">
+                <div class="table">
+                    <div id="table2"></div>
+                </div>
+                <div class="list_footer">
+                    <div id="pagaBtns2"></div>
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+</form>
+<style>
+    .timeSeach{
+        margin-bottom: 10px;
+    }
+    .timeSeach .input{
+        border: 1px solid #e3e3e3;
+        padding-left: 5px;
+        height: 33px;
+    }
+    .tipCenter{
+        text-align:center;
+        line-height:90px;
+        color:#ccc;
+    }
+    .timeSeachBtn{
+        background: #00b7ee url(images/icon_search.png) center center no-repeat;
+        width: 45px;
+        height: 37px;
+        margin-left: -1px;
+        position: absolute;
+        cursor: pointer;
+        color: rgba(255,255,255,0);
+        border:none;
+    }
+    .pusherBox{
+        width: 383px;
+        height: 610px;
+        overflow: hidden;
+        float: left;
+        border: 1px solid #f0f0f0;
+        margin-top: 20px;
+        margin-right: 35px;
+    }
+    .pusherBoxTop{
+        height: 38px;
+        line-height: 38px;
+        padding-left: 10px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 16px;
+        color: #333333;
+    }
+    .mains{
+        height: 345px;
+    }
+    .mainsTips{
+        height: 10px;
+    }
+    .table{
+        height: 170px;
+    }
+    .table table{
+        border-left: none;
+    }
+    .table tr:nth-of-type(odd){
+        background-color: #f6f6f6;
+    }
+    .table tr td:last-child,.table tr th:last-child{
+        border-right:none;
+    }
+    .table th{
+        padding: 3px;
+    }
+    .table td{
+        padding: 3px;
+        font-size: 12px;
+    }
+    .list_footer{
+        text-align: center;
+    }
+    .list_footer font{
+        display: none;
+    }
+    .pagaBtn{
+        padding:1px 5px;
+    }
+</style>
+<script src="js/echarts.min.js"></script>
+<script>
+    (function() {
+        var yearRange = [2016,2030];
+        var time1 = new Y.Calendar($("#time1"),{type:'year'});
+        time1.yearRange = yearRange;
+        time1.maxDate = new Date();
+        $("#time1").focus(function () {
+            var _this = $(this);
+            time1.open(function (d) {
+                _this.val(d);
+                time1.close();
+            });
+        });
+        change1();
+        $('#searchBtn1').click(function(){
+            change1();
+        })
+        function change1(){
+            var p = $('#main').parent();
+            $('#main').remove();
+            p.append('<div id="main" style="height:400px;"></div>');
+            var main = document.getElementById('main');
+            Y.ajax(pushIP + '/api/pusher/v0.1/query/month',function(ret){
+                if(ret && ret.times){
+                    var months = [];
+                    var datas = [];
+                    if(ret.times.length == 0) {
+                        main.innerHTML = '<div class="tipCenter">暂无数据</div>';
+                        return false;
+                    }
+                    for(var i = 0; i < ret.times.length; i ++){
+                        months.push(ret.times[i].month);
+                        datas.push(ret.times[i].num);
+                    }
+                    // 基于准备好的dom，初始化echarts实例
+                    var myChart = echarts.init(main);
+                    // 指定图表的配置项和数据
+                    var option = {
+                        backgroundColor:'rgba(0,0,0,0)',
+                        color:[ '#fdc469', '#47b6f5', '#fc815b'],
+                        title : {
+                            text: '推送统计总表',
+                            x:'center'
+                        },
+                        tooltip : {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data:['推送次数'],
+                            left:100,
+                            y:'bottom'
+                        },
+                        toolbox: {
+                            show : true,
+                            feature : {
+                                mark : {show: true},
+                                dataView : {show: true, readOnly: false},
+                                magicType : {show: true, type: ['line', 'bar']},
+                                restore : {show: true},
+                                saveAsImage : {show: true}
+                            }
+                        },
+                        calculable : true,
+                        xAxis : [
+                            {
+                                type : 'category',
+                                data : months,
+                                name:'时间'
+                            }
+                        ],
+                        yAxis : [
+                            {
+                                type : 'value',
+                                name:'数量'
+                            }
+                        ],
+                        series : [
+                            {
+                                name:'推送次数',
+                                type:'bar',
+                                barMaxWidth:24,
+                                data:datas,
+                                markPoint : {
+                                    data : [
+                                        {type : 'max', name: '最大值'},
+                                        {type : 'min', name: '最小值'}
+                                    ],
+                                    symbolSize:function(v){
+                                        return v > 999 ? 70 : 50;
+                                    }
+                                },
+                                markLine : {
+                                    data : [
+                                        {type : 'average', name: '平均值'}
+                                    ]
+                                }
+                            }
+                        ]
+                    };
+
+                    // 使用刚指定的配置项和数据显示图表。
+                    myChart.setOption(option);
+                }else{
+                    main.innerHTML = '<div class="tipCenter">' + ret.errorMsg + '</div>';
+                }
+            },{data:{beg:$("#time1").val() + '-01',end:$("#time1").val() + '-12'}})
+        }
+        var time2 = new Y.Calendar($("#time2"),{date:new Date().Format('yyyy') + '-01-01'});
+        time2.maxDate = new Date();
+        time2.yearRange = yearRange;
+        $("#time2").focus(function () {
+            var _this = $(this);
+            time2.open(function (d) {
+                _this.val(d);
+                time2.close();
+            });
+        });
+        var time3 = new Y.Calendar($("#time3"),{date:new Date().Format('yyyy-MM-dd')});
+        time3.maxDate = new Date();
+        time3.yearRange = yearRange;
+        $("#time3").focus(function () {
+            var _this = $(this);
+            time3.open(function (d) {
+                _this.val(d);
+                time3.close();
+            });
+        });
+        change2();
+        $('#searchBtn2').click(function(){
+            change2();
+        })
+        function change2(){
+            var begDate = $('#time2').val();
+            var endDate = $('#time3').val();
+            getByModule(begDate,endDate);
+            getByWay(begDate,endDate);
+        }
+        function getByModule(beg,end){
+            $('#table1').html('');
+            $('#pagaBtns1').html('');
+            $('#main1').parent().html('<div id="main1" class="mains"></div><div class="mainsTips"></div>');
+            Y.ajax(pushIP + '/api/pusher/v0.1/query/module',function(ret){
+                if(ret && !ret.errorMsg){
+                    var main = document.getElementById('main1');
+                    var myChart = echarts.init(main);
+                    var data1 = [],data2 = [],total = 0,other = 0,data3 = [];
+                    var moduleNmu = 0;
+                    if(ret.length == 0) {
+                        main.innerHTML = '<div class="tipCenter">暂无数据</div>';
+                        return false;
+                    }
+                    for(var i = 0; i < ret.length; i ++){
+                        if(ret[i].name) moduleNmu ++;
+                        if(i < 3){
+                            data1.push(ret[i].name);
+                            data2.push({value:ret[i].num, name:ret[i].name});
+                            data3.push(ret[i].num);
+                        }else{
+                            other += ret[i].num;
+                        }
+                        total += ret[i].num;
+                        ret[i].p = i + 1;
+                    }
+                    if(moduleNmu > 3){
+                        data1.push('其　　它');
+                        data2.push({value:other, name:'其　　它'});
+                        data3.push(other);
+                    }
+                    data3 = Y.precent(data3,{size:2});
+                    // 指定图表的配置项和数据
+                    var option = {
+                        tooltip : {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c}次"
+                        },
+                        color:[ '#69a5e1', '#f7ed7b', '#ffa93a', '#60c2c3'],
+                        legend: {
+                            orient : 'vertical',
+                            x : 'center',
+                            y : 250,
+                            data:data1,
+                            formatter:function(name){
+                                for(var i = 0; i < data1.length; i ++){
+                                    if(name == data1[i]) return data1[i] + '                                    ' + data3[i] + '%';
+                                }
+                            }
+                        },
+                        calculable : true,
+                        series : [
+                            {
+                                name:'应用推送统计',
+                                type:'pie',
+                                radius : '55%',
+                                center: ['50%', '35%'],
+                                data:data2
+                            }
+                        ]
+                    };
+                    // 使用刚指定的配置项和数据显示图表。
+                    myChart.setOption(option);
+                    var config = [
+                        {CH: "排名", EN: "p"},
+                        {CH: "应用名称", EN: "name"},
+                        {CH: "推送次数", EN: "num"}
+                    ];
+                    var list = new Y.List('', {pageNum:1,pageSize:5}, config);
+                    list.SQLite = new Y.SQLite(ret);
+                    list.table = $('#table1');
+                    list.pagaBtns = $('#pagaBtns1');
+                    list.checkBtn = false;
+                    list.listNumTitle = '';
+                    list.load();
+                }else{
+                    main.innerHTML = '<div class="tipCenter">' + ret.errorMsg + '</div>';
+                }
+            },{data:{beg:beg,end:end}})
+        }
+        function getByWay(beg,end){
+            $('#table2').html('');
+            $('#pagaBtns2').html('');
+            $('#main2').parent().html('<div id="main2" class="mains"></div><div class="mainsTips"></div>');
+            Y.ajax(pushIP + '/api/pusher/v0.1/query/way',function(ret){
+                if(ret && !ret.errorMsg){
+                    var main = document.getElementById('main2');
+                    var myChart = echarts.init(main);
+                    var data1 = [],data2 = [],total = 0,data3 = [];
+                    if(ret.length == 0) {
+                        main.innerHTML = '<div class="tipCenter">暂无数据</div>';
+                        return false;
+                    }
+                    for(var i = 0; i < ret.length; i ++){
+                        data1.push(ret[i].name);
+                        data2.push({value:ret[i].num, name:ret[i].name});
+                        data3.push(ret[i].num);
+                        total += ret[i].num;
+                        ret[i].p = i + 1;
+                    }
+                    data3 = Y.precent(data3,{size:2});
+                    // 指定图表的配置项和数据
+                    var option = {
+                        tooltip : {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c}次"
+                        },
+                        color:[ '#fc815b', '#fdc469', '#47b6f5', '#ff0000'],
+                        legend: {
+                            orient : 'vertical',
+                            x : 'center',
+                            y : 250,
+                            data:data1,
+                            formatter:function(name){
+                                for(var i = 0; i < data1.length; i ++){
+                                    if(name == data1[i]) return data1[i] + '                                    ' + data3[i] + '%';
+                                }
+                            }
+                        },
+                        calculable : true,
+                        series : [
+                            {
+                                name:'不同推送方式次数统计',
+                                type:'pie',
+                                radius : '55%',
+                                center: ['50%', '35%'],
+                                data:data2
+                            }
+                        ]
+                    };
+                    // 使用刚指定的配置项和数据显示图表。
+                    myChart.setOption(option);
+                    var config = [
+                        {CH: "排名", EN: "p"},
+                        {CH: "推送方式", EN: "name"},
+                        {CH: "推送次数", EN: "num"}
+                    ];
+                    var list = new Y.List('', {pageNum:1,pageSize:5}, config);
+                    list.SQLite = new Y.SQLite(ret);
+                    list.table = $('#table2');
+                    list.pagaBtns = $('#pagaBtns2');
+                    list.checkBtn = false;
+                    list.listNumTitle = '';
+                    list.load();
+                }else{
+                    main.innerHTML = '<div class="tipCenter">' + ret.errorMsg + '</div>';
+                }
+            },{data:{beg:beg,end:end}})
+        }
+    })()
+</script>

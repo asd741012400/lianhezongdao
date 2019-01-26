@@ -1,0 +1,179 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="s_id" class="input" type="text" placeholder="选择学期"/>
+            <input id="pjTeacherName" class="input" type="text" placeholder="输入评课人姓名"/>
+            <input id="rkTeacherName" class="input" type="text" placeholder="输入任课人姓名"/>
+            <input id="date" class="input" type="text" placeholder="选择年月"/>
+            <input id="Date" type="hidden"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+        <div class="statusBtns"><span class="statusBtn active" id="status_1">已完成</span><span class="statusBtn" id="status_2">被拒绝</span></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+
+<style>
+.statusBtns{
+    text-align:right;
+}
+.reasonLook{
+    color:#6AB81C;
+    cursor:pointer;
+    position:relative;
+}
+.reasonDetail{
+    display:none;
+    position:absolute;
+    width:288px;
+    border:1px solid #6AB81C;
+    right:-30px;
+    background: #fff;
+    top:31px;
+    border-radius:5px;
+    padding:14px 12px;
+    color:#666;
+    font-size:12px;
+    z-index:1;
+    line-height:20px;
+    text-align:left;
+}
+.reasonDetail p{
+    text-indent:0;
+    margin:auto;
+    max-height:60px;
+    overflow-y:auto;
+}
+.triangle-6AB81C{
+    position:absolute;
+    background:url('images/6AB81C_triangle.png');
+    height:14px;
+    width:29px;
+    top:-13px;
+    right:28px;
+    z-index:2;
+}
+</style>
+
+<script type="text/javascript">
+    (function() {
+        //详情返回参数
+        var type = Y.getUrlParam("type");
+
+        Y.ajax(ucIP + "/api/uc/v0.1/semester",function(ret){
+            var active = '';
+            if(ret && !ret.errorMsg) {
+                for(var i = 0; i < ret.rows.length; i ++) if(ret.rows[i].current) active = ret.rows[i];
+            }
+            s_id = new Y.OnlySelectBox($('#s_id'),Y.getSelectBox('semester',{delFn:false}));
+            s_id.val(active.id,active.name);
+            initList(active.id)
+        })
+
+        function initList(id){
+            var option = {semesterId:id,pjType:1,confirm:1,pageSize: "", pageNum: 1};
+            if (type == 'error') {
+                option.confirm = 2
+            };
+            var config = [
+                {CH: "评课人", EN: "pjTeacherName"},
+                {CH: "任课老师", EN: "rkTeacherName"},
+                {CH: "上课时间", EN: "date"},
+                {CH: "节次", EN: "section"},
+                {CH: "授课班级", EN: "className"},
+                {CH: "课程名称", EN: "course"},
+                {CH: "讲授课题", EN: "topic"},
+                {CH: "授课地点", EN: "address"},
+                {CH: "评课总分", EN: "scoreTotal",htmlFormat:"<span class=''>{scoreTotal}</span>"},
+            ];
+            list = new Y.List(eschoolIP + "/api/teachingEvaluation/v0.1/teacher/record/web", option, config);
+            list.btns = "<span class=\"listLook bg_dfba49\">查看</span>";
+            list.listNumTitle = "序号";
+            list.load(function () {
+                var count = list.data.statusCount
+                if (count.confirm>0) {
+                    $("#status_1").html("已完成（" + count.confirm + "）")
+                }else{
+                    $("#status_1").html("已完成")
+                };
+                if (count.refuse>0) {
+                    $("#status_2").html("被拒绝（" + count.refuse + "）")
+                }else{
+                    $("#status_2").html("被拒绝")
+                };
+                $("tr").each(function(i){
+                    if(i > 0 && list.data.rows.length > 0){
+                        var data = list.data.rows[i - 1];
+                        //查看
+                        $(this).find(".listLook").click(function(){
+                            Y.open({url:"modules/evaluate/teacherEachInfo.html",title:"评课详情",data:{recordId:data.recordId,type:list.paramet.confirm=='1'?'normal':'error',pjType:'1'}});
+                        })
+                    }
+
+                    $(this).find('.reasonLook').hover(function(e) {
+                        if(e.target==this){
+                            $(this).children('.reasonDetail').fadeIn(200);
+                        }
+                    }, function(e) {
+                        $(this).children('.reasonDetail').fadeOut(200);
+                    });
+                })
+            });
+
+            var statusActive = $("#status_1");
+            //完成
+            $("#status_1").click(function(){
+                $("#keyword").val("");
+                statusActive.removeClass("active");
+                statusActive = $(this);
+                statusActive.addClass("active");
+                list.paramet.confirm = 1;
+                config[8] = {CH: "评课总分", EN: "scoreTotal",htmlFormat:"<span class=''>{scoreTotal}</span>"};
+                list.reLoad();
+            })
+            //拒绝
+            $("#status_2").click(function(){
+                $("#keyword").val("");
+                statusActive.removeClass("active");
+                statusActive = $(this);
+                statusActive.addClass("active");
+                list.paramet.confirm = 2;
+                config[8] = {CH: "拒绝理由", EN: "refuseReason",htmlFormat:"<span class='reasonLook'>查看<div class='reasonDetail'><span class='triangle-6AB81C'></span><p>{refuseReason}</p></div></span>"};
+                list.reLoad();
+            })
+            if (type == 'error') {
+                $("#status_2").click()
+            };
+            //搜索
+            var listSearch = new Y.ListSearch(list,{
+                semesterId:s_id,
+                pjTeacherName:$("#pjTeacherName"),
+                rkTeacherName:$("#rkTeacherName"),
+                date:$("#Date")
+            });
+
+        }
+
+        var datecalendar = new Y.Calendar($("#date"),{type:"month",date:''});
+        datecalendar.maxDate = new Date();
+        $("#date").focus(function(){
+            var _this = $(this);
+            datecalendar.open(function(d){
+                _this.val(d);
+                datecalendar.close();
+                $("#Date").val(d+"-01")
+            });
+        })
+
+
+        $("#downLoadExcel").click(function(){
+            list.toExcel("教师互评记录");
+        })
+    })()
+</script>

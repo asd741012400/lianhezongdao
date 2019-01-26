@@ -1,0 +1,286 @@
+<form class="form">
+    <div class="form_title"><b>招聘信息编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width50">
+            <div class="data_title"><span class="red">*</span>岗位名称</div>
+            <span class="data_error">岗位名称不能为空</span><input class="input" id="data-title" type="text" placeholder="请填写岗位名称"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><span class="red">*</span>截止日期</div>
+            <span class="data_error">截至日期不能为空</span><input class="input" id="data-deadline" type="text" placeholder="请选择截至日期"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><span class="red">*</span>薪资</div>
+            <span class="data_error">薪资不能为空</span><input class="input" id="data-salary" type="text" placeholder="xxx/月 /天 /件 /小时"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><span class="red">*</span>公司/学校名称</div>
+            <span class="data_error">公司/学校名称不能为空</span><input class="input" id="data-company" type="text" placeholder="请填写公司/学校名称"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><span class="red">*</span>招聘人数（人）</div>
+            <span class="data_error">招聘人数不能为空</span><input class="input" id="data-hiringNum" type="text" placeholder="请填写招聘人数"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><span class="red">*</span>工作地区</div>
+            <span class="data_error">工作地区不能为空</span><input class="input" id="data-county" type="text" placeholder="省／市 / 区"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><span class="red">*</span>工作地址</div>
+            <span class="data_error">工作地址不能为空</span><input class="input" id="data-loc" type="text" placeholder="请填写工作详细地址"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><span class="red">*</span>职位描述</div>
+            <span class="data_error">职位描述不能为空</span><textarea id="data-description" class="input" style="height: 90px;" placeholder="请填写职位描述"></textarea>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><span class="red">*</span>任职要求</div>
+            <span class="data_error">任职要求不能为空</span><textarea id="data-requires" class="input" style="height: 90px;" placeholder="请填写任职要求"></textarea>
+        </div>
+        <div class="data width100">
+            <div class="data_title"><span class="red">*</span>福利</div>
+            <span class="data_error">职位描述不能为空</span><div id="data-tags"><span>五险</span><span>包住</span><span>公积金</span><span>带薪年假</span><span>年底分红</span><span>绩效奖金</span><span>年底双薪</span><span>通讯补助</span><span>节日福利</span><span>年度旅游</span><span>单双休</span><span>工龄工资</span></div>
+        </div>
+        <div class="data width50">
+            <div class="data_title">职位状态</div>
+            <span id="data-status" type="radio"><input type="radio" value="1" checked/>有效<input type="radio" value="2"/>关闭</span>
+        </div>
+        <!-- <div class="data width50">
+            <div class="data_title">置顶显示</div>
+            <span id="data-top" type="radio"><input type="radio" value="0" checked/>否<input type="radio" value="1"/>是</span>
+        </div> -->
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    #data-tags span,#data-tags font{
+        padding: 2px 8px;
+        border: 1px solid #ebecf2;
+        margin-right: 5px;
+        cursor: pointer;
+        line-height: 30px;
+        display: inline-block;
+        margin-bottom: 5px;
+    }
+</style>
+<script>
+    (function() {
+        function tagsObject(obj){
+            var o = new Object();
+            o.bindEvent = function(o){
+                var style = o.attr("style");
+                if(style) {
+                    o.removeAttr("style");
+                }else{
+                    o.css({borderColor:'#00b7ee',color:'#00b7ee'});
+                }
+            }
+            obj.append("<font id='tagsObjectAdd'>+</font>");
+            $("#tagsObjectAdd").click(function(){
+                var $this = $(this);
+                Y.confirmx("<div>新增福利标签:<input class='input' id='tagsObjectAddText' /></div>",function(){
+                    var text = $("#tagsObjectAddText").val();
+                    if(text != ""){
+                        $this.before("<span>" + text + "</span>");
+                        o.list = obj.find("span");
+                        o.list.eq(o.list.size() - 1).click(function(){
+                            o.bindEvent($(this));
+                        })
+                    }
+                });
+            })
+            o.list = obj.find("span");
+            o.list.click(function(){
+                o.bindEvent($(this));
+            })
+            o.val = function(s){
+                if(s){
+                    for(var i = 0; i < s.length; i++){
+                        var has = false;
+                        this.list.each(function(){
+                            var html = $(this).html();
+                            if(s[i] == html) {
+                                $(this).css({borderColor:'#00b7ee',color:'#00b7ee'});
+                                has = true;
+                            }
+                        })
+                        if(!has){
+                            $("#tagsObjectAdd").before("<span style='border-color:#00b7ee;color:#00b7ee;'>" + s[i] + "</span>");
+                            o.list = obj.find("span");
+                            o.list.eq(o.list.size() - 1).click(function(){
+                                o.bindEvent($(this));
+                            })
+                        }
+                    }
+                }else{
+                    var rc = [];
+                    this.list.each(function(){
+                        var style = $(this).attr("style");
+                        if(style) rc.push($(this).html());
+                    })
+                    return rc.join(",");
+                }
+            }
+            return o;
+        }
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            jobId : Y.getUrlParam("id"),
+            category : Y.getUrlParam("category"),
+            title : {
+                o:$("#data-title"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"标题不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            deadline : {
+                o:$("#data-deadline"),
+                i:function(v){
+                    //日期
+                    var deadlineCalendar = new Y.Calendar($("#data-deadline"));
+                    $("#data-deadline").focus(function(){
+                        var _this = $(this);
+                        _this.prev().hide();
+                        deadlineCalendar.open(function(d){
+                            _this.val(d);
+                            deadlineCalendar.close();
+                        });
+                    })
+                },
+                f:function(v){
+                    if (v == "") {
+                        return [false,"截至日期不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            salary : {
+                o:$("#data-salary"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"薪资不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            company : {
+                o:$("#data-company"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"公司/学校名称不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            hiringNum : {
+                o:$("#data-hiringNum"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"招聘人数不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            county : {
+                o:new Y.Area({obj:$("#data-county")}),
+                f:function(v){
+                    if (v == "") {
+                        return [false,"工作地区不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            loc : {
+                o:$("#data-loc"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"工作地址不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            description : {
+                o:$("#data-description"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"职位描述不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            requires : {
+                o:$("#data-requires"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"任职要求不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            status : {
+                o:new Y.Radio($("#data-status input")),
+                f:function(v){
+                    $("#data-deadline").prev().hide();
+                    if(v == "1"){
+                        var arr = fromConfig.deadline.o.val().split("-");
+                        var deadDate = new Date();
+                        var nowDate = new Date();
+                        deadDate.setFullYear(arr[0],arr[1] - 1,arr[2]);
+                        if(deadDate < nowDate){
+                            $("#data-deadline").prev().show();
+                            $("#data-deadline").prev().html("当前时间已过期");
+                            return [false,""];
+                        }else{
+                            return [true];
+                        }
+                    }else{
+                        return [true];
+                    }
+                }
+            },
+            tags : {
+                o:tagsObject($("#data-tags")),
+                f:function(v){
+                    if (v == "") {
+                        return [false,"福利不能为空",true];
+                    } else {
+                        return [true];
+                    }
+                }
+            }
+        }
+        $("#data-company").val($("#schoolName").html());
+        var from = new Y.From(fromConfig,"jobId",{getURL:eschoolIP + "/api/jobs/v0.1/{jobId}/detail",postURL:eschoolIP + "/api/jobs/v0.1",putURL:eschoolIP + "/api/jobs/v0.1/{jobId}",title:"提交招聘信息"});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

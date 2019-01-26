@@ -1,0 +1,195 @@
+<form class="form">
+    <div class="form_title"><b>新闻编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width100">
+        <div class="data_title"><b class="red">*</b>标题</div>
+        <span class="data_error">标题不能为空</span><input class="input" id="data-title" type="text" placeholder="请填写标题" maxlength="20" />
+    </div>
+    <div class="data width50" style="width: 660px;">
+        <div class="data_title"><b class="red">*</b>内容<input id="useExtUrl" type="checkbox" />使用超链接<span style="color: #ccc; margin-left: 10px;">编辑时请进行预览查看实际效果</span></div>
+        <div id="exturlBox" style="display: none;">
+            <div class="data_title">超链接</div>
+            <span class="data_error">超链接不能为空</span><input class="input" id="data-extUrl" type="text" placeholder="加入超链接" />
+        </div>
+        <div id="contentBox">
+            <div class="data_title">正文</div>
+            <div type="richEdit" class="richEdit" style="width: 650px;height: 800px" id="data-content"></div>
+        </div>
+    </div>
+    <div class="data width50">
+        <div class="data_title">状态</div>
+        <span id="data-status" type="radio"><input type="radio" value="1" checked/>启用<input type="radio" value="2"/>停用 </span>
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>新闻区域图</div>
+        <div id="data-photoUrl" type="img"></div><span style="color: #ccc">尺寸:188x130</span>
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>摘要</div>
+        <span class="data_error">摘要不能为空</span><input class="input" id="data-digest" type="text" placeholder="请填写摘要" maxlength="30" />
+    </div>
+    <div class="data width50">
+        <div class="data_title">来源</div>
+        <input class="input" id="data-source" type="text" placeholder="请填写来源"/>
+    </div>
+    <div class="data width50">
+        <div class="data_title">作者</div>
+        <input class="input" id="data-author" type="text" placeholder="请填写作者"/>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="preview" value="预览" class="bg_34a1e0"/>
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    #data-photoUrl{
+        width: 288px;
+        height: 130px;
+        overflow: hidden;
+    }
+    #data-photoUrl img{
+        width: 288px;
+    }
+    #data-carouselPhotoUrl{
+        width: 288px;
+        height: 130px;
+        overflow: hidden;
+    }
+    #data-carouselPhotoUrl img{
+        width: 288px;
+    }
+</style>
+<script>
+    (function() {
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        Y.qiNiouKey(function(upladArgs){
+            var fromConfig = {
+                newsId : Y.getUrlParam("id"),
+                title : {
+                    o:$("#data-title"),
+                    e:"blur",
+                    f:function(v){
+                        if (v == "") {
+                            return [false,"标题不能为空"];
+                        } else {
+                            return [true];
+                        }
+                    }
+                },
+                digest : {
+                    o:$("#data-digest"),
+                    e:"blur",
+                    f:function(v){
+                        if (v == "") {
+                            return [false,"摘要不能为空"];
+                        } else {
+                            return [true];
+                        }
+                    }
+                },
+                source : {o:$("#data-source")},
+                author : {o:$("#data-author")},
+                status : {o:new Y.Radio($("#data-status input"))},
+                photoUrl : {
+                    o:new Y.Img($("#data-photoUrl"), "<div style='cursor:pointer; width:288px;height:130px; line-height:130px;text-align:center; color:#ccc; background:#F9F9F9;'>本地上传</div>",{width:188,height:130},upladArgs),
+                    f:function(v){
+                        if (v == "") {
+                            return [false,"请选择新闻区域图",true];
+                        } else {
+                            return [true];
+                        }
+                    }
+                },
+                content : {
+                    o:new Y.RichEdit($("#data-content"),true,upladArgs),
+                    f:function(v){
+                        if($("#useExtUrl")[0].checked){
+                            if($("#data-extUrl").val() == ""){
+                                return [false,"超链接不能为空",true];
+                            }else{
+                                return [true];
+                            }
+                        }else{
+                            if(v == ""){
+                                return [false,"内容不能为空！",true];
+                            }else{
+                                return [true];
+                            }
+                        }
+                    }
+                },
+                extUrl : {
+                    o:$("#data-extUrl"),
+                    v:function(v){
+                        if(v){
+                            $("#exturlBox").show();
+                            $("#contentBox").hide();
+                            $("#exturlBox").parent().attr("style","");
+                            $("#exturlBox").parent().addClass("width100");
+                            $("#exturlBox").parent().removeClass("width50");
+                            $("#useExtUrl")[0].checked = true;
+                        }else{
+                            $("#contentBox").show();
+                            $("#exturlBox").hide();
+                            $("#exturlBox").parent().attr("style","width:660px");
+                            $("#exturlBox").parent().removeClass("width100");
+                            $("#exturlBox").parent().addClass("width50");
+                            $("#useExtUrl")[0].checked = false;
+                        }
+                    }
+                }
+            }
+            $("#useExtUrl").click(function(){
+                var checked = $(this)[0].checked;
+                if(!checked){
+                    $("#contentBox").show();
+                    $("#exturlBox").hide();
+                    $("#exturlBox").parent().attr("style","width:660px");
+                    $("#exturlBox").parent().removeClass("width100");
+                    $("#exturlBox").parent().addClass("width50");
+                }else{
+                    $("#exturlBox").show();
+                    $("#contentBox").hide();
+                    $("#exturlBox").parent().attr("style","");
+                    $("#exturlBox").parent().addClass("width100");
+                    $("#exturlBox").parent().removeClass("width50");
+                }
+            })
+            var from = new Y.From(fromConfig,"newsId",{getURL:eschoolIP + "/api/news/v0.1/news/{newsId}/detail",postURL:eschoolIP + "/api/news/v0.1/news",putURL:eschoolIP + "/api/news/v0.1/news/{newsId}",title:"提交新闻信息",dataJson:false});
+            //提交
+            $("#submit").click(function(){
+                from.submit($(this));
+            })
+            //取消
+            $("#cancel").click(function(){
+                Y.back(-1);
+            });
+            //预览
+            $("#preview").click(function(){
+                var href = !$("#useExtUrl")[0].checked ? "modules/news/news.html" : $("#data-extUrl").val();
+                Y.creatCover({id:"preview_cover",obj:window,zIndex:99998,opacity:0.8,background:"#000",position:"fixed"});
+                $("body").append("<img id='preview_close' src='images/preview_close.png' style='position:absolute; z-index:99999; left:50%;margin-left:230px; top:100px;' />");
+                $("body").append("<div id='preview_box' style='width:459px;height:884px; background:url(\"images/iphone6.png\") no-repeat;position:absolute;left:50%;margin-left:-229px;top:10px;z-index:99999'><iframe id='preview_iframe' src='" + href + "' width='377' height='664' style='margin-left:43px; margin-top:105px;border-radius:2px;' frameborder='no' border='0' marginwidth='0' marginheight='0'></iframe></div>");
+                if(!$("#useExtUrl")[0].checked){
+                    (function(){
+                        if($("#preview_iframe")[0].contentWindow.document.getElementById("title")){
+                            $("#preview_iframe")[0].contentWindow.document.getElementById("title").innerHTML = $("#data-title").val();
+                            $("#preview_iframe")[0].contentWindow.document.getElementById("source").innerHTML = $("#data-source").val();
+                            var time = new Date();
+                            $("#preview_iframe")[0].contentWindow.document.getElementById("time").innerHTML = time.getFullYear() + "-" + (time.getMonth() + 1) + "-" + time.getDate();
+                            $("#preview_iframe")[0].contentWindow.document.getElementById("content").innerHTML = fromConfig.content.o.val();
+                            $("#preview_iframe")[0].contentWindow.showDownLoad(true);
+                        }else{
+                            setTimeout(arguments.callee,200);
+                        }
+                    })()
+                }
+                $("#preview_cover").click(function(){
+                    $(this).remove();
+                    $("#preview_box,#preview_close").remove();
+                })
+            })
+        })
+    })()
+</script>

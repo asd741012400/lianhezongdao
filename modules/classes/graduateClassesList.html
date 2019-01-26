@@ -1,0 +1,124 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <!--<input id="keyword" class="input" type="text" placeholder="班级名称/专业/班主任"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>-->
+            <div class="advancedSearch_data">
+                <select id="status" class="input"><option value="">全部班级</option><option value="1">正常班级</option><option value="2">毕业班级</option></select>
+                <input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+            </div>
+        </div>
+        <input id="admit" type="button" value="设置为毕业班级" class="bg_eeeeee"/>
+<!--        <input id="deleteBtn" type="button" class="bg_eeeeee" value = "删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <input id="upLoadList" type="button" value="Excel导入" class="bg_eeeeee"/>
+        <input type="button" id="downLoadListModle" value="下载导入模板" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>-->
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<div id="planBox" class="boxShadow">
+    <div class="planBoxTitle">当前正在导入</div>
+    <div class="planBoxContent">
+        <div class="planPercent"><font id="percent">0</font>%</div>
+        <div class="planNum">导入<font id="allNum">--</font>/<font id="sumNum">--</font>条，失败<font id="falseNum">--</font>条</div>
+    </div>
+    <div class="planBoxBtns"><span id="cancelPlan"  class="bg_00b7ee">中断导入</span></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "classes", pageNum: 1,schoolId:schoolId};
+        var config = [
+            {CH: "入学年份", EN: "period"},
+            {CH: "专业名称", EN: 'majorName'},
+            {CH: "班级代码", EN: "classCode"},
+            {CH: "班级名称", EN: "className"},
+            {CH: "班级地址", EN: "classAddress"},
+            {CH: "宿管老师", EN: "classDormTeacher"},
+            {CH: "班主任", EN: 'headTeacherName'},
+            {CH: "人数", EN: 'number'},
+            {CH: "毕业班", EN: 'graduateStatus',htmlFormat:function(k,v){
+                return v == 2 ? '<span style="color:#ccc;">已毕业</span>' : '未毕业<div style="font-size:12px;color:#75cd1f">(双击修改)</div>';
+            },Edit:function(data,callback){
+                Y.confirmx(data.graduateStatus == 2 ? '取消毕业班级?' : '设置为毕业班级?',function(){
+                    callback(data.graduateStatus == 2 ? 1 : 2);
+                },{cancleFn:function(ret){
+                    if(!ret) callback(data.graduateStatus);
+                }})
+            }}
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/classes", option, config);
+        list.editAPI = function(editKey,data,next){
+            Y.ajax(ucIP + '/api/uc/v0.1/classes/graduate/{classId}/single',function(ret){
+                if(ret.errorMsg) Y.alertx('操作失败,' + ret.errorMsg);
+                next();
+            },{meth:'PUT',data:{classId:data.classId},dataJson:false})
+        }
+        list.btns = "<span class=\"listLook bg_dfba49\">查看</span><!--<span class=\"listDelete bg_f11c1c\">删除</span>-->";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/classes/classesEdit.html",title:"查看班级信息",data:{id:data.classId,readOnly:true}});
+                    })
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/classes/classesEdit.html",title:"编辑班级信息",data:{id:data.classId}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],ucIP + "/api/uc/v0.1/classes/","classId","班级",{vKey:"className",obj:$(this)});
+                    })
+                }
+            })
+        });
+
+        //批量修改状态
+        $('#admit').click(function(){
+            var admits = [],checkeds = list.getChecked();
+            for(var i = 0; i < checkeds.length; i ++) {
+                if(checkeds[i].graduateStatus!='2') {
+                    admits.push(checkeds[i].classId);
+                }
+            }
+            if(admits.length > 0){
+                Y.confirmx('确定毕业，请谨慎操作！',function(){
+                    Y.ajax(ucIP + '/api/uc/v0.1/classes/graduate',function(ret){
+                        Y.alertx(ret.errorMsg ? '操作失败，' + ret.errorMsg : '操作成功！',function(){
+                            if(ret.result) list.reLoad();
+                        });
+                    },{meth:'PUT',data:{classIds:admits.join(',')}})
+                })
+            }else{
+                Y.confirmx('请至少选择一项未毕业')
+            }
+        })
+        //批量删除
+        /*$("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),ucIP + "/api/uc/v0.1/classes/","classId","班级",{vKey:"className"});
+        })*/
+        //新增
+        /*$("#addBtn").click(function(){
+            Y.open({url:"modules/classes/classesEdit.html",title:"新增班级"});
+        })*/
+        /*$("#downLoadExcel").click(function(){
+            list.toExcel("班级信息");
+        })*/
+        //Excel信息批量导入
+        /*Y.excelImport(ucIP + "/api/uc/v0.1/progressbar/classImport/0",ucIP + "/api/uc/v0.1/classes/dataImport?schoolId=" + schoolId,ucIP + "/api/uc/v0.1/classes/dataImportTemplate?schoolId=" + schoolId + "&accessToken=" + accessToken);*/
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword"),
+            status:$("#status")
+        });
+    })()
+</script>

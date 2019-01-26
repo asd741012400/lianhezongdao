@@ -1,0 +1,185 @@
+﻿<form class="form">
+    <div class="form_title"><b>组织信息编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="data width50">
+        <div class="data_title"><span class="red">*</span>组织名称</div>
+        <span class="data_error">组织名称不能为空</span><input class="input" id="data-name" type="text" placeholder="请填写组织名称"/>
+    </div>
+    <div class="data width50">
+        <div class="data_title">组织描述</div>
+        <span class="data_error">组织描述不能为空</span><input class="input" id="data-description" type="text" placeholder="请填写组织描述"/>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title">组织人员</div>
+        <div id="data-userList"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title">组织责任人</div>
+        <div id="data-leaderList"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+    </div>
+    <div class="data width50">
+        <div class="data_title">常设部门</div>
+        <span id="data-org" type="radio"><input type="radio" value="1" checked/>是<input type="radio" value="0"/>否</span>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style type="text/css">
+    .tree{
+        margin: 10px 20px;
+        border:1px solid #e4e4e4;
+    }
+    .nodeData{
+        border-bottom:1px dashed #e4e4e4;
+        padding: 5px 0px;
+    }
+    .nodeData:hover{
+        background: #f9f9f9;
+    }
+    .lastNode .nodeData{
+        border:none;
+    }
+</style>
+<script>
+    (function() {
+        /*var changeUserRoleStr="<div accountId='{accountId}' class='personData'>\
+         <div style='width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #e4e4e4;color:#00b7ee;font-size:20px;margin:7px;border-radius:50px;float:left' imgUrl='{photo}' class='icon_img'>{listStyle_name}</div>\
+          <div class='inside_box'>\
+              <div class='change_button'>修改角色</div>\
+              <div>{name}</div>\
+              <div class='role_list'>张三,李四,王五</div>\
+          </div>\
+         </div>";*/
+
+        /*function changeUserRole(item){
+            var firstName='';
+            if(item&&item.name&&item.name.length>0)
+                firstName=item.name.substr(0,1);
+
+            var $personData=$('<div accountId="'+item.accountId+'" class=\'personData\'></div>');
+            var $img=$("<div style='width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #e4e4e4;color:#00b7ee;font-size:20px;margin:7px;border-radius:50px;float:left' imgUrl='"+item.photo+"' class='icon_img'>"+firstName+"</div>").appendTo($personData);
+            var $insideBox=$('<div class=\'inside_box\'></div>').appendTo($personData);
+            //var $changeButton=$('<div class=\'change_button\'>修改角色</div>').appendTo($insideBox);
+            var $name=$('<div>'+item.name+'</div>').appendTo($insideBox);
+            var $roleList=$('<div class=\'role_list\'></div>').appendTo($insideBox);
+            var roleIds=[];
+            var roleNames=[];
+            var groupRoleList=item.groupRoleList;
+            if(groupRoleList&&groupRoleList.length>0){
+                for(var k in groupRoleList){
+                    var groupRoleListItem=groupRoleList[k];
+                    var id=groupRoleListItem.id;
+                    var name=groupRoleListItem.name;
+                    roleNames.push(name);
+                }
+            }
+            //$changeButton.attr("data",JSON.stringify(item));
+            if(roleNames.length>0)
+                $roleList.html(roleNames.join(","));
+            $changeButton.on("click",function(){
+                var $this=$(this);
+                var $personItem=$this.parent().parent();
+                var values=[];
+                var sitem={};
+                var data=$this.attr('data');
+
+                if(data&&data.length>2){
+                    sitem=JSON.parse(data);
+                    if(sitem.groupRoleList)
+                        values=sitem.groupRoleList;
+                }
+                //伪元素
+                var $triggerObj=$('<div></div>');
+                var args=Y.getSelectBox('groupRoles');
+                args.SelectBox.paramet={key:"keyword",groupId:fromConfig.groupId};
+                var commonGroupRoleSelect=new Y.AnySelectBox($triggerObj,$triggerObj,args);
+                commonGroupRoleSelect.val(values);
+                //选定后修改
+                commonGroupRoleSelect.appendFn=function(){
+                    //将选择的值传递到后台
+                    var groupId=fromConfig.groupId;
+                    var accountId=sitem.accountId;
+                    var list=commonGroupRoleSelect.val();
+                    var sendData={
+                        groupId:groupId,
+                        accountId:accountId,
+                        groupRoleList:list
+                    };
+                    var ajax = new Y.Ajax(ucIP + "/api/uc/group/role/changeUserGroupRole", function (res) {
+                        $("#ajaxText").parent().show();
+                        if (res && !res.errorMsg) {
+                            var $roleList=$personItem.find(".role_list");
+                            $roleList.empty();
+                            var finallyData=commonGroupRoleSelect.value;
+                            if(finallyData&&finallyData.length>0){
+                                var names=[];
+                                for(var k in finallyData){
+                                    names.push(finallyData[k].name);
+                                }
+                                $roleList.html(names.join(","));
+                            }
+                            sitem.groupRoleList=finallyData;
+                            $this.attr('data',JSON.stringify(sitem));
+                        }
+                    }, {
+                        meth: "PUT",
+                        data: sendData
+                    })
+                    ajax.action();
+
+                }
+                $triggerObj.trigger("click");
+
+
+            })
+            return $personData;
+        }*/
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            groupId : Y.getUrlParam("id"),
+            name : {
+                o:$("#data-name"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"名称不能为空"];
+                    }else if(v.length>40){
+                        return [false,"名称长度不能超过40"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            description : {
+                o:$("#data-description"),
+                e:"blur",
+                f:function(v){
+                    if (v.length>100) {
+                        return [false,"描述长度不能超过100"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            userList:{
+                o:new Y.AnySelectBox($("#data-userList"),$("#data-userList").next(),Y.getSelectBox('teachers'))
+            },
+            leaderList:{
+                o:new Y.AnySelectBox($("#data-leaderList"),$("#data-leaderList").next(),Y.getSelectBox('teachers'))
+            },
+            org : {o:new Y.Radio($("#data-org input"))},
+            //pushShow : {o:new Y.Radio($("#data-pushShow input"))}
+        }
+        var from = new Y.From(fromConfig,"groupId",{getURL:ucIP + "/api/uc/v0.1/groups/{groupId}/details",postURL:ucIP + "/api/uc/v0.1/groups",putURL:ucIP + "/api/uc/v0.1/groups/{groupId}",title:"提交组织信息"});
+        //提交
+        $("#submit").click(function(){
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

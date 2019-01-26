@@ -1,0 +1,179 @@
+<form class="form">
+    <div class="form_title"><b>人员分配</b><span class="red">(*为必填项)</span></div>
+    <div class="data width50">
+        <div class="data_title">开始时间</div>
+        <div id="data-internshipStartTime"></div>
+    </div>
+    <div class="data width50">
+        <div class="data_title">结束时间</div>
+        <div id="data-internshipEndTime"></div>
+    </div>
+    <div class="data width50">
+        <div class="data_title"><b class="red">*</b>指导老师</div>
+        <span class="data_error"></span>
+        <input class="input" id="data-teacherId" type="text" placeholder="请选择指导老师" />
+    </div>
+    <div class="data width50">
+        <div class="data_title">招聘人数</div>
+        <div id="data-number"></div>
+    </div>
+    <div class="data widthAll">
+        <div id="data-userList"></div>
+        <div id="addUser">+ 添加班级人员</div>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style type="text/css">
+    #addUser{
+        cursor: pointer;
+        color: #59a9e1;
+        margin-top: 16px;
+    }
+</style>
+<script>
+    (function() {
+        var data = Y.getUrlParam("data");
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var teachers = new Y.OnlySelectBox($("#data-teacherId"),{vKey:"accountId",sKey:"name",SelectBox:{showNum:false,paramet:{key:"keyword"},url:ucIP + "/api/uc/v0.1/teachers",dataString:"<div class='autoList' vaule='{accountId}'><b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{groupName} {jobNumber}</span></div>"}})
+        $('#data-internshipStartTime').html(data.internshipStartTime);
+        $('#data-internshipEndTime').html(data.internshipEndTime);
+        Y.ajax(eschoolIP + '/api/company/v0.1/practice',function(ret){
+            if(ret && ret.rows){
+                $('#data-number').html(ret.rows.length + '/' + data.number + '人');
+                var classes = {};
+                //分班
+                for(var i = 0; i < ret.rows.length; i ++){
+                    var row = ret.rows[i];
+                    teachers.val(row.teacherId,row.teacherName);
+                    if(!classes[row.classId]) classes[row.classId] = [];
+                    classes[row.classId].push({classId:row.classId,className:row.className,accountId:row.studentId,name:row.studentName,photo:row.studentPhoto});
+                }
+                var students = new ClassItems(classes);
+                $('#addUser').click(function(){
+                    students.add();
+                })
+                $("#submit").click(function(){
+                    if(students.count() > data.number){
+                        Y.alertx('分配人数大于招聘人数，无法保存!');
+                    }else{
+                        var teacherId = teachers.val(),studentIds = students.val();
+                        if(teacherId && studentIds){
+                            Y.ajax(eschoolIP + '/api/company/v0.1/practice',function(ret){
+                                if(ret && ret.result){
+                                    Y.ajax(eschoolIP + '/api/company/v0.1/practice',function(ret){
+                                        var msg = '';
+                                        if(ret && ret.result){
+                                            msg = '保存成功!';
+                                        }else{
+                                            msg = '保存实习人员失败,' + ret.errorMsg;
+                                        }
+                                        Y.alertx(msg);
+                                    },{meth:'POST',data:{companyId:data.companyId,postId:data.id,studentIds:studentIds},dataJson:false})
+                                }else{
+                                    Y.alertx('保存指导老师失败,' + ret.errorMsg);
+                                }
+                            },{meth:'POST',data:{companyId:data.companyId,postId:data.id,teacherId:teacherId},dataJson:false})
+                        }else{
+                            Y.alertx('请选择指导老师和实习人员');
+                        }
+                    }
+                })
+            }
+        },{data:{postId:Y.getUrlParam("id"),pageNum:1,pageSize:10000}})
+        function ClassItems(classes){
+            var _this = this;
+            this.classes = classes || {};
+            this.classSelects = {};
+            this.studentSelects = {};
+            this.ids = {};
+            this.build = function(){
+                $('#data-userList').html('');
+                for(var key in this.classes) this.item(this.classes[key]);
+            }
+            this.hasClass = function(classId){
+                for(var key in this.classSelects) if(classId == this.classSelects[key].val()) return true;
+            }
+            this.item = function(data){
+                var id = new Date().only();
+                var html = '<div id="item{id}" style="border:1px solid #e4e4e4;padding:8px 16px;"><div class="data width50"><div class="data_title"> <b class="red">*</b>班级</div><span class="data_error"></span><input class="input" id="class{id}" type="text" placeholder="请选择班级"/></div><div style="text-align:right;"><span style="color:#ff0000;margin-left:16px; cursor:pointer;" id="delete{id}">删除</span></div>';
+                html += '<div class="data widthAll" id="stutendSelect{id}"><div class="data_title">人员</div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div><div id="student{id}"></div></div><div class="clear"></div></div>';
+                html = html.replaceAll('{id}',id);
+                $('#data-userList').append(html);
+                $('#delete' + id).click(function(){
+                    Y.confirmx('本班级下的人员也会相应删除,确定删除?',function(){
+                        delete _this.classSelects[id];
+                        delete _this.studentSelects[id];
+                        $('#item' + id).remove();
+                    })
+                })
+                this.studentSelects[id] = new Y.AnySelectBox($("#student" + id),$("#student" + id).prev(),{
+                    idKey:"accountId",
+                    valueString:"<div accountId='{accountId}' class='personData'><div style='width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #e4e4e4;color:#00b7ee;font-size:20px;margin:7px auto;border-radius:50px;' imgUrl='{photo}' class='icon_img'>{listStyle_name}</div><div>{name}</div></div>",
+                    SelectBox:{paramet:{key:"keyword",classIds:data ? data[0].classId : ''},url:ucIP + "/api/uc/v0.1/students",dataString:"<div title='{name}' class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>{majorName} {className}</span></div>"}
+                });
+                this.studentSelects[id].appendFn = function(){
+                    _this.count();
+                }
+                this.classSelects[id] = new Y.OnlySelectBox($("#class" + id),{
+                    vKey:"classId",
+                    sKey:"className",
+                    SelectBox:{paramet:{key:"keyword"},url:ucIP + "/api/uc/v0.1/classes",dataString:"<div class='autoList' vaule='{classId}'><span>{className} {selected_classId}</span><span style='color:#ccc;display:block;'>班主任:{headTeacherName}</span></div>",dataStringEval:function(s,k,v,o){
+                            return s.replace(new RegExp('{selected_' + k + '}'),function(){
+                                return _this.hasClass(v) ? '<span style="color:#ff0000;font-size:12px;">(已选)</span>' : '';
+                            })
+                        },
+                        eachClickFn:function(o,v){
+                            return !_this.hasClass(v.classId);
+                        }
+                    },
+                    selectedFn:function(v){
+                        if(!v){
+                            $('#stutendSelect' + id).hide();
+                            _this.studentSelects[id].val([]);
+                        }else{
+                            $('#stutendSelect' + id).show();
+                            var paramet = _this.studentSelects[id].selectBox('paramet');
+                            paramet.classIds = v.classId;
+                            _this.studentSelects[id].selectBox('paramet',paramet);
+                            _this.studentSelects[id].val(_this.classes[v.classId] || []);
+                        }
+                    }
+                });
+                if(data){
+                    this.ids[id] = data[0].classId;
+                    this.classSelects[id].val(data[0].classId,data[0].className);
+                    this.studentSelects[id].val(data);
+                    $('#stutendSelect' + id).show();
+                }else{
+                    $('#stutendSelect' + id).hide();
+                }
+            }
+            this.add = function(){
+                this.item();
+            }
+            this.count = function(){
+                var rc = 0;
+                for(var key in this.studentSelects) rc += this.studentSelects[key].value.length;
+                $('#data-number').html(rc + '/' + data.number + '人');
+                return rc;
+            }
+            this.val = function(){
+                var rc = [];
+                for(var key in this.studentSelects){
+                    var v = this.studentSelects[key].value;
+                    if(v.length > 0) for(var i = 0; i < v.length; i ++) rc.push(v[i].accountId);
+                }
+                return rc;
+            }
+            this.build();
+        }
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

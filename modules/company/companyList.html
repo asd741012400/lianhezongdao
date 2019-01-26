@@ -1,0 +1,62 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="name" class="input" type="text" placeholder="企业名称"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "company", pageNum: 1};
+        var config = [
+            {CH: "企业名称", EN: "name"},
+            {CH: "联系人", EN: "linkman"},
+            {CH: "联系电话", EN: 'phone'},
+            {CH: "地址", EN: "address"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/company/v0.1/list", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/company/companyEdit.html",title:"编辑企业信息",data:{id:data.id,data:data}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/company/v0.1/del/","id","企业",{vKey:"name",obj:$(this)});
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/company/v0.1/del/","id","企业",{vKey:"name"});
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/company/companyEdit.html",title:"新增企业"});
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("企业信息");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            name:$("#name")
+        });
+    })()
+</script>

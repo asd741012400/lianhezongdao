@@ -1,0 +1,88 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input class="input" id="keyword" type="text" placeholder="姓名/专业/入学年度"/>
+            <input id="payStatu" class="input" type="text" placeholder="选择缴费状态"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <input id="downLoadDetailExcel" type="button" value="导出学籍" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div style="line-height: 40px;padding:0px 10px;border-top: 1px solid #e4e4e4;">
+    人数:
+    <span id="total" style="color: #f87941;margin:10px;">--</span>
+    人，
+    专业总数:
+    <span id="majorTotals" style="color: #f87941;margin:10px;">--</span>
+    个，
+    男生人数:
+    <span id="mans" style="color: #f87941;margin:10px;">--</span>
+    人，
+    女生人数:
+    <span id="womens" style="color: #f87941;margin:10px;">--</span>
+    人；
+
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "welcome_record", pageNum: 1};
+        var config = [
+            {CH: "姓名", EN: "name"},
+            {CH: "入学年份", EN: "rxnd"},
+            {CH: "性别", EN: "sex", Option: {"0": "女", "1": "男"},OptionExcel:{"0":"女","1":"男"}},
+            {CH: "专业", EN: "major"},
+            {CH: "手机号码", EN: 'phone'},
+            {CH: "身份证号", EN: "cardId"},
+            {CH: "缴费状态", EN: "payStatu", Option: {"0": "未缴费", "1": "<font style='color:#00b7ee'>缴费完成</font>", "2": "<font style='color:#ee2700'>欠费</font>"},OptionExcel:{"0": "未缴费"}},
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/welcome/manage/record", option, config);
+        list.btns = "<span class=\"listLook bg_dfba49\">查看</span>";
+        list.load(function () {
+            $("#total").html(list.data.stuTotal);
+            $("#majorTotals").html(list.data.majorTotals);
+            $("#mans").html(list.data.mans);
+            $("#womens").html(list.data.womens);
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //查看
+                    $(this).find(".listLook").click(function(){
+                        Y.open({url:"modules/welcome/reportsEdit.html",title:"学籍信息查看",data:{type:"record",id:data.accountId,readOnly:true}});
+                    })
+                }
+            })
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("历史归档学籍信息");
+        })
+        $("#downLoadDetailExcel").click(function() {
+            var pageNum = option.pageNum;
+            var pageSize = option.pageSize;
+            var record = "record";
+            var keyword = $("#keyword").val();
+            var url = ucIP + "/api/uc/v0.1/welcome/exportStudent?" + "schoolId=" + schoolId +"&keyword="+ keyword + "&record=" + record + "&pageNum="+ 1 + "&pageSize=" + 99999;
+            Y.download(url);
+        })
+        var rxnd = new Y.Calendar($("#rxnd"),{date:""});
+        rxnd.maxDate = new Date();
+        $("#rxnd").focus(function () {
+            var _this = $(this);
+            rxnd.open(function (d) {
+                _this.val(d);
+                rxnd.close();
+            });
+        });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword"),
+            payStatu:new Y.Select($('#payStatu'),['未缴费','缴费完成','欠费'])
+        });
+    })()
+</script>

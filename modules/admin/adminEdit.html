@@ -1,0 +1,183 @@
+<form class="form">
+    <div class="form_title"><b>管理员信息编辑</b><span class="red">(*为必填项)</span></div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width50">
+            <div class="data_title">照片</div>
+            <div style="margin-left: 50px;">
+                <div id="data-photo" type="img"></div>
+                <span style="color: #ccc">建议尺寸295x413</span>
+            </div>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>账号</div>
+            <span class="data_error">账号不能为空</span><input autocomplete="off" class="input" id="data-account" type="text" placeholder="请填写账号"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>密码</div>
+            <span class="data_error">密码不能为空</span><input autocomplete="off" class="input" id="data-password" type="password" placeholder="请填写密码"/>
+
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>管理员名称</div>
+            <span class="data_error">名称不能为空</span><input class="input" id="data-name" type="text" placeholder="请填写名称"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>联系电话</div>
+            <span class="data_error">联系电话不能为空</span><input class="input" id="data-phone" type="text" placeholder="请填写联系电话"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><!-- <b class="red">*</b> -->级别</div>
+            <!-- <span class="data_error">级别不能为空</span> -->
+            <input class="input" id="data-type" type="text" placeholder="请选择级别"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>所在地区</div>
+            <span class="data_error">学校所在地区不能为空</span><input class="input" id="data-areaName" type="text" placeholder="请填写所在地区" readonly='readonly' autocomplete="off"/><input class="area area1" style="display: none;"/>
+            <input class="area area2" style="display: none;"/>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+
+</style>
+<script>
+    (function() {
+        var userType = Y.User.Get('adminType');
+        var userProvince = Y.User.Get('province');
+        var userAreaName = Y.User.Get('areaName');
+        var area = new Y.Area({obj:$("#data-areaName"),readonly:true});
+        /*if (userType=='3') {
+            area = new Y.Area({type:2,obj:$("#data-areaName"),readonly:true});
+            $("#data-areaName").val(userProvince+userAreaName).attr('readonly','readonly');
+            $(".area1").val(userProvince);
+            $(".area2").val(userAreaName);
+        }else{
+            area = new Y.Area({type:1,obj:$("#data-areaName")})
+        }*/
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            accountId : Y.getUrlParam("id"),
+            photo : {
+                o:new Y.Img($("#data-photo"),"<img style='cursor: pointer;' src='images/headPortrait.png' />",{width:295,height:413,radius:0,scale:[5,7]})
+            },
+            account : {
+                o:$("#data-account"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"账号不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            password : {
+                o:$("#data-password"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"密码不能为空"];
+                    } else if (v.length<6){
+                        return [false,"密码字符数不能小于6位"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            name : {
+                o:$("#data-name"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"名称不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            phone : {
+                o:$("#data-phone"),
+                e:"blur",
+                f:function(v){
+                    if (v == "") {
+                        return [false,"联系电话不能为空"];
+                    } else if (v.length!=11&&isNaN(v)){
+                        return [false,"联系电话格式有误"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            type : {
+                o:new Y.Select($("#data-type"),{2:'省级',3:'市级'},{SelectBox:{
+                    eachClickFn:function(th,val){
+                        $("#data-areaName").val('').siblings('.area').remove();
+                        area.readonly = false;
+                        if (val.k == '2') {
+                            area.type = 1
+                        };
+                        if (val.k == '3') {
+                            area.type = 2;
+                        };
+                        area.reload();
+                    }
+                }}),
+                f:function(v){
+                    if (v == "") {
+                        return [false,"级别不能为空"];
+                    } else {
+                        return [true];
+                    }
+                },
+            },
+            province : {
+                o:$(".area1"),
+            },
+            city : {
+                o:$(".area2"),
+            }
+        }
+        if (Y.getUrlParam("id")) {
+            $("#data-account").attr("readonly","readonly").parents(".data").children('.data_title').html('<b class="red">*</b>账号（不可修改）');
+            $("#data-password").parents(".data").children('.data_title').html('<b class="red">*</b>密码（不可修改）');
+            $("#data-password").after('<input class="input" id="data-password0" type="password" value="123456" readonly="readonly"/>').remove();
+            fromConfig.password.o = $("#data-password0");
+        }
+        var from = new Y.From(fromConfig,"accountId",{getURL:ucIP + "/api/uc/v0.1/admin/{accountId}/detail",postURL:ucIP + "/api/uc/v0.1/admin",putURL:ucIP + "/api/uc/v0.1/admin/{accountId}",title:"提交管理员信息",dataJson: false,fn:function(res){
+            res.password = "123456";
+            area.readonly = false;
+            if (res.type===2) {
+                area.type = 1;
+            }else{
+                area.type = 2;
+            };
+            area.reload();
+            $("#data-areaName").val(res.province+res.city);
+        }});
+        $("#data-areaName").focus(function() {
+            if($("#data-type").val() == ""){
+                Y.alertx("请先选择级别")
+            }
+        });
+        //提交
+        $("#submit").click(function(){
+            if ($(".area1").val()) {
+                from.submit($(this),'',{
+                    province:$(".area1").val(),
+                    city:$(".area2").val()
+                });
+            }else{
+                Y.alertx("请选择所在地区")
+            };
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

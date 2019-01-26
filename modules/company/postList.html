@@ -1,0 +1,91 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="companyName" class="input" type="text" placeholder="企业名称"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <input type="button" id="downLoadListModle" value="下载导入模板" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "companyPost", pageNum: 1};
+        var config = [
+            {CH: "企业名称", EN: "companyName"},
+            {CH: "岗位", EN: "postName"},
+            {CH: "招聘人数", EN: 'number'},
+            {CH: "工资", EN: "postPay"},
+            {CH: "开始时间", EN: "internshipStartTime"},
+            {CH: "结束时间", EN: "internshipEndTime"},
+            {CH: "人员分配", EN: "count",htmlFormat:'{count}/{number}<span class="listUsers bg_dfba49" style="cursor: pointer;" title="人员分配">分配</span><div class="excelImport" style="text-decoration: underline;cursor: pointer;color: #59a9e1;">导入</div>'}
+        ];
+        var list = new Y.List(eschoolIP + "/api/company/v0.1/post", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/company/postEdit.html",title:"编辑岗位信息",data:{id:data.id,data:data}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/company/v0.1/post/","id","岗位",{vKey:"name",obj:$(this)});
+                    })
+                    //人员分配
+                    $(this).find(".listUsers").click(function(){
+                        Y.open({url:"modules/company/practice.html",title:"人员分配",data:{id:data.id,data:data}});
+                    })
+                    $(this).find('.excelImport').click(function(){
+                        Y.upload(eschoolIP + '/api/company/v0.1/practice/dataImport',function(res, filesData){
+                            if(res && res.result){
+                                Y.alertx("导入成功," + res.msg,function(){
+                                    list.reLoad();
+                                });
+                            }else{
+                                if(res && res.url){
+                                    Y.confirmx("<div style='color: #ff0000;font-weight:bold;'>导入失败!</div>" + res.msg + "<div style='color: #ff0000;'>点击确定下载失败的数据?</div>",function(){
+                                        Y.download(res.url);
+                                        list.reLoad();
+                                    });
+                                }else{
+                                    Y.alertx("导入失败，" + res.errorMsg);
+                                }
+                            }
+                        },{header:[{key:'companyId',vaule:data.companyId},{key:'postId',vaule:data.id}]})
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/company/v0.1/post/","id","岗位",{vKey:"name"});
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/company/postEdit.html",title:"新增岗位"});
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("实习岗位信息");
+        })
+        $('#downLoadListModle').click(function(){
+            Y.download(eschoolIP + '/api/company/v0.1/practice/dataImport');
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            companyName:$("#companyName")
+        });
+    })()
+</script>

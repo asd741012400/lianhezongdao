@@ -1,0 +1,606 @@
+<form class="form">
+    <div class="form_title"><img class="form_title_img" src="images/headPortrait.png"/><font>学生信息编辑</font>
+    <span class="red">(*为必填项)</span><span class="red" id="xzx" style="margin-left: 16px;background:#efefef;color:#8e8e8e;padding: 3px 10px; border-radius: 3px;"></span>
+    </div>
+    <div class="formBox borderLeft borderRight borderBottom">
+        <div class="data width50">
+            <div class="data_title">头像</div>
+            <div style="margin-left: 50px;">
+                <div id="data-portrait" type="img"></div>
+                <span style="color: #ccc">建议尺寸100x100</span>
+            </div>
+        </div>
+        <div class="data width50">
+            <div class="data_title"> <b class="red">*</b>
+                姓名
+            </div>
+            <span class="data_error">姓名不能为空</span>
+            <input class="input" id="data-name" type="text" placeholder="请填写姓名"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">
+                <b class="red">*</b>
+                性别
+            </div>
+            <span id="data-sex" type="radio">
+                <input type="radio" value="1" checked/>
+                男
+                <input type="radio" value="0" />
+                女
+            </span>
+        </div>
+        <div class="data width50">
+            <div class="data_title">
+                <b class="red">*</b>
+                入学年度
+            </div>
+            <span class="data_error">入学年度不能为空</span>
+            <input class="input" id="data-rxnd" type="text" placeholder="请输入入学年度"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">
+                <b class="red">*</b>
+                专业
+            </div>
+            <span class="data_error">专业不能为空</span>
+            <input class="input" id="data-major" type="text" placeholder="请选择专业"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">
+                所在班号
+            </div>
+            <span class="data_error">班号不能为空</span>
+            <input class="input" id="data-classNum" type="text" placeholder="请填写班号"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>手机号码</div>
+            <span class="data_error">手机号码不能为空</span>
+            <input class="input" id="data-phone" type="text" maxlength="11" placeholder="请填写手机号码"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>身份证号码</div>
+            <span class="data_error">身份证号码不能为空</span>
+            <input class="input" id="data-cardId" type="text" placeholder="请填写身份证号码"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">
+                出生日期
+            </div>
+            <input class="input" id="data-birthday" type="text" placeholder="请输入出生日期" /><span style="position: relative;margin-left: -40px;margin-top: 2px;padding:7px;color: #ccc;" id="age"></span>
+        </div>
+        <div class="data width50">
+            <div class="data_title">籍贯</div>
+            <span class="data_error">籍贯不能为空</span>
+            <input class="input" id="data-origin" type="text" placeholder="请填写籍贯"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">民族</div>
+            <span class="data_error"></span>
+            <input class="input" id="data-nation" type="text" placeholder="请填写民族"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">学制</div>
+            <input class="input" id="data-years" type="text" readonly="readonly"/>
+        </div>
+
+        <div class="data width50">
+            <div class="data_title">政治面貌</div>
+            <input class="input" id="data-polity" type="text" placeholder="请选择政治面貌"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">户口类型</div>
+            <input class="input" id="data-rrType" type="text" placeholder="请选择户口类型"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">应往届</div>
+            <input class="input" id="data-graduateType" type="text" placeholder="请选择应往届"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title">毕业学校</div>
+            <input class="input" id="data-lastSchool" type="text" placeholder="请填写毕业学校"/>
+        </div>
+        <div class="data width50">
+            <div class="data_title"><b class="red">*</b>是否挂读</div>
+            <span id="data-hang" type="radio"><input type="radio" value="0" checked/>否<input type="radio" value="1"/>是</span>
+        </div>
+        <div class="data width100">
+            <div class="data_title">户口地址</div>
+            <input class="input" id="data-rrAddress" type="text" placeholder="请填写户口地址"/>
+        </div>
+        <div class="data width100">
+            <div class="data_title">家庭地址</div>
+            <span class="data_error">输入错误</span>
+            <input class="input" id="data-familyAddress" type="text" placeholder="市-区-街道-小区"/>
+        </div>
+        <div class="data width50" style="display: none;">
+            <div class="data_title"><b class="red">*</b>报到状态</div>
+            <span id="data-reportStatu" type="radio"><input type="radio" value="0" checked />未报到<input type="radio" value="1" />已报到</span>
+        </div>
+        <div class="data width50" style="display: none;">
+            <div class="data_title"><b class="red">*</b>审核状态</div>
+            <span id="data-reviewStatu" type="radio"><input type="radio" value="0" checked />未审核<input type="radio" value="1" />已审核</span>
+        </div>
+        <div class="data width50" style="display: none;">
+            <div class="data_title"><b class="red">*</b>签订协议</div>
+            <span id="data-agreement" type="radio"><input type="radio" value="0" checked/>未签订<input type="radio" value="1"/>已签订</span>
+        </div>
+        <div id="customAtt"></div>
+        <div class="clear"></div>
+    </div>
+    <div class="form_title" style="margin-top: 20px;">
+        <img class="form_title_img" src="images/headPortrait.png"/><font>家长信息</font>
+    </div>
+    <div class="formBox borderLeft borderRight borderBottom" style="background: #f9f9f9;">
+        <div id="data-guardianInfo"></div>
+        <div class="clear"></div>
+        <div class="formBtns alignLeft">
+            <input type="button" id="more" value="+ 添加家长" class="bg_none" style="padding-left: 0px" />
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="返回" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    #data-portrait{
+        height:100px;
+        width: 100px;
+        margin-right:10px;
+        border-radius: 100px;
+        overflow: hidden;
+    }
+    #data-portrait img{
+        width: 100px;
+    }
+    .guardianInfo input{
+        background-color: #f9f9f9;
+        border-color: #f9f9f9;
+        border-bottom-color: #e4e4e4;
+    }
+</style>
+<script>
+    (function() {
+        function GuardianInfo(obj,addBtn,unEdit){
+            var _this = this;
+            this.Data = [];
+            this.DataType = function(){
+                var o = new Object();
+                var guardianInfoHTML = "<div class='guardianInfo'>";
+                guardianInfoHTML += "<div class='form_title' style='text-align:right;background:#F9F9F9;margin-top:5px;'><b class='red' style='float:left;'>家长信息 :</b>";
+                guardianInfoHTML += unEdit ? "" : "<span class='deleteBtn bg_f11c1c' style='padding:3px 10px; cursor:pointer;'>- 删除</span>";
+                guardianInfoHTML += "<div class='clear'></div></div>";
+                //姓名
+                guardianInfoHTML += "<div class='data width50'><div class='data_title'><b class='red'>*</b>姓名</div><span class='data_error'>监护人不能为空</span><input type='text' value='' class='input' placeholder='请填写监护人姓名' /></div>";
+                //电话
+                guardianInfoHTML += "<div class='data width50'><div class='data_title'><b class='red'>*</b>手机号码</div><span class='data_error'>手机号码不能为空</span><input type='text' value='' class='input' maxlength='11' placeholder='请填写监护人手机号码' /></div>";
+                //职业
+                guardianInfoHTML += "<div class='data width50'><div class='data_title'>工作单位</div><span class='data_error'>工作单位不能为空</span><input type='text' value='' class='input' placeholder='请填写监护人工作单位' /></div>";
+                //身份证号码
+                guardianInfoHTML += "<div class='data width50'><div class='data_title'>身份证号码</div><span class='data_error'>身份证号码输入有误</span><input type='text' value='' class='input' placeholder='请填写监护人身份证号码' /></div>";
+                //关系
+                guardianInfoHTML += "<div class='data width50'><div class='data_title'><b class='red'>*</b>与被监护人关系</div><span class='data_error'>和被监护人关系不能为空</span><input type='text' value='' class='input' placeholder='请填写和被监护人关系' /></div>";
+                guardianInfoHTML += "<div class='form_line'></div></div>";
+                obj.append(guardianInfoHTML);
+                o.id = (new Date()).getTime();
+                o.guardianId = "";
+                o.guardianImId = "";
+                o.guardianPhoto = "";
+                //删除
+                obj.find(".guardianInfo").last().find(".deleteBtn").eq(0).click(function(){
+                    var $this = $(this);
+                    Y.confirmx("确定删除本家长信息？",function(){
+                        _this.delete(o.id);
+                    },{titleHeight:0,_h:110,_w:200,styles:{bottom:'border-top:none;',center:'border-top:none;',box:'left:' + ($this.offset().left - 150) + 'px;top:' + ($this.offset().top - 110) + 'px;'}})
+                });
+                //姓名验证
+                o.guardianName = obj.find(".guardianInfo").last().find(".data").eq(0).find("input").eq(0);
+                o.guardianName.verify = function(){
+                    if(this.val() == ""){
+                        _this.errFn(this, "姓名不能为空");
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }
+                //失去焦点进行验证
+                o.guardianName.blur(function () {
+                    o.guardianName.verify();
+                });
+                //电话
+                o.guardianPhone = obj.find(".guardianInfo").last().find(".data").eq(1).find("input").eq(0);
+                o.guardianPhone.verify = function(){
+                    if (this.val() != "" && !Y.Verify.Phone(this.val())[0]) {
+                        _this.errFn(this, "电话号码格式错误，请输入正确的手机号码");
+                        return false;
+                    } else {
+                        if(this.val() == ""){
+                            _this.errFn(this, "电话号码不能为空");
+                        return false;
+                        }else{
+                            return true;
+                        }
+                    }
+                }
+                //失去焦点进行验证
+                o.guardianPhone.blur(function () {
+                    o.guardianPhone.verify();
+                });
+                //职业
+                o.guardianJob = obj.find(".guardianInfo").last().find(".data").eq(2).find("input").eq(0);
+                //身份证号码
+                o.guardianCardNo = obj.find(".guardianInfo").last().find(".data").eq(3).find("input").eq(0);
+                o.guardianCardNo.verify = function(){
+                    if (this.val() != "" && !Y.Verify.IDCard(this.val())[0]) {
+                        _this.errFn(this, "身份证号码格式错误");
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+                //失去焦点进行验证
+                o.guardianCardNo.blur(function () {
+                    o.guardianCardNo.verify();
+                });
+                //关系
+                o.relationship = obj.find(".guardianInfo").last().find(".data").eq(4).find("input").eq(0);
+                o.relationship.verify = function(){
+                    if(this.val() == ""){
+                        _this.errFn(this, "关系不能为空");
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }
+                //失去焦点进行验证
+                o.relationship.blur(function () {
+                    o.relationship.verify();
+                });
+                return o;
+            }
+            this.add = function(){
+                var d = this.DataType();
+                this.Data.push(d);
+                GuardianInfo.size ++;
+            }
+            this.errFn = function(obj,msg){
+                if(!obj.parents) return false;
+                obj = obj.parents(".data");
+                if (!obj.attr("errorMsg")) obj.attr("errorMsg", msg);
+                if (!msg) msg = obj.attr("errorMsg");
+                obj.find(".data_error").html(msg);
+                obj.find(".data_error").show();
+            }
+            this.delete = function(id){
+                var data = [];
+                for(var i = 0; i < this.Data.length; i++){
+                    if(this.Data[i].id != id){
+                        data.push(this.Data[i]);
+                    }else{
+                        obj.find(".guardianInfo").eq(i).remove();
+                        GuardianInfo.size --;
+                    }
+                }
+                this.Data = data;
+            }
+            this.val = function(s){
+                if(s && s.length > 0){
+                    for(var i = 0; i < s.length; i++){
+                        var d = this.DataType();
+                        for(var key in d){
+                            if(typeof(d[key]) == "object" && d[key].val && s[i][key] != undefined){
+                                d[key].val(s[i][key]);
+                            }else if(key == "id"){
+                                d[key] = !s[i][key] ? d[key] : s[i][key];
+                            }else{
+                                d[key] = s[i][key];
+                            }
+                        }
+                        this.Data.push(d);
+                        GuardianInfo.size ++;
+                    }
+                    if(this.Data.length == 0) this.add();
+                }else{
+                    var guardian = {guardianId:'',guardianName:'',guardianPhone:'',guardianJob:'',guardianCardNo:'',relationship:''};
+                    var arr = [];
+                    for(var i = 0; i < this.Data.length; i++){
+                        var d = {};
+                        for(var k in guardian){
+                            var value = "";
+                            if(this.Data[i][k] && typeof(this.Data[i][k]) == "object" && this.Data[i][k].val){
+                                value = this.Data[i][k].val();
+                            }else{
+                                value = this.Data[i][k];
+                            }
+                            d[k] = value;
+                        }
+                        arr.push(d);
+                    }
+                    return arr;
+                }
+            }
+            this.verify = function(){
+                var isOk = true;
+                for(var i = 0; i < this.Data.length; i++){
+                    for(var k in this.Data[i]){
+                        if(this.Data[i][k] && this.Data[i][k].verify) {
+                            isOk = this.Data[i][k].verify() ? isOk : false;
+                        }
+                    }
+                }
+                return isOk;
+            }
+            if(unEdit){
+                addBtn.hide();
+            }else{
+                addBtn.click(function(){
+                    _this.add();
+                })
+            }
+        }
+        GuardianInfo.size = 0;
+        var pagaType = Y.getUrlParam("type");
+        var readOnly = Y.getUrlParam("readOnly");
+        var apiUrl = "";
+        var unEdit = false;
+        switch(Y.getUrlParam("type")){
+            case "report":
+                $("#data-reportStatu").parent().show();
+                apiUrl = "/api/uc/v0.1/welcome/report/";
+                break;
+            case "manage":
+                $("#data-reviewStatu").parent().show();
+                apiUrl = "/api/uc/v0.1/welcome/manage/";
+                break;
+            case "review":
+                $("#data-reviewStatu").parent().show();
+                $(".input").css("border","none");
+                $("#submit").hide();
+                unEdit = true;
+                apiUrl = "/api/uc/v0.1/welcome/review/";
+                break;
+            case "reviewEdit":
+                $("#data-reviewStatu").parent().show();
+                apiUrl = "/api/uc/v0.1/welcome/review/";
+                break;
+            case "record":
+                $("#data-agreement").parent().show();
+                $(".input").css("border","none");
+                $("#submit").hide();
+                unEdit = true;
+                apiUrl = "/api/uc/v0.1/welcome/manage/record/";
+                break;
+            default:
+                break;
+        }
+        //绑定表单数据,注意 每个字段必须提供val()方法来设置值和获取值,
+        var accountId = Y.getUrlParam("id");
+        Y.ajax(ucIP + '/api/uc/students/cusAtt/v0.1/list',function(ret){
+            Y.qiNiouKey(function(upladArgs){
+                var fromConfig = {
+                    accountId : accountId,
+                    portrait : {o:new Y.Img($("#data-portrait"),"<img style='cursor: pointer;' src='images/headPortrait.png' />",{width:300,height:300,radius:150,scale:[1,1]},upladArgs)},
+                    name : {
+                        o:$("#data-name"),
+                        e:"blur",
+                        f:function(v){
+                            if (v == "") {
+                                return [false,"姓名不能为空"];
+                            } else {
+                                return [true];
+                            }
+                        }
+                    },
+                    sex : {o:new Y.Radio($("#data-sex input"))},
+                    birthday : {
+                        o:$("#data-birthday"),
+                        i:function(){
+                            var calendar = new Y.Calendar($("#data-birthday"));
+                            calendar.maxDate = new Date();
+                            $("#data-birthday").focus(function(){
+                                var _this = $(this);
+                                //_this.prev().hide();
+                                calendar.open(function(d){
+                                    _this.val(d);
+                                    calendar.close();
+                                    if(calendar.finalDate){
+                                        $("#age").show();
+                                        $("#age").html((new Date()).age(calendar.finalDate.getFullYear(),calendar.finalDate.getMonth() + 1,calendar.finalDate.getDate()) + "岁");
+                                    }else{
+                                        $("#age").hide();
+                                    }
+                                });
+                            })
+                        },
+//                        f:function(v){
+//                            if (v == "") {
+//                                return [false,"出生日期不能为空"];
+//                            } else {
+//                                return [true];
+//                            }
+//                        },
+                        v:function(v){
+                            if(v && v.indexOf("-") > -1){
+                                v = v.split("-");
+                                $("#age").show();
+                                $("#age").html((new Date()).age(v[0],v[1],v[2]) + "岁");
+                            }
+                        }
+                    },
+                    origin : {o:$("#data-origin")},
+                    rxnd:{
+                        o:$("#data-rxnd"),
+                        i:function(){
+                            var calendar = new Y.Calendar($("#data-rxnd"),{date:new Date().Format('yyyy')});
+                            calendar.maxDate = new Date();
+                            $("#data-rxnd").focus(function(){
+                                var _this = $(this);
+                                _this.prev().hide();
+                                calendar.open(function(d){
+                                    _this.val(d);
+                                    calendar.close();
+                                });
+                            })
+                        }
+                    },
+                    major : {
+                        o:new Y.OnlySelectBox($("#data-major"),{
+                            vKey:"id",
+                            sKey:"name",
+                            SelectBox:{
+                                paramet:{key:"majorName"},
+                                url:ucIP + "/api/uc/v0.1/majors",
+                                dataString:"<div class='autoList' vaule='{id}'><b class='listStyle_cicle icon_img'>{listStyle_name}</b><span>{name}</span><span style='color:#ccc;display:block;'>专业代码:{code}</span></div>"
+                            },
+                            selectedFn:function(res){
+                                if(res && res.years) $("#data-years").val(res.years);
+                            }
+                        }),
+                        s:"majorName",
+                        _o:$("#data-major"),
+                        f:function(v){
+                            if (v == "") {
+                                return [false,"专业不能为空"];
+                            } else {
+                                return [true];
+                            }
+                        },
+                    },
+                    classNum : {o:$("#data-classNum")},
+                    phone : {
+                        o:$("#data-phone"),
+                        e:"blur",
+                        f:function(v){
+                            if (v == "") {
+                                return [false,"手机号码不能为空"];
+                            } else {
+                                return [true];
+                            }
+                        }
+                    },
+                    cardId:{
+                        o:$("#data-cardId"),
+                        e:"blur",
+                        f:function(v){
+                            if(v == ""){
+                                return [false,"身份证号码不能为空"];
+                            }else{
+                                var b = Y.Verify.IDCard(v)[0];
+                                if(b){
+                                    $("#data-birthday").val(b[0]);
+                                    $("#age").html((new Date()).age(b[1],b[2],b[3]) + "岁");
+                                    return [true];
+                                }else{
+                                    return [false,"身份证号码格式错误，请输入正确的身份证号码"];
+                                }
+                            }
+                        }
+                    },
+                    nation : {o:$('#data-nation')},
+                    polity : {o:new Y.Select($("#data-polity"),{'1':'群众','2':'中国共产主义青年团团员','3':'预备党员','4':'中国共产党党员','5':'其他'})},
+                    rrType : {o:new Y.Select($("#data-rrType"),['农业户口','非农业户口'])},
+                    years : {o:$("#data-years")},
+                    lastSchool: {o:$("#data-lastSchool")},
+                    hang:{o:new Y.Radio($("#data-hang input"))},
+                    familyAddress : {o:$("#data-familyAddress")},
+                    reportStatu : {o:new Y.Radio($("#data-reportStatu input"))},
+                    reviewStatu : {o:new Y.Radio($("#data-reviewStatu input"))},
+                    agreement: {o:new Y.Radio($("#data-agreement input"))},
+                    guardianParams : {o:new GuardianInfo($("#data-guardianInfo"),$("#more"),unEdit)},
+                    rrAddress: {o:$("#data-rrAddress")},
+                    graduateType: {o:new Y.Select($("#data-graduateType"),['往届','应届'])}
+                }
+                if(ret && !ret.errorMsg){
+                    var components = new Y.ComponentAnalysis(ret);
+                    components.init($('#customAtt'));
+                    if(unEdit) $(".input").css("border","none");
+                    fromConfig.customAttKey = {
+                        o:components,
+                        f:function(){
+                            return components.verify();
+                        }
+                    }
+                }
+                var useXZX = false;
+                if(!accountId){
+                    (function(){
+                        var fn = arguments.callee;
+                        var timer;
+                        $('#xzx').html('正在检测身份证阅读机...');
+                        Y.JSONP('http://localhost:6543/api/ReadMsg?ie=1',function(ret){
+                            $('#xzx').html('身份证阅读机已连接');
+                            show(ret);
+                            clearTimeout(timer);
+                            (function(){//身份证采集器
+                                var _fn = arguments.callee;
+                                Y.JSONP('http://localhost:6543/api/ReadMsg?ie=1',function(ret){
+                                    show(ret);
+                                    setTimeout(function(){
+                                        if($('#xzx').size() > 0) _fn();
+                                    },3000)
+                                })
+                            })()
+                            function show(ret){
+                                if(ret && ret.name && ret.sex && ret.born && ret.address && ret.cardno && ret.photopngbase64 && ret.nation){
+                                    fromConfig.name.o.val(ret.name);
+                                    fromConfig.sex.o.val(ret.sex == '男' ? 1 : 0);
+                                    fromConfig.rrAddress.o.val(ret.address);
+                                    fromConfig.cardId.o.val(ret.cardno);
+                                    fromConfig.nation.o.val(ret.nation);
+                                    var b = Y.Verify.IDCard(ret.cardno)[0];
+                                    if(b){
+                                        $("#data-birthday").val(b[0]);
+                                        $("#age").html((new Date()).age(b[1],b[2],b[3]) + "岁");
+                                    }
+                                    fromConfig.portrait.o.val('data:image/png;base64,' + ret.photopngbase64);
+                                    useXZX = true;
+                                }
+                            }
+                        })
+                        timer = setTimeout(function(){
+                            $('#xzx').html('未检测到身份证阅读机<font id="checkxzx" style="margin-left: 8px;color: #3b5bd6;text-decoration: underline;cursor: pointer;">重新检测</font><font style="background:#dcdbdb;color:#59a9e1;border-radius:14px;font-size:12px;padding:0px 5px;margin-left:8px;cursor:default;" id="showxzxBtn">?</font>');
+                            $('#checkxzx').click(function(){
+                                fn();
+                            })
+                            Y.MouseOverShow($('#showxzxBtn'),'',{string:'1.连接设备到本机<br/>2.安装驱动程序和服务程序<br/>3.开启服务程序<br/>4.服务程序使用6543端口<br/><a href="files/driver_service.rar" target="_blank" style="color:#fff;">下载软件</a>',style:'position:fixed;left:' + ($('#showxzxBtn').offset().left + 10) + 'px;top:135px;border-radius:5px;width:180px;padding:16px 0px 16px 16px;background:#000;color:#fff;line-height:24px;background:#000;color:#fff;z-index:' + Y.zIndex(4)});
+                        },3000)
+                    })()
+                }else{
+                    $('#xzx').hide();
+                }
+                if(readOnly) Y.disabled(fromConfig);
+                var from = new Y.From(fromConfig,"accountId",{getURL:ucIP + apiUrl + fromConfig.accountId,postURL:ucIP + "/api/uc/v0.1/welcome/report",putURL:ucIP + "/api/uc/v0.2/welcome/report",title:"提交新生信息",dataJson:false});
+
+                //提交
+                $("#submit").click(function(){
+                    var $this = $(this);
+                    if(useXZX){
+                        //自动上传头像
+                        Y.qiNiouKey(function(upladArgs){
+                            Y.upload(upladArgs.url, function (ret, filesData) {
+                                if (ret && ret.key) {
+                                    useXZX = false;
+                                    upladArgs.retFn(ret,function(src){
+                                        fromConfig.portrait.o.val(src);
+                                    })
+                                }else{
+                                    var msg = "上传失败";
+                                    if(ret && ret.errorMsg) msg += "," + ret.errorMsg;
+                                    Y.alertx(msg);
+                                }
+                                from.submit($this);
+                            },{beforeAction:upladArgs.beforeAction,formDataAppend:upladArgs.formDataAppend,Blob:[Y.dataURLtoBlob(fromConfig.portrait.o.val())],BlobMime:'png'})
+                        })
+                    }else{
+                        from.submit($this);
+                    }
+                })
+            })
+        })
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

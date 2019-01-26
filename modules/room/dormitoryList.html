@@ -1,0 +1,85 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="keyword" class="input" type="text" placeholder="名字/宿舍号/班级"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/><span id="advancedSearch_btn">高级查询<img src="images/gjcx.png" /></span>
+        </div>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+        <div id="advancedSearch_box">
+            <div class="advancedSearch_data"><input id="stuName" class="input" type="text" placeholder="姓名"/></div>
+            <div class="advancedSearch_data"><input id="className" class="input" type="text" placeholder="班级名称"/></div>
+            <div class="advancedSearch_data"><input id="begDate" class="input" type="text" placeholder="开始日期"/></div>
+            <div class="advancedSearch_data"><input id="endDate" class="input" type="text" placeholder="结束日期"/></div>
+            <div class="advancedSearch_data"><input id="dormNo" class="input" type="text" placeholder="寝室号"/></div>
+            <div class="clear"></div>
+            <div class="advancedSearch_btn"><input type="button" value="搜索" id="advancedSearchBtn" class="bg_00b7ee"/><input type="button" value="取消" id="advancedSearchCancle" class="bg_ffffff"/></div>
+        </div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "dormitory", pageNum: 1};
+        var config = [
+            {CH: "宿舍号", EN: "dormitoryNo"},
+            {CH: "班级", EN: "className"},
+            {CH: "姓名", EN: "studentName"},
+            {CH: "学号", EN: "studentNo"},
+            {CH: "状态", EN: "status", Option:{"1":"<font class='fontStyle bg_f65e5d'>缺寝</font>"},OptionExcel:{"1":"缺寝"}},
+            {CH: "巡查时间", EN: "date"},
+            {CH: "操作人", EN: "operName"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/dormitory/v0.1/dormitories/fuzzyresult", option, config);
+        list.listNumTitle = "序号";
+        list.load(function () {});
+        var classId = new Y.OnlySelectBox($("#data-classId"),{
+            vKey:"classId",
+            sKey:"className",
+            SelectBox:{
+                paramet:{key:"className",pageNum:1,pageSize:10},
+                url:ucIP + "/api/uc/v0.1/classes",
+                dataString:"<div class='autoList' value='{classId}'>{className}</div>"
+            }
+        })
+
+        //开始日期
+        var begDate = new Y.Calendar($("#begDate"),{date:""});
+        $("#begDate").focus(function () {
+            var _this = $(this);
+            begDate.open(function (d) {
+                _this.val(d);
+                begDate.close();
+            });
+        });
+        //结束日期
+        var endDate = new Y.Calendar($("#endDate"),{date:""});
+        $("#endDate").focus(function () {
+            var _this = $(this);
+            endDate.open(function (d) {
+                _this.val(d);
+                endDate.close();
+            });
+        });
+
+        $("#downLoadExcel").click(function(){
+            list.toExcel("宿舍巡查统计信息");
+        })
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            keyword:$("#keyword")
+        },eschoolIP + "/api/dormitory/v0.1/dormitories/preciseresult",{
+            className:$("#className"),
+            stuName:$("#stuName"),
+            dormNo:$("#dormNo"),
+            type:$("#type"),
+            status:$("#status"),
+            begDate:$("#begDate"),
+            endDate:$("#endDate"),
+        });
+    })()
+</script>

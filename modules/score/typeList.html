@@ -1,0 +1,60 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="semesterId" class="input" type="text" placeholder="学期"/><input id="searchBtn" type="button" value="搜索" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "scoreType", pageNum: 1};
+        var config = [
+            {CH: "标题", EN: "title",Edit:true},
+            {CH: "学期", EN: "semesterName"},
+            {CH: "开始时间", EN: "startTime"},
+            {CH: "结束时间", EN: "endTime"},
+            {CH: "发布时间", EN: "pushTime"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/examscore/v0.1/type", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">编辑</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.editAPI = eschoolIP + "/api/examscore/v0.1/type/{id}";
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/score/typeEdit.html",title:"成绩类型",data:{id:data.id,data:data}});
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/examscore/v0.1/type/","id","成绩类型",{vKey:"title",obj:$(this)});
+                    })
+                }
+            })
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/examscore/v0.1/type/","id","成绩类型",{vKey:"title"});
+        })
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/score/typeEdit.html",title:"新增成绩类型"});
+        });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            semesterId:new Y.OnlySelectBox($("#semesterId"),Y.getSelectBox('semester'))
+        });
+    })()
+</script>

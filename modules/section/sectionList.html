@@ -1,0 +1,206 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="sectionNoSearch" class="input" type="text" placeholder="输入节次(数字)"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="deleteBtn" type="button" class="bg_eeeeee" value="删除" />
+        <input id="addBtn" type="button" value="+ 新增" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="Excel导出" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+
+<style>
+    .addressBox{
+        text-align: left;
+    }
+
+    .addressBoxData{
+        height: 35px;
+        overflow: hidden;
+    }
+
+    .addressBoxData_title{
+        width: 80px;
+        float: left;
+        text-align: right;
+        margin-right: 10px;
+        padding-top: 5px;
+    }
+
+    .addressBoxData input,select{
+        border:1px solid #f0efef;
+        padding:1px 5px;
+        width: 160px;
+        height: 29px;
+    }
+</style>
+
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "section", pageNum: 1};
+        var config = [
+            {CH: "时间段", EN: "timeSlot", Option: {"1": "上午", "2": "下午", "3": "晚上"}, OptionExcel: {"1": "上午", "2": "下午", "3": "晚上"}},
+            {CH: "节次", EN: "sectionNo",htmlFormat:"第{sectionNo}节"},
+            {CH: "开始时间", EN: "startTime"},
+            {CH: "结束时间", EN: "endTime"}
+        ];
+        var list = new Y.List(eschoolIP + "/api/section/v0.1", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span><span class=\"listDelete bg_f11c1c\">删除</span>";
+        list.checkBtn = true;
+        list.load(function(){
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        edit(data);
+                    })
+                    //删除
+                    $(this).find(".listDelete").click(function(){
+                        list.deleteFn([data],eschoolIP + "/api/section/v0.1/","sectionId","节次",{vKey:"sectionNo",obj:$(this)});
+                    })
+                }
+            })
+        })
+        $("#addBtn").click(function () {
+            edit();
+        });
+        //批量删除
+        $("#deleteBtn").click(function(){
+            list.deleteFn(list.getChecked(),eschoolIP + "/api/section/v0.1/","sectionId","节次",{vKey:"timeSlot"});
+        })
+        $("#downLoadExcel").click(function () {
+            list.toExcel("节次信息");
+        });
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            sectionNo:$("#sectionNoSearch")
+        });
+        function edit(data) {
+            var html = "<div class='addressBox'>";
+            if(data == undefined){
+                html += "<div class='addressBoxData'><div class='addressBoxData_title'>时间段</div><select id='timeSlot'><option value='1' selected>上午</option><option value='2'>下午</option><option value='3'>晚上</option></select></div>";
+                html += "<div class='addressBoxData' id='sectionNoBox'><div class='addressBoxData_title'>节次</div><select id='sectionNo'><option value='1' selected>第1节</option><option value='2'>第2节</option><option value='3'>第3节</option><option value='4'>第4节</option></select></div>";
+                html += "<div class='addressBoxData'><div class='addressBoxData_title'>开始时间</div><input id='startTime' type='text' /></div>";
+                html += "<div class='addressBoxData'><div class='addressBoxData_title'>结束时间</div><input id='endTime' type='text' /></div>";
+            }else{
+                html += "<div class='addressBoxData'><div class='addressBoxData_title'>时间段</div><select id='timeSlot'>";
+                html += "<option value='1' " + (data.timeSlot == 1 ? "selected" : "") + "> 上午</option>";
+                html += "<option value='2' " + (data.timeSlot == 2 ? "selected" : "") + ">下午</option>";
+                html += "<option value='3' " + (data.timeSlot == 3 ? "selected" : "") + ">晚上</option>";
+                html += "</select></div>";
+                html += "<div class='addressBoxData' id='sectionNoBox'><div class='addressBoxData_title'>节次</div><select id='sectionNo'>";
+                html += getOption(data.timeSlot,data.sectionNo);
+                html += "</select></div>";
+                html += "<div class='addressBoxData'><div class='addressBoxData_title'>开始时间</div><input id='startTime' type='text' value='" + data.startTime + "' /></div>";
+                html += "<div class='addressBoxData'><div class='addressBoxData_title'>结束时间</div><input id='endTime' type='text' value='" + data.endTime + "' /></div>";
+            }
+            html += "</div>";
+            Y.confirmx(html,function(){
+                var timeSlot = $("#timeSlot").val();
+                if(timeSlot == "") {
+                    Y.alertx("时间段不能为空");
+                    return false;
+                }
+                var sectionNo = $("#sectionNo").val();
+                if(sectionNo == "") {
+                    Y.alertx("节次不能为空");
+                    return false;
+                }
+                var startTime = $("#startTime").val();
+                if(startTime == "") {
+                    Y.alertx("开始时间不能为空");
+                    return false;
+                }
+                var endTime = $("#endTime").val();
+                if(endTime == "") {
+                    Y.alertx("结束时间不能为空");
+                    return false;
+                }
+                if(null != data) {
+                    data = {timeSlot:timeSlot,sectionNo:sectionNo,startTime:"2016-01-01 " + startTime + ":00",endTime:"2016-01-01 " +endTime + ":00",sectionId:data.sectionId};
+                } else {
+                    data = {timeSlot:timeSlot,sectionNo:sectionNo,startTime:"2016-01-01 " + startTime + ":00",endTime:"2016-01-01 " +endTime + ":00",sectionId:""};
+                }
+                Y.ajax(eschoolIP + "/api/section/v0.1" + (data.sectionId ? "/" + data.sectionId : ""),function(res){
+                    var msg = "";
+                    if(res && res.result){
+                        msg = "节次设置成功"
+                    }else{
+                        msg = "节次设置失败"
+                        if(res && res.errorMsg) msg += "," + res.errorMsg;
+                    }
+                    Y.alertx(msg,function(){
+                        list.reLoad();
+                    })
+                },{data:data,meth:data.sectionId ? "PUT" : "POST",dataJson:false})
+            },{_w:300,_h:240,title:"节次编辑",initFn:function(){
+                $("#timeSlot").change(function () {
+                    $("#sectionNo").remove();
+                    var value = $(this).val();
+                    $("#sectionNoBox").append("<select id='sectionNo'>" + getOption(value) + "</select>");
+                })
+
+                var star = null != data && null != data.startTime ? data.startTime : "00:00";
+                var startTimeCalendar = new Y.Calendar($("#startTime"),{type:"time",date:star});
+                star = star.split(":");
+                startTimeCalendar.timeType = [star[0], star[1]];
+                startTimeCalendar.zIndex = (new Date()).only();
+                $("#startTime").focus(function(){
+                    var _this = $(this);
+                    startTimeCalendar.open(function(d){
+                        _this.val(d);
+                        startTimeCalendar.close();
+                    });
+                })
+
+                var end = null != data && null != data.endTime ? data.endTime : "23:59";
+                var endTimeCalendar = new Y.Calendar($("#endTime"),{date:end,type:"time"});
+                end = end.split(":");
+                endTimeCalendar.timeType = [end[0], end[1]];
+                endTimeCalendar.zIndex = (new Date()).only();
+                $("#endTime").focus(function(){
+                    var _this = $(this);
+                    endTimeCalendar.open(function(d){
+                        _this.val(d);
+                        endTimeCalendar.close();
+                    });
+                })
+            }})
+            function getOption(n,s){
+                n = -(-n);
+                var rc = "";
+                switch (n){
+                    case 1:
+                        rc += "<option value='1' " + (s == 1 ? "selected" : "") + ">第1节</option>";
+                        rc += "<option value='2' " + (s == 2 ? "selected" : "") + ">第2节</option>";
+                        rc += "<option value='3' " + (s == 3 ? "selected" : "") + ">第3节</option>";
+                        rc += "<option value='4' " + (s == 4 ? "selected" : "") + ">第4节</option>";
+                        break;
+                    case 2:
+                        rc += "<option value='5' " + (s == 5 ? "selected" : "") + ">第5节</option>";
+                        rc += "<option value='6' " + (s == 6 ? "selected" : "") + ">第6节</option>";
+                        rc += "<option value='7' " + (s == 7 ? "selected" : "") + ">第7节</option>";
+                        rc += "<option value='8' " + (s == 8 ? "selected" : "") + ">第8节</option>";
+                        break;
+                    case 3:
+                        rc += "<option value='9' " + (s == 9 ? "selected" : "") + ">第9节</option>";
+                        rc += "<option value='10' " + (s == 10 ? "selected" : "") + ">第10节</option>";
+                        rc += "<option value='11' " + (s == 11 ? "selected" : "") + ">第11节</option>";
+                        rc += "<option value='12' " + (s == 12 ? "selected" : "") + ">第12节</option>";
+                        break;
+                    default :
+                        break;
+                }
+                return rc;
+            }
+        }
+    })()
+</script>

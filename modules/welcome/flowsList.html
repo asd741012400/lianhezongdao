@@ -1,0 +1,113 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <span style="color: #00b7ee;">温馨提示:  拖动可修改步骤排序!</span>
+        </div>
+        <input type="button" value="+ 新增" id="addBtn" class="bg_eeeeee"/>
+        <input id="downLoadExcel" type="button" value="导出结果" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="table">
+    <div id="table" title="可拖动排序"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style type="text/css">
+    tr{
+        cursor: move;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var config = [
+            {CH: "处理部门", EN: "department"},
+            {CH: "办理事项", EN: "matter"}
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v0.1/flows", {pageSize:"welcome_flows",pageNum:1}, config);
+        list.btns = "<span class=\"listEdit\">编辑</span><span class=\"listDelete\">删除</span>";
+        list.listNumTitle = "步骤";
+        list.dataStringify = "data";
+        list.load(function () {
+            //新生隐藏编辑按钮
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    if(data.studentType == 0) $(this).find(".listEdit").hide();
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/welcome/flowsEdit.html",title:"编辑新生报到流程信息",data:{id:data.flowId,stepNo:$(this).parents("tr").attr("stepNo")}});
+                    })
+                    //删除学生信息
+                    $(this).find(".listDelete").click(function(){
+                        var arr = [];
+                        var flowId = data.flowId;
+                        Y.confirmx("确定要删除吗？",function(){
+                            var stepNo = 0;
+                            for(var i = 0; i < list.data.rows.length; i++){
+                                if(list.data.rows[i].flowId != flowId){
+                                    stepNo ++;
+                                    list.data.rows[i].stepNo = stepNo;
+                                    arr.push(list.data.rows[i]);
+                                }
+                            }
+                            eidt(arr);
+                        },{titleHeight:0,styles:{
+                            bottom:'border-top:none;',
+                            center:'border-top:none;',
+                            box:'left:' + ($(this).offset().left - 150) + 'px;top:' + ($(this).offset().top - 110) + 'px;'
+                        },_h:110,_w:200}) 
+                    })
+                    $(this).attr("stepNo",i);
+                    $(this).find("td").eq(0).html("第 " + i + " 步");
+                    //拖拽
+                    $(this).attr("draggable","true");
+                    var screenY;
+                    this.ondragstart = function(e){
+                        screenYstart = e.screenY;
+                        e.dataTransfer.setData("objHTML",this.outerHTML);
+                        $("#dragObj").attr("id","");
+                        $(this).attr("id","dragObj");
+                    }
+                    this.ondragover = function(e){
+                       e.preventDefault();
+                    }
+                    this.ondrop = function(e){
+                        e.screenY > screenYstart ? $(this).after(e.dataTransfer.getData("objHTML")) : $(this).before(e.dataTransfer.getData("objHTML"));
+                        $("#dragObj").remove();
+                        var arr = [];
+                        $("tr").each(function(j){
+                            if(j > 0){
+                                var data = JSON.parse($(this).attr("data"));
+                                data.stepNo = j;
+                                arr.push(data);
+                            }
+                        })
+                        eidt(arr);
+                    }
+                }
+            })
+        });
+        //新增
+        $("#addBtn").click(function(){
+            Y.open({url:"modules/welcome/flowsEdit.html",title:"新增新生报到流程",data:{stepNo:list.total + 1}});
+        });
+        $("#downLoadExcel").click(function(){
+            list.toExcel("新生报到流程管理");
+        })
+        function eidt(data){
+            Y.ajax(ucIP + "/api/uc/v0.1/flows/batch",function(res){
+                var m = "";
+                if(res && res.result){
+                    m = "修改流程成功!";
+                }else{
+                    m = "修改流程失败";
+                    m += res && res.errorMsg ? "<div style='color:#ff0000;'>" + res.errorMsg + "</div>" : "!";
+                }
+                list.load();
+                Y.alertx(m,'',{toast:true,height:70});
+            },{meth:"PUT",data:data,dataJson:false})
+        }
+    })()
+</script>

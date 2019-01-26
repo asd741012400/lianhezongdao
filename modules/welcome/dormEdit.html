@@ -1,0 +1,149 @@
+<form class="form">
+    <div class="form_title">
+        <div class="classInfo">
+            <div class="classInfo_t"><span>宿舍号</span><span id="dormNo">--</span><span>责任老师</span><img id="dormTeacherPhoto" src="images/avatar9.jpg" /><span id="dormTeacherName">--</span></div>
+            <div class="classInfo_b"><span>限制人数</span><span id="numLimit">--</span><span>(人)</span><span>已分配人数</span><span id="assigned">--</span><span>(人)</span></div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBox">
+        <div class="data widthAll">
+            <div class="data_title"><b class="red">*</b>添加学生</div>
+            <div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div><div id="data-dormStudentInfo"></div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style>
+    .form_title{
+        text-align: right;
+        border-bottom: 1px solid #e4e4e4;
+        padding-bottom: 20px;
+    }
+    .classInfo{
+        float: left;
+        text-align: left;
+    }
+    .classInfo span,.classInfo img{
+        float: left;
+        margin-right: 5px;
+    }
+    .classInfo_t{
+        line-height: 50px;
+        height: 50px;
+        overflow: hidden;
+        border: 1px solid #e4e4e4;
+        background: #fbfbfb;
+        padding:0px 10px;
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+    #dormNo{
+        margin-right: 20px;
+        font-size: 18px;
+        color: #8da5b6;
+    }
+    #dormTeacherPhoto{
+        width: 32px;
+        height: 32px;
+        border-radius: 32px;
+        margin-top: 10px;
+    }
+    #dormTeacherName{
+        font-size: 14px;
+        color: #999999;
+    }
+    #assigned,#numLimit{
+        margin: 0px 5px;
+    }
+    .classInfo_b{
+        margin-left: 10px;
+    }
+    .classInfo_b img{
+        margin: 5px 10px auto 10px; 
+    }
+    .nameShow{
+        float: left;
+    }
+    .sexImg{
+         float: left;
+        margin-left: 5px;
+        margin-top: 4px;
+    }
+    .studentNo{
+        color:#3ec0ef;
+        font-size:12px;
+    }
+    .personData{
+        width: 100px;
+        line-height: 15px;
+    }
+</style>
+<script>
+    (function() {
+        var dormId = Y.getUrlParam("id");
+        var studentInfo = new Y.AnySelectBox($("#data-dormStudentInfo"),$("#data-dormStudentInfo").prev(),{
+            idKey:"accountId",
+            valArr:true,
+            valueString:"<div accountId='{accountId}' class='personData'><div class='icon_img' imgUrl='{photo}'><img src='images/headPortrait.png' /></div><div>{name}</div><div style='color:#3cbaf5'>{className}</div></div>",
+            SelectBox:{
+                paramet:{pageNum:1,pageSize:10,keyword:"",key:"keyword",sex:Y.getUrlParam("dormType"),type:1,reportStatu:1},
+                url:ucIP + "/api/uc/v0.2/welcome/report", // 与0.1的区别是keyword支持班级搜索
+                dataString:"<div class='autoList' vaule='{accountId}'>{has_accountId}<b class='listStyle_cicle icon_img' imgUrl='{photo}'>{listStyle_name}</b><div style='text-align:right;'><span class='nameShow'>{name}</span>{_statu}</div><span style='color:#ccc;display:block;'>{className}</span></div>",
+                dataStringEval:function(s,k,v,data){
+                    return s.replace("{_statu}",function(){
+                        var payStatu = "";
+                        switch(data.payStatu){
+                            case 0:
+                                payStatu = "<font class='payStatu'>未缴费</font>";
+                                break;
+                            case 1:
+                                payStatu = "<font class='payStatu' style='color:#00b7ee'>缴费完成</font>";
+                                break;
+                            case 2:
+                                payStatu = "<font class='payStatu' style='color:#ee2700'>欠费</font>";
+                                break;
+                            default:
+                                payStatu = "<font class='payStatu'>未缴费</font>";
+                                break;
+                        }
+                        if(data.reportStatu == 0) payStatu = "<font class='payStatu' style='color:#d09d3b'>未报到</font>";
+                        payStatu = "<img class='sexImg' src='images/" + (data.sex == 1 ? "iconBoy" : "iconGirl") + ".png' />" + payStatu;
+                        return data.dormExpense ? (payStatu + "<font style='font-size:12px;color:#ccc;margin-left:10px;'>已缴宿舍费:" + data.dormExpense + "</font>") : payStatu;
+                    })
+                }
+            }
+        })
+        //修改的时候根据id加载数据
+        Y.ajax(ucIP + "/api/uc/v0.1/welcome/dorm/" + dormId,function(res){
+            if(res && res.id){
+                $("#dormNo").html(res.no);
+                $("#numLimit").html(res.numLimit);
+                $("#assigned").html(res.assigned);
+                studentInfo.val(res.dormStudentInfo);
+                if(res.dormTeacherInfo.length > 0){
+                    $("#dormTeacherPhoto").attr("src",res.dormTeacherInfo[0].photo);
+                    $("#dormTeacherName").html(res.dormTeacherInfo[0].name);
+                }
+            }
+        })
+        //操作及验证
+        $("#submit").click(function () {
+            Y.ajax(ucIP + "/api/uc/v0.1/welcome/dorm",function(res){
+                if(res && res.result){
+                    Y.alertx("分宿舍成功")
+                }else{
+                    Y.alertx("分宿舍失败," + res.errorMsg);
+                }
+            },{meth:"PUT",data:{dormId:dormId,no:$("#dormNo").html(),numLimit:$("#numLimit").html(),dormStudentInfo:studentInfo.val()},dataJson:false})
+        });
+        //取消
+        $("#cancel").click(function(){
+            Y.back(-1);
+        });
+    })()
+</script>

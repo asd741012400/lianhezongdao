@@ -1,0 +1,149 @@
+﻿<form class="form">
+    <input id="data-isdelete" type="hidden"/>
+    <div class="form_title"><b>角色信息编辑</b><span class="red">(*为必填项)</span></div>
+    <!-- <div class="data width100">
+        <div class="data_title"><span class="red">*</span>所属部门</div>
+        <span class="data_error">请选择所属部门</span><div  id="data-groupId" ></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+    </div> -->
+    <div class="data width50">
+        <div class="data_title"><span class="red">*</span>角色名称</div>
+        <span class="data_error">角色名称不能为空</span><input class="input" id="data-name" type="text" placeholder="请填写角色名称"/>
+    </div>
+    <div class="data width50">
+        <div class="data_title">角色描述</div>
+        <span class="data_error">角色描述不能为空</span><input class="input" id="data-description" type="text" placeholder="请填写角色描述"/>
+    </div>
+    <div class="data widthAll">
+        <div class="data_title">选择教师</div>
+        <div id="data-userList"></div><div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;">+</div>
+    </div>
+    <div class="data widthAll">
+        <!-- <div class="data_title">正在使用此角色的部门列表(删除会清空该部门下面的当前角色)</div> -->
+        <div id="data-groupList"></div>
+        <div style="width: 70px;height: 70px; line-height: 60px; text-align: center; font-size: 40px; float: left; cursor: pointer; color: #e4e4e4; border: 2px dashed #e4e4e4;display: none">
+            +
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div class="formBtns alignCenter">
+        <input type="button" id="submit" value="保存" class="bg_00b7ee"/>
+        <input type="button" id="cancel" value="取消" class="bg_ffffff"/>
+    </div>
+</form>
+<style type="text/css">
+    .tree {
+        margin: 10px 20px;
+        border: 1px solid #e4e4e4;
+    }
+
+    .nodeData {
+        border-bottom: 1px dashed #e4e4e4;
+        padding: 5px 0px;
+    }
+
+    .nodeData:hover {
+        background: #f9f9f9;
+    }
+
+    .lastNode .nodeData {
+        border: none;
+    }
+    .data{
+        position:relative;
+    }
+    .data_error{
+        margin-top:0;
+        bottom:-22px;
+    }
+</style>
+<script>
+    (function () {
+
+        var depts=new Y.AnySelectBox($("#data-groupList"), $("#data-groupList").next(), Y.getSelectBox('depts'));
+        depts.deleteFn=function($this,idValue,item){
+            var sure=false;
+            Y.confirmx("确定要删除此部门下面的当前角色吗？",function(){
+                sure=true;
+                //后台删除关联关系
+                var ajax = new Y.Ajax(ucIP + "/api/uc/group/role/deleteRalation/"+fromConfig.id+"/"+idValue, function (res) {
+                    if (res && !res.errorMsg) {
+                        var $dataList=$("#data-groupList");
+                        $dataList.find("div[groupid="+idValue+"]").remove();
+                        Y.alertx("删除成功");
+                    }else{
+                        Y.alertx("删除失败");
+                    }
+                }, {
+                    meth: "DELETE",
+                })
+                ajax.action();
+            },{titleHeight:0,styles:{
+                bottom:'border-top:none;',
+                center:'border-top:none;',
+                box:'left:' + ($this.offset().left - 120) + 'px;top:' + ($this.offset().top - 100) + 'px;'
+            },_h:110,_w:200});
+            return sure;
+        }
+        //绑定表单数据,注意 每个字段的值必须提供val()方法来设置值和获取值,
+        var fromConfig = {
+            id: Y.getUrlParam("id"),
+            /*groupId: {
+                o: new Y.AnySelectBox($("#data-groupId"),$("#data-groupId").next(),Y.getSelectBox('depts')),
+                f: function (v) {
+                    if (v == "") {
+                        $("#data-groupId").siblings(".data_error").show();
+                        return [false, "不能为空"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },*/
+            name: {
+                o: $("#data-name"),
+                e: "blur",
+                f: function (v) {
+                    if (v == "") {
+                        return [false,"名称不能为空"];
+                    }else if(v.length>40){
+                        return [false,"名称长度不能超过40"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            teachers:{
+                o:new Y.AnySelectBox($("#data-userList"),$("#data-userList").next(),Y.getSelectBox('teachers'))
+            },
+            description: {
+                o: $("#data-description"),
+                e:"blur",
+                f:function(v){
+                    if (v.length>100) {
+                        return [false,"描述长度不能超过100"];
+                    } else {
+                        return [true];
+                    }
+                }
+            },
+            /*groupList: {
+                o:depts
+            },*/
+            org: {o: new Y.Radio($("#data-org input"))},
+            //pushShow : {o:new Y.Radio($("#data-pushShow input"))}
+        }
+        var from = new Y.From(fromConfig, "id", {
+            getURL: ucIP + "/api/uc/v0.1/group/role/detail/{id}",
+            postURL: ucIP + "/api/uc/v0.1/group/role",
+            putURL: ucIP + "/api/uc/v0.1/group/role",
+            title: "提交角色信息"
+        });
+        //提交
+        $("#submit").click(function () {
+            from.submit($(this));
+        })
+        //取消
+        $("#cancel").click(function () {
+            Y.back(-1);
+        });
+    })()
+</script>

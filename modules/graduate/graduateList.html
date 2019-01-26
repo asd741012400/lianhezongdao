@@ -1,0 +1,113 @@
+<div class="list_header">
+    <div class="list_header_form">
+        <div class="search">
+            <input id="nameOrNo" class="input" type="text" placeholder="姓名/学号"/>
+            <input id="majorId" class="input" type="text" placeholder="选择专业"/>
+            <input id="clazzId" class="input" type="text" placeholder="选择班级"/><input type="button" value="" id="searchBtn" class="bg_00b7ee"/>
+        </div>
+        <input id="btnBy" type="button" class="bg_eeeeee" value = "毕业" />
+        <input type="button" value="结业" id="btnJy" class="bg_eeeeee"/>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="red">更改了毕业状态，会自动清除账号相关信息，学生无法再登录e智教学生端，请谨慎操作！</div>
+<div class="table">
+    <div id="table"></div>
+</div>
+<div class="list_footer">
+    <div id="pagaBtns"></div>
+</div>
+<style type="text/css">
+    #byBox .input{
+        border:none;
+    }
+    #byBox .input1{
+        border-bottom: 1px solid #e4e4e4;
+        margin-bottom: 16px;
+        width: 240px;
+    }
+</style>
+<script type="text/javascript">
+    (function() {
+        var option = {pageSize: "graduateList", pageNum: 1};
+        var config = [
+            {CH: "姓名", EN: "name"},
+            {CH: "学号", EN: 'studNo'},
+            {CH: "性别", EN: "sex", Option: {"0": "女", "1": "男"},OptionExcel:{"0":"女","1":"男"}},
+            {CH: "入学年份", EN: "rxnd"},
+            {CH: "班级", EN: "className"},
+            {CH: "专业", EN: "majorName"},
+            {CH: "班主任", EN: 'headTeacherName'},
+            {CH: "毕业状态", EN: 'statusName'}
+        ];
+        var list = new Y.List(ucIP + "/api/uc/v1.0/graduate/list", option, config);
+        list.btns = "<span class=\"listEdit bg_dfba49\">修改</span>";
+        list.checkBtn = true;
+        list.listNumTitle = "";
+        list.load(function () {
+            $("tr").each(function(i){
+                if(i > 0 && list.data.rows.length > 0){
+                    var data = list.data.rows[i - 1];
+                    //修改
+                    $(this).find(".listEdit").click(function(){
+                        Y.open({url:"modules/graduate/graduateEdit.html",title:"编辑毕业信息",data:{id:data.accountId,readOnly:true}});
+                    })
+                }
+            })
+        });
+        $('#btnBy').click(function(){
+            by(4);
+        })
+        $('#btnJy').click(function(){
+            by(5);
+        })
+        function by(type){
+            var ids = list.data ? list.getChecked() : [];
+            for(var i = 0; i < ids.length; i ++) ids[i] = ids[i].accountId;
+            if(ids.length == 0){
+                Y.alertx('请先选择操作对象!');
+                return false;
+            }
+            var html = '<div id="byBox" style="text-align:left;margin-left:32px;"><div><div><b class="red">*</b>时间</div><input class="input input1" id="bysj" type="text" placeholder="请选择时间"/></div><div><div><b class="red">*</b>原因</div><textarea class="input input1" id="byyy" style="height:48px;" placeholder="请填写原因"></textarea></div></div>';
+            Y.confirmx(html,function(){
+                Y.ajax(ucIP + '/api/uc/v1.0/graduate/batchSetGraduate',function(ret){
+                    Y.alertx(ret.errorMsg || '操作成功');
+                    list.reLoad();
+                },{data:{bysj:$('#bysj').val(),byyy:$('#byyy').val(),type:type,ids:ids.join(',')},meth:'POST'})
+            },{
+                _w:300,
+                _h:300,
+                title:type == 4 ? '毕业' : '结业',
+                initFn:function(){
+                    var calendar = new Y.Calendar($("#bysj"),{date:''});
+                    calendar.maxDate = new Date();
+                    $("#bysj").focus(function(){
+                        var _this = $(this);
+                        calendar.open(function(d){
+                            _this.val(d);
+                            calendar.close();
+                        });
+                    })
+                },
+                verifyFn:function(){
+                    var bysj = $('#bysj').val(),byyy = $('#byyy').val();
+                    if(!bysj){
+                        Y.alertx('时间不能为空');
+                        return false;
+                    }
+                    if(!byyy){
+                        Y.alertx('原因不能为空');
+                        return false;
+                    }
+                    return true;
+                }
+            })
+        }
+        //搜索
+        var listSearch = new Y.ListSearch(list,{
+            nameOrNo:$("#nameOrNo"),
+            clazzId:new Y.OnlySelectBox($("#clazzId"),Y.getSelectBox('classe')),
+            majorId:new Y.OnlySelectBox($("#majorId"),Y.getSelectBox('major'))
+        });
+    })()
+</script>
